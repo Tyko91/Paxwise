@@ -189,7 +189,6 @@ details{margin-top:6px}
 </section>
 <section class="roost">
 <h2>Rooster</h2>
-<p class="tiny">Weekmix · kleur per kist · parallel vanaf 00:00 · balk = 2×km÷km/h (kwartier)</p>
 <div class="roost-wrap" id="roosterWrap">
 <div class="roost-legend" id="roosterLegend"></div>
 <div class="roost-axis"><span class="pad">·</span><div class="roost-hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
@@ -540,7 +539,7 @@ function calc(){
     if(!type){if(info)info.textContent="";return}
     if(!vliegt){if(info)info.textContent="";return}
     const t=typeSpec(type),ruimte=y+j*jkost+f*fkost;
-    let msg="ruimte "+ruimte.toFixed(1)+"/"+t.pax;
+    let msg="Bezetting (pax) "+ruimte.toFixed(1)+"/"+t.pax;
     if(!canFly(type)) msg="TE VER";
     else if(ruimte>t.pax+0.05||c>t.payload+0.05) msg="TE VOL · "+msg;
     if(info)info.textContent=msg;
