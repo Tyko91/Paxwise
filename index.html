@@ -332,7 +332,7 @@ function calc(){
     if(info)info.textContent=msg;
     const warnEl=k.querySelector("#warn"+(idx+1));
     const wb=k.querySelector(".warnbox");
-    const t=typeSpec(type);const fill=t.pax?((y+j*jkost+f*fkost)/t.pax):0;const pct=Math.round(fill*100);
+    const fill=t.pax?(ruimte/t.pax):0;const pct=Math.round(fill*100);
     const showWarn=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
     if(wb) wb.dataset.on=showWarn?"1":"0";
     if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Waarschuwing: deze retourvlucht zit "+pct+"% vol."}else{warnEl.style.display="none";warnEl.textContent=""}}
