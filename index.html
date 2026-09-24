@@ -16,6 +16,9 @@ h2,summary.h{margin:0 0 8px;font-size:13px;letter-spacing:.04em;text-transform:u
 label{font-size:11px;color:#5d6d7e;display:block}
 input,select{width:100%;padding:8px;border:1px solid #d5dce4;border-radius:8px;font-size:16px}
 input.yellow{background:#FFF3A0}
+input:disabled,select:disabled{background:#fff;opacity:1;color:#1b1b1b}
+.lock{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:13px;color:#1b365d}
+.lock input{width:auto}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .kist,.typekaart{border:1px solid #e5eaf0;border-radius:10px;padding:10px;margin-top:8px;background:#fafbfd}
@@ -29,6 +32,7 @@ input.yellow{background:#FFF3A0}
 .advies div{padding:6px 0;border-bottom:1px solid #eef2f6}
 button{width:100%;padding:10px;border:0;border-radius:10px;background:var(--navy);color:#fff;font-size:15px;margin-top:8px}
 button.sec{background:#2c5282}button.ghost{background:#e8eef5;color:#1B365D}
+button:disabled{opacity:.5}
 .tiny{font-size:11px;color:#5d6d7e;margin-top:6px}
 .past.ok{color:var(--ok);font-weight:700}.past.bad{color:var(--bad);font-weight:700}
 .chk{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
@@ -58,7 +62,8 @@ details{margin-top:6px}
 </div>
 </section>
 <section>
-<h2>Heen en terug — typ IATA</h2>
+<h2>Route</h2>
+<label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
 <div class="grid2">
 <div><label>Heen</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
 <div><label>Terug</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
@@ -72,8 +77,9 @@ details{margin-top:6px}
 <section>
 <details>
 <summary class="h">Toestellen toevoegen / wijzigen</summary>
+<label class="lock"><input type="checkbox" id="lockTypes"> Vastzetten</label>
 <div id="types"></div>
-<div class="typekaart">
+<div class="typekaart" id="nieuwType">
 <h3>Nieuw type</h3>
 <div class="grid2">
 <div><label>Naam</label><input id="nName" placeholder="bijv. 787-9"></div>
@@ -84,12 +90,13 @@ details{margin-top:6px}
 <div><label>km/h</label><input id="nSpd" type="number"></div>
 <div><label>Max km</label><input id="nRng" type="number"></div>
 </div>
-<button type="button" class="sec" onclick="addCustomType()">Voeg toestel toe</button>
+<button type="button" class="sec" id="btnAddType" onclick="addCustomType()">Voeg toestel toe</button>
 </div>
 </details>
 </section>
 <section>
 <h2>Vraag uit het routescherm</h2>
+<label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
 <div class="grid4">
 <div><label>Y</label><input class="yellow" id="qY" type="number" value="1788"></div>
 <div><label>J</label><input class="yellow" id="qJ" type="number" value="300"></div>
@@ -136,8 +143,22 @@ function num(id){return parseFloat(document.getElementById(id).value)||0}
 function nval(el){return parseFloat(el&&el.value)||0}
 function sid(t,k){return k+"_"+t.replace(/[^A-Za-z0-9]/g,"")}
 function code(id){return (document.getElementById(id).value||"").trim().toUpperCase()}
-function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");if(s&&s.order&&s.defs){TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs}}catch(e){}}
-function saveTypes(){try{localStorage.setItem(TKEY,JSON.stringify({order:TYPE_ORDER,defs:TYPE_DEFAULTS}))}catch(e){}}
+function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");if(s&&s.order&&s.defs){TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs;const el=document.getElementById("lockTypes");if(el&&typeof s.lock!=="undefined")el.checked=!!s.lock}}catch(e){}}
+function saveTypes(){try{const lock=document.getElementById("lockTypes");localStorage.setItem(TKEY,JSON.stringify({order:TYPE_ORDER,defs:TYPE_DEFAULTS,lock:lock?!!lock.checked:false}))}catch(e){}}
+function setLocked(els,locked){els.forEach(el=>{if(!el)return;el.disabled=!!locked;if(el.tagName==="INPUT"&&el.type!=="checkbox"&&el.type!=="hidden"){el.classList.toggle("yellow",!locked)}})}
+function applyRouteLock(){const locked=!!document.getElementById("lockRoute").checked;setLocked(["fromA","toA","route","km"].map(id=>document.getElementById(id)),locked)}
+function applyAskLock(){const locked=!!document.getElementById("lockAsk").checked;setLocked(["qY","qJ","qF","qC"].map(id=>document.getElementById(id)),locked)}
+function applyTypesLock(){
+  const locked=!!document.getElementById("lockTypes").checked;
+  TYPE_ORDER.forEach(t=>["pax","payload","speed","range"].forEach(k=>{const el=document.getElementById(sid(t,k));if(el){el.disabled=locked;el.classList.toggle("yellow",!locked)}}));
+  ["nName","nPax","nPay","nSpd","nRng"].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=locked});
+  const btn=document.getElementById("btnAddType");if(btn)btn.disabled=locked;
+}
+function applyKistLock(d){
+  const on=d.querySelector(".flybox")?d.querySelector(".flybox").checked:true;
+  d.querySelectorAll("input.y,input.j,input.f,input.c").forEach(el=>{el.disabled=on;el.classList.toggle("yellow",!on)});
+  const sel=d.querySelector("select.type");if(sel)sel.disabled=on;
+}
 function gcdKm(a,b){const R=6371,to=d=>d*Math.PI/180,dlat=to(b[0]-a[0]),dlon=to(b[1]-a[1]),x=Math.sin(dlat/2)**2+Math.cos(to(a[0]))*Math.cos(to(b[0]))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(x)))}
 function applyIata(fillKm){
   const a=code("fromA"),b=code("toA");
@@ -194,8 +215,9 @@ function kistEl(i,r){
   const fl=r.type&&canFly(r.type)?String(planVl(r.type)):(r.fl||"1");
   d.innerHTML="<h3>Kist "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Y</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>J</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>F</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo t</label><input class='c yellow' type='number' step='0.1' value='"+(r.c||"")+"'></div></div><p class='tiny' id='info"+i+"'></p><button type='button' class='ghost' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
   const box=d.querySelector(".plan"), lab=d.querySelector(".planlab"), cb=d.querySelector(".flybox");
-  function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";calc()}
+  function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
   cb.addEventListener("change",paint);
+  applyKistLock(d);
   d.querySelectorAll("input.y,input.j,input.f,input.c,select").forEach(el=>el.addEventListener("input",calc));
   d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);calc()});
   return d;
@@ -213,15 +235,16 @@ function suggest(onlyRest){
   lastWhy=[document.getElementById("route").value+" · "+num("km")+" km","Mix: "+types.join(" + ")].concat(packed.why);
   writeRows(keep.concat(packed.planes));saveRoute();
 }
-function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),fleet:currentRows()}}
+function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,fleet:currentRows()}}
 function loadList(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
 function storeList(list){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+(r.route||r.id)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
 function saveRoute(){const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);renderChips()}
-function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
-function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips()}
+function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
+function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips()}
 function renderTypes(){
   document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><h3>"+t+"</h3><div class='grid4'><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
+  applyTypesLock();
   renderKiezen();
 }
 function renderKiezen(){
@@ -277,6 +300,10 @@ renderTypes();
 ["fromA","toA"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>{el.value=el.value.toUpperCase();applyIata(true)})});
 document.getElementById("km").addEventListener("input",calc);
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
+document.getElementById("lockRoute").addEventListener("change",()=>{applyRouteLock();saveRoute()});
+document.getElementById("lockAsk").addEventListener("change",()=>{applyAskLock();saveRoute()});
+document.getElementById("lockTypes").addEventListener("change",()=>{applyTypesLock();saveTypes()});
+applyRouteLock();applyAskLock();applyTypesLock();
 writeRows([{type:"A350-1000LR",fl:"1",y:"480",j:"0",f:"0",c:"0",on:true}]);
 currentId="r-vie-gru";
 try{saveRoute()}catch(e){}
