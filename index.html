@@ -439,7 +439,7 @@ function bindNums(root){
 
 
 const DAGEN=["ma","di","wo","do","vr","za","zo"];
-const TYPE_COLORS=["#C9A227","#7dd3fc","#f9a8d4","#86efac","#fdba74","#c4b5fd","#fcd34d","#5eead4"];
+const TYPE_COLORS=["#C9A227","#E8C547","#7BA3C9","#D4A574","#A8C0D8","#B8956C","#8FB9A8","#F0D78C"];
 function typeColor(type,idxMap){
   if(!(type in idxMap)) idxMap[type]=Object.keys(idxMap).length;
   return TYPE_COLORS[idxMap[type]%TYPE_COLORS.length];
