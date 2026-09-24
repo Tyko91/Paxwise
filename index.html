@@ -92,15 +92,25 @@ button:disabled{opacity:.5}
 .plan .flybox{width:20px;height:20px}
 details{margin-top:6px}
 
-.roost{margin-top:12px}
-.roost-row{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:8px;background:linear-gradient(180deg,#fff,#f8fafc)}
-.roost-row .rt{font-size:15px;font-weight:750;color:var(--navy);margin:0 0 6px}
-.roost-meta{display:flex;flex-wrap:wrap;gap:6px}
-.roost-meta span{display:inline-block;padding:5px 10px;border-radius:999px;background:#f1f5f9;border:1px solid var(--line);font-size:12px;font-weight:650;color:var(--navy)}
-.roost-meta span.win{background:#fff;border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.12)}
-.roost-conflict{margin-top:10px;font-size:13px;font-weight:700;color:var(--navy);padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
-.roost-conflict.bad{color:var(--bad);background:#fef2f2;border-color:#fecaca}
-.roost-empty{font-size:13px;color:var(--muted);margin-top:8px}
+.roost{margin-top:0}
+.roost-day{margin-bottom:12px}
+.roost-day h3{margin:0 0 8px;font-size:14px;color:var(--navy);font-weight:750}
+.roost-axis{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;padding:0 2px 4px;font-variant-numeric:tabular-nums}
+.roost-lanes{display:flex;flex-direction:column;gap:8px}
+.roost-lane{border:1px solid var(--line);border-radius:12px;padding:8px;background:linear-gradient(180deg,#fff,#f8fafc)}
+.roost-lane .nm{font-size:12px;font-weight:750;color:var(--navy);margin:0 0 6px}
+.roost-track{position:relative;height:28px;border-radius:8px;background:#e8eef6;overflow:hidden;border:1px solid #dbe3ef}
+.roost-bar{position:absolute;top:3px;bottom:3px;border-radius:6px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));box-shadow:inset 0 -2px 0 var(--gold);min-width:2px}
+.roost-bar.over{background:linear-gradient(135deg,#9f1239,#e11d48);box-shadow:none}
+.roost-empty{font-size:13px;color:var(--muted);padding:8px 0}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
+.week-tile{border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center;background:#fff;cursor:pointer;min-height:72px;box-shadow:none;width:100%;margin:0;color:var(--navy)}
+.week-tile .dn{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.week-tile .cnt{display:block;font-size:16px;font-weight:800;line-height:1.1}
+.week-tile .ty{display:block;font-size:9px;color:var(--muted);font-weight:650;margin-top:4px;line-height:1.25;word-break:break-word}
+.week-tile.on{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:inset 0 -2px 0 var(--gold)}
+.week-tile.on .ty{color:var(--gold-soft)}
+.week-tile.today:not(.on){border-color:var(--gold)}
 @media (max-width:420px){.grid4{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -129,7 +139,7 @@ details{margin-top:6px}
 <div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
 </div>
 <div style="margin-top:8px">
-<div><label>Block heen+terug uit spel (u)</label><input class="yellow" id="blockGame" type="number" step="0.1" placeholder="leeg = formule 2×(km÷km/h)"></div>
+<div><label>Uren per retour (spel)</label><input class="yellow" id="blockGame" type="number" step="0.1" placeholder="leeg = 2×(km÷km/h)"></div>
 </div>
 </section>
 <section>
@@ -182,10 +192,13 @@ details{margin-top:6px}
 <button type="button" class="sec" onclick="addKist()">+ lege retourvlucht</button>
 </section>
 <section class="roost">
-<h2>Rooster-suggestie</h2>
-<p class="tiny">Eén dag · alleen ingeplande retourvluchten · tekstvensters (geen Gantt)</p>
-<div id="rooster"></div>
-<p class="roost-conflict" id="roosterConflict"></p>
+<h2>Rooster</h2>
+<div class="roost-day">
+<h3 id="roosterDayTitle">Dag</h3>
+<div class="roost-axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+<div class="roost-lanes" id="roosterLanes"></div>
+</div>
+<div class="week" id="weekTiles"></div>
 </section>
 <section>
 <h2>Waarom</h2>
@@ -425,86 +438,85 @@ function bindNums(root){
   });
 }
 
-const VENSTERS=["ochtend","middag","avond"];
-function blockRoundTrip(type){
+
+const DAGEN=["ma","di","wo","do","vr","za","zo"];
+let roostDag=null;
+function defaultRoostDag(){
+  try{
+    const js=new Date().getDay(); // 0 zo .. 6 za
+    return js===0?6:js-1; // ma=0
+  }catch(e){return 0}
+}
+function urenPerRetour(type){
   const g=num("blockGame");
   if(g>0) return g;
   const one=blokU(type);
   return one?one*2:0;
 }
-function ritjesFormule(type){
-  const g=num("blockGame");
-  if(g>0) return Math.max(1,Math.floor(24/g));
-  return planVl(type);
-}
-function ritjesVoorKist(type,flVal){
-  const stored=parseFloat(flVal);
-  if(flVal!==""&&flVal!=null&&!isNaN(stored)&&stored>0) return Math.floor(stored);
-  return ritjesFormule(type)||0;
-}
-function renderRooster(){
-  const box=document.getElementById("rooster"), conf=document.getElementById("roosterConflict");
-  if(!box||!conf) return;
-  const planned=[];
-  document.querySelectorAll(".kist").forEach(k=>{
+function plannedFleet(){
+  const out=[];
+  document.querySelectorAll(".kist").forEach((k,i)=>{
     const on=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
     const type=k.querySelector(".type").value;
     if(!on||!type) return;
-    planned.push({
-      type,
-      flVal:k.querySelector(".fl").value,
-      y:k.querySelector(".y").value||"0",
-      j:k.querySelector(".j").value||"0",
-      f:k.querySelector(".f").value||"0",
-      c:k.querySelector(".c").value||"0"
-    });
+    const fl=Math.max(0,Math.floor(nval(k.querySelector(".fl"))||0));
+    out.push({i:i+1,type,ritjes:fl||ritjesFallback(type),uren:urenPerRetour(type)});
   });
-  if(!planned.length){
-    box.innerHTML="<p class='roost-empty'>Geen ingeplande retourvluchten.</p>";
-    conf.className="roost-conflict";
-    conf.textContent="Nog niets te verdelen over ochtend / middag / avond.";
+  return out;
+}
+function ritjesFallback(type){
+  const u=urenPerRetour(type);
+  if(u>0) return Math.max(1,Math.floor(24/u));
+  return planVl(type)||0;
+}
+function fleetSummary(list){
+  const n=list.reduce((s,p)=>s+p.ritjes,0);
+  const types=[...new Set(list.map(p=>p.type))];
+  return{n,types,label:types.length?types.join(", "):"—"};
+}
+function renderWeekTiles(){
+  const box=document.getElementById("weekTiles");
+  if(!box) return;
+  if(roostDag==null) roostDag=defaultRoostDag();
+  const sum=fleetSummary(plannedFleet());
+  const today=defaultRoostDag();
+  box.innerHTML=DAGEN.map((d,i)=>{
+    const on=i===roostDag?" on":"";
+    const tod=i===today?" today":"";
+    return "<button type='button' class='week-tile"+on+tod+"' data-dag='"+i+"'><span class='dn'>"+d+"</span><span class='cnt'>"+sum.n+"</span><span class='ty'>"+sum.label+"</span></button>";
+  }).join("");
+  box.querySelectorAll(".week-tile").forEach(btn=>{
+    btn.addEventListener("click",()=>{roostDag=+btn.dataset.dag;renderRooster()});
+  });
+}
+function renderRoosterDay(){
+  const lanes=document.getElementById("roosterLanes");
+  const title=document.getElementById("roosterDayTitle");
+  if(!lanes||!title) return;
+  if(roostDag==null) roostDag=defaultRoostDag();
+  const naam=DAGEN[roostDag]||"ma";
+  title.textContent=naam.charAt(0).toUpperCase()+naam.slice(1)+" · 00–24";
+  const list=plannedFleet();
+  if(!list.length){
+    lanes.innerHTML="<p class='roost-empty'>Geen ingeplande retourvluchten.</p>";
     return;
   }
-  const typeFirst={}, typeCount={};
-  const rows=planned.map(p=>{
-    const ritjes=ritjesVoorKist(p.type,p.flVal);
-    const block=blockRoundTrip(p.type);
-    const plafond=block>0?Math.max(1,Math.floor(24/block)):ritjesFormule(p.type);
-    if(!(p.type in typeFirst)){
-      const used=new Set(Object.values(typeFirst));
-      typeFirst[p.type]=VENSTERS.find(v=>!used.has(v))||VENSTERS[Object.keys(typeFirst).length%VENSTERS.length];
-      typeCount[p.type]=0;
+  lanes.innerHTML=list.map(p=>{
+    const u=p.uren||0;
+    let bars="", t=0;
+    for(let r=0;r<p.ritjes;r++){
+      const left=(t/24)*100;
+      const width=u>0?(u/24)*100:0;
+      const over=t+u>24.01;
+      bars+="<div class='roost-bar"+(over?" over":"")+"' style='left:"+left+"%;width:"+Math.max(0,Math.min(width,100-left))+"%' title='"+p.type+" · retour "+(r+1)+" · "+(u?u.toFixed(1):"?")+" u'></div>";
+      t+=u;
     }
-    const idx=typeCount[p.type]++;
-    const base=VENSTERS.indexOf(typeFirst[p.type]);
-    const venster=VENSTERS[(base+idx)%VENSTERS.length];
-    return {...p,ritjes,block,plafond,venster};
-  });
-  box.innerHTML=rows.map(r=>{
-    const blk=r.block?r.block.toFixed(1).replace(/\.0$/,"")+" u":"—";
-    const cfg=r.y+"Y / "+r.j+"J / "+r.f+"F / "+r.c+"t";
-    return "<div class='roost-row'><p class='rt'>"+r.type+"</p><div class='roost-meta'><span>"+r.ritjes+" ritje"+(r.ritjes===1?"":"s")+"</span><span>block "+blk+"</span><span class='win'>"+r.venster+"</span><span>"+cfg+"</span></div></div>";
+    return "<div class='roost-lane'><p class='nm'>"+p.type+" · "+p.ritjes+"× · "+(u?u.toFixed(1)+" u":"—")+"</p><div class='roost-track'>"+bars+"</div></div>";
   }).join("");
-  const byType={};
-  rows.forEach(r=>{byType[r.type]=(byType[r.type]||0)+r.ritjes});
-  const types=Object.keys(byType);
-  const total=types.reduce((s,t)=>s+byType[t],0);
-  const fits=types.map(t=>{
-    const sample=rows.find(r=>r.type===t);
-    const pl=sample?sample.plafond:1;
-    return Math.min(byType[t],pl);
-  });
-  const fitSum=fits.reduce((a,b)=>a+b,0);
-  const overcrowded=types.some(t=>{
-    const sample=rows.find(r=>r.type===t);
-    return sample&&byType[t]>sample.plafond;
-  }) || total>fitSum || (types.length>1 && new Set(rows.map(r=>r.venster)).size<Math.min(types.length,3) && total>3);
-  conf.className="roost-conflict"+(overcrowded||fitSum<total?" bad":"");
-  if(types.length===1 && !overcrowded && fitSum>=total){
-    conf.textContent="1 type · "+total+" ritje"+(total===1?"":"s")+" · venster "+rows[0].venster+" past.";
-  }else{
-    conf.textContent=types.length+" type"+(types.length===1?"":"s")+" willen "+total+" ritje"+(total===1?"":"s")+"; op deze km past "+fits.join(" + ")+".";
-  }
+}
+function renderRooster(){
+  renderWeekTiles();
+  renderRoosterDay();
 }
 function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
 function calc(){
