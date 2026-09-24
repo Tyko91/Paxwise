@@ -537,7 +537,6 @@ function calc(){
     const info=k.querySelector("#info"+(idx+1));
     const vliegt=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
     if(!type){if(info)info.textContent="";return}
-    if(!vliegt){if(info)info.textContent="";return}
     const t=typeSpec(type),ruimte=y+j*jkost+f*fkost;
     let msg="Bezetting (pax) "+ruimte.toFixed(1)+"/"+t.pax;
     if(!canFly(type)) msg="TE VER";
@@ -549,6 +548,7 @@ function calc(){
     const showWarn=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
     if(wb) wb.dataset.on=showWarn?"1":"0";
     if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Door deze retourvlucht is de bezetting maar "+pct+"% — te leeg."}else{warnEl.style.display="none";warnEl.textContent=""}}
+    if(!vliegt) return;
     weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
   });
   const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
