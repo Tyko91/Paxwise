@@ -52,21 +52,20 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .roost-note.warnish{color:var(--bad);font-weight:700}
 .info-ok{color:var(--muted)}
 .info-bad{color:var(--bad);font-weight:700}
-.rest{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.pill{border-radius:12px;padding:12px 8px;text-align:center;border:2px solid transparent;position:relative}
-.pill b{display:block;font-size:20px;font-weight:800;margin-top:2px}
-.pill span{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.rest{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pill{border-radius:12px;padding:10px 6px 12px;text-align:center;border:2px solid transparent;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:92px;box-sizing:border-box}
+.pill .pill-lab{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1.2;min-height:24px;display:flex;align-items:flex-end;justify-content:center}
+.pill .pill-st{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;line-height:1.2;min-height:16px;margin-top:2px;opacity:.9}
+.pill b{display:block;font-size:20px;font-weight:800;margin-top:auto;padding-top:6px;line-height:1.1;font-variant-numeric:tabular-nums}
 .pill.zero{background:#ecfdf3;border-color:#16a34a;color:#14532d}
-.pill.zero span{color:#15803d}
+.pill.zero .pill-lab,.pill.zero .pill-st{color:#15803d}
 .pill.zero b{color:#14532d}
 .pill.left{background:#fff7ed;border-color:#ea580c;color:#9a3412;box-shadow:inset 0 0 0 1px rgba(234,88,12,.15)}
-.pill.left span{color:#c2410c}
+.pill.left .pill-lab,.pill.left .pill-st{color:#c2410c}
 .pill.left b{color:#9a3412}
-.pill.left span::after{content:" · tekort";font-weight:800}
 .pill.over{background:#fff1f2;border-color:#e11d48;color:#9f1239;box-shadow:inset 0 0 0 1px rgba(225,29,72,.12)}
-.pill.over span{color:#be123c}
+.pill.over .pill-lab,.pill.over .pill-st{color:#be123c}
 .pill.over b{color:#9f1239}
-.pill.over span::after{content:" · teveel";font-weight:800}
 .advies{font-size:13px;line-height:1.5;color:#334155}
 .advies div{padding:8px 0;border-bottom:1px solid var(--line)}
 .advies div:last-child{border-bottom:0}
@@ -545,7 +544,7 @@ function renderRooster(){
     }
   }
 }
-function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
+function pill(label,val,kind){const st=kind==="left"?"tekort":(kind==="over"?"teveel":"ok");return "<div class='pill "+kind+"'><span class='pill-lab'>"+label+"</span><span class='pill-st'>"+st+"</span><b>"+val+"</b></div>"}
 function calc(){
   refreshKiezen();
   TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour "+urenPerRetour(t).toFixed(2).replace(/\.?0+$/,"")+" u · "+planVl(t)+"×/dag"))});
