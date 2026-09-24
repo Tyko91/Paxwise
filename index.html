@@ -288,9 +288,42 @@ function kistEl(i,r){
   function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
   cb.addEventListener("change",paint);
   applyKistLock(d);
-  d.querySelectorAll("input.y,input.j,input.f,input.c,select").forEach(el=>el.addEventListener("input",calc));
-  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);calc()});
+  function onSeat(ch){return()=>{clampKist(d,ch);calc()}}
+  d.querySelector("input.y").addEventListener("input",onSeat("y"));
+  d.querySelector("input.j").addEventListener("input",onSeat("j"));
+  d.querySelector("input.f").addEventListener("input",onSeat("f"));
+  d.querySelector("input.c").addEventListener("input",onSeat("c"));
+  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);clampKist(d,"type");calc()});
   return d;
+}
+function clampKist(k,changed){
+  const type=k.querySelector(".type").value;if(!type)return;
+  const t=typeSpec(type),jk=num("jkost")||1.8,fk=num("fkost")||4.2;
+  const yEl=k.querySelector(".y"),jEl=k.querySelector(".j"),fEl=k.querySelector(".f"),cEl=k.querySelector(".c");
+  let y=Math.max(0,nval(yEl)),j=Math.max(0,nval(jEl)),f=Math.max(0,nval(fEl)),c=Math.max(0,nval(cEl));
+  if(c>t.payload+1e-9){c=Math.max(0,+t.payload||0);cEl.value=c?String(c):""}
+  if(changed==="y"){
+    const maxY=Math.max(0,Math.floor(t.pax-j*jk-f*fk+1e-9));
+    if(y>maxY){y=maxY;yEl.value=y?String(y):"0"}
+  }else if(changed==="j"){
+    const maxJ=Math.max(0,Math.floor((t.pax-y-f*fk)/jk+1e-9));
+    if(j>maxJ){j=maxJ;jEl.value=j?String(j):"0"}
+  }else if(changed==="f"){
+    const maxF=Math.max(0,Math.floor((t.pax-y-j*jk)/fk+1e-9));
+    if(f>maxF){f=maxF;fEl.value=f?String(f):"0"}
+  }else{
+    let over=y+j*jk+f*fk-t.pax;
+    if(over>0.05){
+      const df=Math.min(f,Math.ceil(over/fk-1e-9));f-=df;over-=df*fk;
+      if(over>0.05){const dj=Math.min(j,Math.ceil(over/jk-1e-9));j-=dj;over-=dj*jk}
+      if(over>0.05){y=Math.max(0,Math.floor(y-over+1e-9))}
+      yEl.value=y?String(y):"0";jEl.value=j?String(j):"0";fEl.value=f?String(f):"0";
+    }
+  }
+  yEl.max=String(Math.max(0,Math.floor(t.pax)));
+  jEl.max=String(Math.max(0,Math.floor(t.pax/jk)));
+  fEl.max=String(Math.max(0,Math.floor(t.pax/fk)));
+  cEl.max=String(Math.max(0,+t.payload||0));
 }
 function addKist(){writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]))}
 function dropKist(i){const rows=currentRows();rows.splice(i-1,1);writeRows(rows.length?rows:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}])}
