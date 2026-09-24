@@ -91,6 +91,16 @@ button:disabled{opacity:.5}
 .dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex:0 0 10px}
 .plan .flybox{width:20px;height:20px}
 details{margin-top:6px}
+
+.roost{margin-top:12px}
+.roost-row{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:8px;background:linear-gradient(180deg,#fff,#f8fafc)}
+.roost-row .rt{font-size:15px;font-weight:750;color:var(--navy);margin:0 0 6px}
+.roost-meta{display:flex;flex-wrap:wrap;gap:6px}
+.roost-meta span{display:inline-block;padding:5px 10px;border-radius:999px;background:#f1f5f9;border:1px solid var(--line);font-size:12px;font-weight:650;color:var(--navy)}
+.roost-meta span.win{background:#fff;border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.12)}
+.roost-conflict{margin-top:10px;font-size:13px;font-weight:700;color:var(--navy);padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid var(--line)}
+.roost-conflict.bad{color:var(--bad);background:#fef2f2;border-color:#fecaca}
+.roost-empty{font-size:13px;color:var(--muted);margin-top:8px}
 @media (max-width:420px){.grid4{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -117,6 +127,9 @@ details{margin-top:6px}
 <div class="grid2" style="margin-top:8px">
 <div><label>Route</label><input class="yellow" id="route" value="VIE–GRU"></div>
 <div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
+</div>
+<div style="margin-top:8px">
+<div><label>Block heen+terug uit spel (u)</label><input class="yellow" id="blockGame" type="number" step="0.1" placeholder="leeg = formule 2×(km÷km/h)"></div>
 </div>
 </section>
 <section>
@@ -168,6 +181,12 @@ details{margin-top:6px}
 <div id="vloot"></div>
 <button type="button" class="sec" onclick="addKist()">+ lege retourvlucht</button>
 </section>
+<section class="roost">
+<h2>Rooster-suggestie</h2>
+<p class="tiny">Eén dag · alleen ingeplande retourvluchten · tekstvensters (geen Gantt)</p>
+<div id="rooster"></div>
+<p class="roost-conflict" id="roosterConflict"></p>
+</section>
 <section>
 <h2>Waarom</h2>
 <div class="advies" id="advies"></div>
@@ -191,7 +210,7 @@ function code(id){return (document.getElementById(id).value||"").trim().toUpperC
 function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");if(s&&s.order&&s.defs){TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs;const el=document.getElementById("lockTypes");if(el&&typeof s.lock!=="undefined")el.checked=!!s.lock}}catch(e){}}
 function saveTypes(){try{const lock=document.getElementById("lockTypes");localStorage.setItem(TKEY,JSON.stringify({order:TYPE_ORDER,defs:TYPE_DEFAULTS,lock:lock?!!lock.checked:false}))}catch(e){}}
 function setLocked(els,locked){els.forEach(el=>{if(!el)return;el.disabled=!!locked;if(el.tagName==="INPUT"&&el.type!=="checkbox"&&el.type!=="hidden"){el.classList.toggle("yellow",!locked)}})}
-function applyRouteLock(){const locked=!!document.getElementById("lockRoute").checked;setLocked(["fromA","toA","route","km"].map(id=>document.getElementById(id)),locked)}
+function applyRouteLock(){const locked=!!document.getElementById("lockRoute").checked;setLocked(["fromA","toA","route","km","blockGame"].map(id=>document.getElementById(id)),locked)}
 function applyAskLock(){const locked=!!document.getElementById("lockAsk").checked;setLocked(["qY","qJ","qF","qC"].map(id=>document.getElementById(id)),locked)}
 function applyTypesLock(){
   const locked=!!document.getElementById("lockTypes").checked;
@@ -217,7 +236,7 @@ function typeSpec(t){const d=TYPE_DEFAULTS[t]||{pax:0,payload:0,speed:0,range:0}
 function rawVl(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:12*s/km}
 function tooFar(t){const km=num("km");return km>0&&typeSpec(t).range+0.5<km}
 function canFly(t){return num("km")>0&&!tooFar(t)}
-function planVl(t){if(!canFly(t))return 0;const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
+function planVl(t){if(!canFly(t))return 0;const g=num("blockGame");if(g>0)return Math.max(1,Math.floor(24/g));const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
 function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
 function packOne(need,typeName,jkost,fkost){
@@ -346,12 +365,12 @@ function suggest(onlyRest){
   lastWhy=[document.getElementById("route").value+" · "+num("km")+" km · mix "+types.join(" + ")].concat(packed.why);
   writeRows(keep.concat(packed.planes));saveRoute();
 }
-function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,fleet:currentRows()}}
+function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),blockGame:num("blockGame"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,fleet:currentRows()}}
 function loadList(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
 function storeList(list){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+(r.route||r.id)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
 function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!currentId)return;const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);if(!quiet)renderChips()}
-function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
+function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("blockGame").value=r.blockGame||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
 function deleteRoute(){
   if(!currentId){lastWhy=["Geen route om te verwijderen."];calc();return}
   if(!confirm("Deze route verwijderen?"))return
@@ -359,12 +378,12 @@ function deleteRoute(){
   storeList(list);
   currentId=null;
   if(list.length){openRoute(list[0].id);return}
-  ["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
+  ["fromA","toA","route","km","blockGame","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;
   applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
   writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips();calc()}
+function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","blockGame","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips();calc()}
 function renderTypes(){
   document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><h3>"+t+"</h3><div class='grid4'><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
   applyTypesLock();
@@ -405,6 +424,88 @@ function bindNums(root){
     el.addEventListener("input",()=>sanitizeNum(el,dec));
   });
 }
+
+const VENSTERS=["ochtend","middag","avond"];
+function blockRoundTrip(type){
+  const g=num("blockGame");
+  if(g>0) return g;
+  const one=blokU(type);
+  return one?one*2:0;
+}
+function ritjesFormule(type){
+  const g=num("blockGame");
+  if(g>0) return Math.max(1,Math.floor(24/g));
+  return planVl(type);
+}
+function ritjesVoorKist(type,flVal){
+  const stored=parseFloat(flVal);
+  if(flVal!==""&&flVal!=null&&!isNaN(stored)&&stored>0) return Math.floor(stored);
+  return ritjesFormule(type)||0;
+}
+function renderRooster(){
+  const box=document.getElementById("rooster"), conf=document.getElementById("roosterConflict");
+  if(!box||!conf) return;
+  const planned=[];
+  document.querySelectorAll(".kist").forEach(k=>{
+    const on=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
+    const type=k.querySelector(".type").value;
+    if(!on||!type) return;
+    planned.push({
+      type,
+      flVal:k.querySelector(".fl").value,
+      y:k.querySelector(".y").value||"0",
+      j:k.querySelector(".j").value||"0",
+      f:k.querySelector(".f").value||"0",
+      c:k.querySelector(".c").value||"0"
+    });
+  });
+  if(!planned.length){
+    box.innerHTML="<p class='roost-empty'>Geen ingeplande retourvluchten.</p>";
+    conf.className="roost-conflict";
+    conf.textContent="Nog niets te verdelen over ochtend / middag / avond.";
+    return;
+  }
+  const typeFirst={}, typeCount={};
+  const rows=planned.map(p=>{
+    const ritjes=ritjesVoorKist(p.type,p.flVal);
+    const block=blockRoundTrip(p.type);
+    const plafond=block>0?Math.max(1,Math.floor(24/block)):ritjesFormule(p.type);
+    if(!(p.type in typeFirst)){
+      const used=new Set(Object.values(typeFirst));
+      typeFirst[p.type]=VENSTERS.find(v=>!used.has(v))||VENSTERS[Object.keys(typeFirst).length%VENSTERS.length];
+      typeCount[p.type]=0;
+    }
+    const idx=typeCount[p.type]++;
+    const base=VENSTERS.indexOf(typeFirst[p.type]);
+    const venster=VENSTERS[(base+idx)%VENSTERS.length];
+    return {...p,ritjes,block,plafond,venster};
+  });
+  box.innerHTML=rows.map(r=>{
+    const blk=r.block?r.block.toFixed(1).replace(/\.0$/,"")+" u":"—";
+    const cfg=r.y+"Y / "+r.j+"J / "+r.f+"F / "+r.c+"t";
+    return "<div class='roost-row'><p class='rt'>"+r.type+"</p><div class='roost-meta'><span>"+r.ritjes+" ritje"+(r.ritjes===1?"":"s")+"</span><span>block "+blk+"</span><span class='win'>"+r.venster+"</span><span>"+cfg+"</span></div></div>";
+  }).join("");
+  const byType={};
+  rows.forEach(r=>{byType[r.type]=(byType[r.type]||0)+r.ritjes});
+  const types=Object.keys(byType);
+  const total=types.reduce((s,t)=>s+byType[t],0);
+  const fits=types.map(t=>{
+    const sample=rows.find(r=>r.type===t);
+    const pl=sample?sample.plafond:1;
+    return Math.min(byType[t],pl);
+  });
+  const fitSum=fits.reduce((a,b)=>a+b,0);
+  const overcrowded=types.some(t=>{
+    const sample=rows.find(r=>r.type===t);
+    return sample&&byType[t]>sample.plafond;
+  }) || total>fitSum || (types.length>1 && new Set(rows.map(r=>r.venster)).size<Math.min(types.length,3) && total>3);
+  conf.className="roost-conflict"+(overcrowded||fitSum<total?" bad":"");
+  if(types.length===1 && !overcrowded && fitSum>=total){
+    conf.textContent="1 type · "+total+" ritje"+(total===1?"":"s")+" · venster "+rows[0].venster+" past.";
+  }else{
+    conf.textContent=types.length+" type"+(types.length===1?"":"s")+" willen "+total+" ritje"+(total===1?"":"s")+"; op deze km past "+fits.join(" + ")+".";
+  }
+}
 function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
 function calc(){
   refreshKiezen();
@@ -412,8 +513,14 @@ function calc(){
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let weg={Y:0,J:0,F:0,C:0};
   document.querySelectorAll(".kist").forEach((k,idx)=>{
     const type=k.querySelector(".type").value,y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
-    const fl=type&&canFly(type)?planVl(type):(nval(k.querySelector(".fl"))||1);
-    if(k.querySelector(".fl")) k.querySelector(".fl").value=fl;
+    const flEl=k.querySelector(".fl");
+    let fl=nval(flEl);
+    if(type&&canFly(type)){
+      const auto=planVl(type);
+      // Ritjes: bewaar lagere waarde op de kist; nooit omhoog forceren naar plafond
+      if(!flEl||flEl.value===""||flEl.value==null){fl=auto;if(flEl)flEl.value=String(auto)}
+      else{fl=Math.min(nval(flEl)||auto,auto);if(flEl)flEl.value=String(fl)}
+    }else{fl=fl||1;if(flEl&&(flEl.value===""||flEl.value==null))flEl.value=String(fl)}
     const info=k.querySelector("#info"+(idx+1));
     const vliegt=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
     if(!type){if(info)info.textContent="";return}
@@ -435,6 +542,7 @@ function calc(){
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
   document.getElementById("rest").innerHTML=pill("Economy",over.Y.toFixed(0),kind(over.Y))+pill("Business",over.J.toFixed(0),kind(over.J))+pill("First",over.F.toFixed(0),kind(over.F))+pill("Cargo",over.C.toFixed(1)+" t",kind(over.C));
   document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
+  renderRooster();
   if(currentId) saveRoute(true);
 }
 try{
