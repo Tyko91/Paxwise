@@ -16,6 +16,9 @@ h2,summary.h{margin:0 0 8px;font-size:13px;letter-spacing:.04em;text-transform:u
 label{font-size:11px;color:#5d6d7e;display:block}
 input,select{width:100%;padding:8px;border:1px solid #d5dce4;border-radius:8px;font-size:16px}
 input.yellow{background:#FFF3A0}
+.withunit{position:relative}
+.withunit input{padding-right:1.6em}
+.withunit .unit{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:#5d6d7e;font-size:14px;pointer-events:none}
 input:disabled,select:disabled{background:#fff;opacity:1;color:#1b1b1b}
 .lock{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:13px;color:#1b365d}
 .lock input{width:auto}
@@ -95,20 +98,20 @@ details{margin-top:6px}
 </details>
 </section>
 <section>
-<h2>Vraag uit het routescherm</h2>
+<h2>Vraag per dag (pax)</h2>
 <label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
 <div class="grid4">
-<div><label>Y</label><input class="yellow" id="qY" type="number" value="1788"></div>
-<div><label>J</label><input class="yellow" id="qJ" type="number" value="300"></div>
-<div><label>F</label><input class="yellow" id="qF" type="number" value="96"></div>
-<div><label>Cargo t</label><input class="yellow" id="qC" type="number" step="0.1" value="21"></div>
+<div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
+<div><label>Business</label><input class="yellow" id="qJ" type="number" value="300"></div>
+<div><label>First</label><input class="yellow" id="qF" type="number" value="96"></div>
+<div><label>Cargo</label><div class="withunit"><input class="yellow" id="qC" type="number" step="0.1" value="21"><span class="unit">t</span></div></div>
 </div>
 <input id="factor" type="hidden" value="2">
 <input id="jkost" type="hidden" value="1.8">
 <input id="fkost" type="hidden" value="4.2">
 </section>
 <section>
-<h2>Nog over — live</h2>
+<h2>Resterende vraag (pax)</h2>
 <div class="rest" id="rest"></div>
 </section>
 <section>
@@ -121,7 +124,7 @@ details{margin-top:6px}
 <section>
 <h2>Vloot</h2>
 <div id="vloot"></div>
-<button type="button" class="sec" onclick="addKist()">+ lege kist</button>
+<button type="button" class="sec" onclick="addKist()">+ lege retourvlucht</button>
 </section>
 <section>
 <h2>Waarom</h2>
@@ -215,10 +218,10 @@ function restBits(need){
 }
 function packNeed(need,types,jkost,fkost){
   const planes=[],why=[];need={...need};let guard=0;
-  why.push("Doel: zo min mogelijk kisten, zo vol mogelijk. Halve kisten kosten geld.");
+  why.push("Doel: zo min mogelijk retourvluchten, zo vol mogelijk. Halve retourvluchten kosten geld.");
   while((need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.05)&&guard++<16){
     if(planes.length && !worthExtraPlane(need,types,jkost,fkost)){
-      why.push("Rest "+restBits(need)+" laten liggen — geen extra halflege kist.");
+      why.push("Rest "+restBits(need)+" laten liggen — geen extra halflege retourvlucht.");
       break;
     }
     const chosen=pickType(need,types,jkost,fkost);
@@ -245,7 +248,7 @@ function kistEl(i,r){
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   const on=r.on!==false;
   const fl=r.type&&canFly(r.type)?String(planVl(r.type)):(r.fl||"1");
-  d.innerHTML="<h3>Kist "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Y</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>J</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>F</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo t</label><input class='c yellow' type='number' step='0.1' value='"+(r.c||"")+"'></div></div><p class='tiny' id='info"+i+"'></p><button type='button' class='ghost' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
+  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='0.1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><button type='button' class='ghost' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
   const box=d.querySelector(".plan"), lab=d.querySelector(".planlab"), cb=d.querySelector(".flybox");
   function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
   cb.addEventListener("change",paint);
@@ -330,7 +333,7 @@ function calc(){
   });
   const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
-  document.getElementById("rest").innerHTML=pill("Nog Y",over.Y.toFixed(0),kind(over.Y))+pill("Nog J",over.J.toFixed(0),kind(over.J))+pill("Nog F",over.F.toFixed(0),kind(over.F))+pill("Nog cargo t",over.C.toFixed(1),kind(over.C));
+  document.getElementById("rest").innerHTML=pill("Economy",over.Y.toFixed(0),kind(over.Y))+pill("Business",over.J.toFixed(0),kind(over.J))+pill("First",over.F.toFixed(0),kind(over.F))+pill("Cargo",over.C.toFixed(1)+" t",kind(over.C));
   document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
   if(currentId) saveRoute(true);
 }
