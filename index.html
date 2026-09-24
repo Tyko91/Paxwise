@@ -57,10 +57,10 @@ details{margin-top:6px}
 <h2>Mijn routes</h2>
 <div class="chips" id="chips"></div>
 <div class="grid2">
-<button type="button" class="ghost" onclick="newRoute()">+ nieuwe route</button>
-<button type="button" class="sec" onclick="saveRoute()">Deze route opslaan</button>
+<button type="button" class="ghost" onclick="newRoute()">+ Nieuwe Route</button>
+<button type="button" class="sec" onclick="saveRoute()">Wijzigingen opslaan</button>
 </div>
-<button type="button" class="ghost" onclick="deleteRoute()">Verwijder route</button>
+<button type="button" class="ghost" onclick="deleteRoute()">− Route verwijderen</button>
 </section>
 <section>
 <h2>Route</h2>
@@ -241,7 +241,7 @@ function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElem
 function loadList(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
 function storeList(list){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+(r.route||r.id)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
-function saveRoute(){const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);renderChips()}
+function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!currentId)return;const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);if(!quiet)renderChips()}
 function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
 function deleteRoute(){
   if(!currentId){lastWhy=["Geen route om te verwijderen."];calc();return}
@@ -302,12 +302,14 @@ function calc(){
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
   document.getElementById("rest").innerHTML=pill("Nog Y",over.Y.toFixed(0),kind(over.Y))+pill("Nog J",over.J.toFixed(0),kind(over.J))+pill("Nog F",over.F.toFixed(0),kind(over.F))+pill("Nog cargo t",over.C.toFixed(1),kind(over.C));
   document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
+  if(currentId) saveRoute(true);
 }
 try{
 loadTypes();
 renderTypes();
 ["fromA","toA"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>{el.value=el.value.toUpperCase();applyIata(true)})});
 document.getElementById("km").addEventListener("input",calc);
+document.getElementById("route").addEventListener("input",()=>{calc();if(currentId)saveRoute(false)});
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
 document.getElementById("lockRoute").addEventListener("change",()=>{applyRouteLock();saveRoute()});
 document.getElementById("lockAsk").addEventListener("change",()=>{applyAskLock();saveRoute()});
