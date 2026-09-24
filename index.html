@@ -37,6 +37,7 @@ button{width:100%;padding:10px;border:0;border-radius:10px;background:var(--navy
 button.sec{background:#2c5282}button.ghost{background:#e8eef5;color:#1B365D}
 button:disabled{opacity:.5}
 .tiny{font-size:11px;color:#5d6d7e;margin-top:6px}
+.warn{color:#9c0006;font-weight:700;font-size:12px;margin-top:6px}
 .past.ok{color:var(--ok);font-weight:700}.past.bad{color:var(--bad);font-weight:700}
 .chk{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
 .chk label{display:flex;align-items:center;gap:6px;background:#f4f6f8;padding:8px 10px;border-radius:8px;font-size:13px;color:#1b365d}
@@ -222,20 +223,18 @@ function packNeed(need,types,jkost,fkost,already){
   why.push("Doel: zo min mogelijk retourvluchten, zo vol mogelijk. Halve retourvluchten kosten geld.");
   while((need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.05)&&guard++<16){
     const prior=already+planes.length;
-    if(prior>0 && !worthExtraPlane(need,types,jkost,fkost)){
-      why.push("Rest "+restBits(need)+" laten liggen — geen extra halflege retourvlucht.");
-      break;
-    }
+    const thin=prior>0 && !worthExtraPlane(need,types,jkost,fkost);
     const chosen=pickType(need,types,jkost,fkost);
     const p=packOne(need,chosen,jkost,fkost);if(!p)break;
     const fill=fillOf(p,jkost,fkost);
-    if(prior>0 && fill<0.5){
-      why.push("Geen extra "+p.type+" (±"+Math.round(fill*100)+"% vol) voor dunne rest "+restBits(need)+".");
-      break;
-    }
+    const pct=Math.round(fill*100);
+    p.warn=prior>0 && (thin || fill<0.5);
     const fl=+p.fl;
     planes.push(p);need.Y-=+p.y*fl;need.J-=+p.j*fl;need.F-=+p.f*fl;need.C-=+p.c*fl;
-    why.push(planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"Y / "+p.j+"J / "+p.f+"F / "+p.c+"t · ±"+Math.round(fill*100)+"% vol");
+    let line=planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"Y / "+p.j+"J / "+p.f+"F / "+p.c+"t · "+pct+"% vol";
+    if(p.warn) line+=" — waarschuwing: deze retourvlucht zit "+pct+"% vol";
+    why.push(line);
+    if(p.warn) break;
   }
   if(need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.05){
     if(!why.some(w=>w.indexOf("laten liggen")>=0||w.indexOf("dunne rest")>=0))
@@ -243,14 +242,14 @@ function packNeed(need,types,jkost,fkost,already){
   }
   return{planes,why};
 }
-function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,on:k.querySelector(".flybox")?k.querySelector(".flybox").checked:true}))}
+function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,on:k.querySelector(".flybox")?k.querySelector(".flybox").checked:true,warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
 function writeRows(rows){const box=document.getElementById("vloot");box.innerHTML="";rows.forEach((r,i)=>box.appendChild(kistEl(i+1,r)));calc()}
 function kistEl(i,r){
   const d=document.createElement("div");d.className="kist";
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   const on=r.on!==false;
   const fl=r.type&&canFly(r.type)?String(planVl(r.type)):(r.fl||"1");
-  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='0.1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><button type='button' class='ghost' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
+  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='0.1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
   const box=d.querySelector(".plan"), lab=d.querySelector(".planlab"), cb=d.querySelector(".flybox");
   function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
   cb.addEventListener("change",paint);
@@ -331,6 +330,12 @@ function calc(){
     if(!canFly(type)) msg="TE VER";
     else if(ruimte>t.pax+0.05||c>t.payload+0.05) msg="TE VOL · "+msg;
     if(info)info.textContent=msg;
+    const warnEl=k.querySelector("#warn"+(idx+1));
+    const wb=k.querySelector(".warnbox");
+    const t=typeSpec(type);const fill=t.pax?((y+j*jkost+f*fkost)/t.pax):0;const pct=Math.round(fill*100);
+    const showWarn=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
+    if(wb) wb.dataset.on=showWarn?"1":"0";
+    if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Waarschuwing: deze retourvlucht zit "+pct+"% vol."}else{warnEl.style.display="none";warnEl.textContent=""}}
     weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
   });
   const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
