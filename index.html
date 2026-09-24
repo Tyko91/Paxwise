@@ -263,10 +263,19 @@ function planVl(t){if(!canFly(t))return 0;const u=urenPerRetour(t);if(u>0){const
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
 function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
 function packOne(need,typeName,jkost,fkost){
-  const t=typeSpec(typeName),fl=planVl(typeName);if(!fl)return null;
-  let space=t.pax;const y=Math.min(Math.max(0,Math.ceil(need.Y/fl)),space);space-=y;
-  const j=Math.min(Math.max(0,Math.ceil(need.J/fl)),Math.floor(space/jkost));space-=j*jkost;
-  const f=Math.min(Math.max(0,Math.ceil(need.F/fl)),Math.floor(space/fkost));
+  const t=typeSpec(typeName),maxFl=planVl(typeName);if(!maxFl)return null;
+  const pNeed=plek(need,jkost,fkost);
+  const flPax=pNeed>0.5?Math.ceil(pNeed/t.pax-1e-9):0;
+  const flC=(need.C>0.5&&t.payload>0)?Math.ceil(need.C/t.payload-1e-9):0;
+  let fl=Math.min(maxFl,Math.max(flPax,flC));
+  if(fl<1){
+    if(need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.5) fl=1;
+    else return null;
+  }
+  let space=t.pax;
+  const y=Math.min(Math.max(0,Math.ceil(need.Y/fl-1e-9)),space);space-=y;
+  const j=Math.min(Math.max(0,Math.ceil(need.J/fl-1e-9)),Math.floor(space/jkost));space-=j*jkost;
+  const f=Math.min(Math.max(0,Math.ceil(need.F/fl-1e-9)),Math.floor(space/fkost));
   const c=Math.min(Math.max(0,Math.ceil(need.C/fl-1e-9)),Math.floor(t.payload));
   if(y+j+f+c<=0)return null;
   return{type:typeName,fl:String(fl),y:String(y),j:String(j),f:String(f),c:String(c),on:true};
@@ -333,7 +342,7 @@ function kistEl(i,r){
   d.style.setProperty("--kist-color",kistColor(i));
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   const on=r.on!==false;
-  const fl=r.type&&canFly(r.type)?String(planVl(r.type)):(r.fl||"1");
+  const fl=(r.fl!==undefined&&r.fl!==null&&String(r.fl)!=="")?String(r.fl):(r.type&&canFly(r.type)?String(planVl(r.type)):"1");
   d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
   const box=d.querySelector(".plan"), lab=d.querySelector(".planlab"), cb=d.querySelector(".flybox");
   function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
