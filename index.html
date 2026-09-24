@@ -113,8 +113,9 @@ details{margin-top:6px}
 .roost-row .dn{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-soft);text-align:center;padding-top:6px}
 .roost-daystack{display:flex;flex-direction:column;gap:3px}
 .roost-track{position:relative;height:22px;border-radius:4px;background:rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(255,255,255,.06);background-image:repeating-linear-gradient(to right,transparent 0,transparent calc(12.5% - 1px),rgba(247,231,181,.14) calc(12.5% - 1px),rgba(247,231,181,.14) 12.5%)}
-.roost-bar{position:absolute;top:2px;bottom:2px;border-radius:4px;min-width:2px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:8px;font-weight:800;color:#1a1208;padding:0 2px;white-space:nowrap;box-sizing:border-box;border-right:2px solid #fff}
-.roost-bar.over{outline:1px solid #fecaca;opacity:.85;border-right-color:#fff}
+.roost-bar{position:absolute;top:2px;bottom:2px;border-radius:4px;min-width:2px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:8px;font-weight:800;color:#1a1208;padding:0 2px;white-space:nowrap;box-sizing:border-box;z-index:1}
+.roost-bar.over{outline:1px solid #fecaca;opacity:.85}
+.roost-seam{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;z-index:0;pointer-events:none}
 .roost-empty{font-size:12px;color:rgba(247,231,181,.8);padding:10px 4px}
 .roost-note{font-size:11px;color:var(--muted);margin-top:8px}
 
@@ -534,15 +535,22 @@ function renderRooster(){
   const planeBars=colors.map(({p,color})=>({p,color,...barsForPlane(p,color)}));
   grid.innerHTML=DAGEN.map(d=>{
     const stack=planeBars.map(({p,color,bars})=>{
-      const html=bars.map((b,bi)=>{
-        if(b.dur<=0) return "";
+      const parts=[];
+      bars.forEach((b,bi)=>{
+        if(b.dur<=0) return;
         const left=(b.start/24)*100;
         const width=(b.dur/24)*100;
         const w=Math.max(0,Math.min(width,100-left));
-        if(w<=0&&b.start>=24) return "";
+        if(w<=0&&b.start>=24) return;
         const lab=(w>9&&b.lab)?b.lab:"";
-        return "<div class='roost-bar"+(b.over?" over":"")+"' style='left:"+left+"%;width:"+w+"%;background:"+b.color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>";
-      }).join("");
+        const pad=bi<bars.length-1;
+        parts.push("<div class='roost-bar"+(b.over?" over":"")+"' style='left:calc("+left+"% + "+(bi?1:0)+"px);width:calc("+w+"% - "+(pad?1:0)+"px - "+(bi?1:0)+"px);background:"+b.color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>");
+        if(pad){
+          const x=((b.start+b.dur)/24)*100;
+          parts.push("<div class='roost-seam' style='left:"+x+"%'></div>");
+        }
+      });
+      const html=parts.join("");
       return "<div class='roost-track' title='"+p.type+" #"+p.i+"'>"+html+"</div>";
     }).join("");
     return "<div class='roost-row'><span class='dn'>"+d+"</span><div class='roost-daystack'>"+stack+"</div></div>";
