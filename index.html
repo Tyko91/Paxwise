@@ -43,7 +43,15 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .kist,.typekaart{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;background:linear-gradient(180deg,#fff,#f8fafc)}
+.kist{position:relative;padding-left:16px}
+.kist::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:5px;border-radius:4px;background:var(--kist-color,var(--gold))}
 .kist h3,.typekaart h3{margin:0 0 8px;font-size:15px;color:var(--navy);font-weight:750}
+.roost-legend .hrs{opacity:.75;font-weight:600;margin-left:2px}
+.roost-empty-tip{font-size:12px;color:rgba(247,231,181,.9);padding:8px 4px 10px;line-height:1.45;font-weight:650}
+.roost-track.ghost{opacity:.35}
+.roost-note.warnish{color:var(--bad);font-weight:700}
+.info-ok{color:var(--muted)}
+.info-bad{color:var(--bad);font-weight:700}
 .rest{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .pill{border-radius:12px;padding:12px 8px;text-align:center;border:2px solid transparent;position:relative}
 .pill b{display:block;font-size:20px;font-weight:800;margin-top:2px}
@@ -179,13 +187,13 @@ details{margin-top:6px}
 <h2>Vlootinzet</h2>
 <div class="chk" id="kiezen"></div>
 <button type="button" onclick="suggest(false)">Stel vlootmix voor</button>
-<button type="button" class="sec" onclick="suggest(true)">Alleen de rest bijvullen</button>
+<button type="button" class="ghost" onclick="suggest(true)">Alleen de rest bijvullen</button>
 <button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
 </section>
 <section>
 <h2>Vloot</h2>
 <div id="vloot"></div>
-<button type="button" class="sec" onclick="addKist()">+ lege retourvlucht</button>
+<button type="button" class="ghost" onclick="addKist()">+ lege retourvlucht</button>
 </section>
 <section class="roost">
 <h2>Rooster</h2>
@@ -314,8 +322,10 @@ function packNeed(need,types,jkost,fkost,already){
 }
 function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,on:k.querySelector(".flybox")?k.querySelector(".flybox").checked:true,warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
 function writeRows(rows){const box=document.getElementById("vloot");box.innerHTML="";rows.forEach((r,i)=>box.appendChild(kistEl(i+1,r)));calc()}
+function kistColor(i){return TYPE_COLORS[(Math.max(1,i)-1)%TYPE_COLORS.length]}
 function kistEl(i,r){
   const d=document.createElement("div");d.className="kist";
+  d.style.setProperty("--kist-color",kistColor(i));
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   const on=r.on!==false;
   const fl=r.type&&canFly(r.type)?String(planVl(r.type)):(r.fl||"1");
@@ -480,6 +490,7 @@ function barsForPlane(p,color){
   }
   return{bars,used:t};
 }
+function fmtU(u){if(!(u>0))return "?";const s=u.toFixed(2).replace(/\.?0+$/,"");return s.replace(".",",")}
 function renderRooster(){
   const grid=document.getElementById("roosterGrid");
   const legend=document.getElementById("roosterLegend");
@@ -488,13 +499,16 @@ function renderRooster(){
   const list=plannedFleet();
   if(!list.length){
     if(legend) legend.innerHTML="";
-    grid.innerHTML="<p class='roost-empty'>Geen ingeplande retourvluchten — vink groen aan in Vloot.</p>";
-    if(note) note.textContent="";
+    grid.innerHTML="<p class='roost-empty-tip'>Zet minstens één retourvlucht op Ingepland om het weekrooster te vullen.</p>"+DAGEN.map(d=>"<div class='roost-row'><span class='dn'>"+d+"</span><div class='roost-daystack'><div class='roost-track ghost'></div></div></div>").join("");
+    if(note){note.className="roost-note";note.textContent=""}
     return;
   }
-  const colors=list.map((p,idx)=>({p,color:TYPE_COLORS[idx%TYPE_COLORS.length]}));
+  const colors=list.map(p=>({p,color:kistColor(p.i)}));
   if(legend){
-    legend.innerHTML=colors.map(({p,color})=>"<span><i style='background:"+color+"'></i>"+shortType(p.type)+" #"+p.i+"</span>").join("");
+    legend.innerHTML=colors.map(({p,color})=>{
+      const dayU=(p.uren||0)*(p.ritjes||0);
+      return "<span><i style='background:"+color+"'></i>"+shortType(p.type)+" #"+p.i+"<span class='hrs'>· "+fmtU(dayU)+" u/dag</span></span>";
+    }).join("");
   }
   const planeBars=colors.map(({p,color})=>({p,color,...barsForPlane(p,color)}));
   grid.innerHTML=DAGEN.map(d=>{
@@ -515,14 +529,21 @@ function renderRooster(){
   const nPlane=list.length;
   const nRet=list.reduce((s,p)=>s+p.ritjes,0);
   let over=planeBars.filter(x=>x.used>24.01);
-  let msg=nPlane+" kist"+(nPlane===1?"":"en")+" · "+nRet+" retour"+(nRet===1?"":"s")+" · parallel vanaf 00:00 · kleur per kist";
-  if(over.length) msg+=" · let op: "+over.map(x=>"#"+x.p.i+" "+x.used.toFixed(1)+" u").join(", ")+" past niet in 24 u";
-  if(note) note.textContent=msg;
+  let msg=nPlane+" kist"+(nPlane===1?"":"en")+" · "+nRet+" retour"+(nRet===1?"":"s");
+  if(note){
+    if(over.length){
+      note.className="roost-note warnish";
+      note.textContent="Let op · "+over.map(x=>"#"+x.p.i+" "+fmtU(x.used)+" u past niet in 24 u").join(" · ");
+    }else{
+      note.className="roost-note";
+      note.textContent=msg;
+    }
+  }
 }
 function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
 function calc(){
   refreshKiezen();
-  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("TE VER voor "+km+" km"):("Retour "+urenPerRetour(t).toFixed(2).replace(/\.?0+$/,"")+" u · "+planVl(t)+"×/dag"))});
+  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour "+urenPerRetour(t).toFixed(2).replace(/\.?0+$/,"")+" u · "+planVl(t)+"×/dag"))});
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let weg={Y:0,J:0,F:0,C:0};
   document.querySelectorAll(".kist").forEach((k,idx)=>{
     const type=k.querySelector(".type").value,y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
@@ -535,19 +556,20 @@ function calc(){
       else{fl=Math.min(nval(flEl)||auto,auto);if(flEl)flEl.value=String(fl)}
     }else{fl=fl||1;if(flEl&&(flEl.value===""||flEl.value==null))flEl.value=String(fl)}
     const info=k.querySelector("#info"+(idx+1));
-    const vliegt=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
-    if(!type){if(info)info.textContent="";return}
-    const t=typeSpec(type),ruimte=y+j*jkost+f*fkost;
-    let msg="Bezetting (pax) "+ruimte.toFixed(1)+"/"+t.pax;
-    if(!canFly(type)) msg="TE VER";
-    else if(ruimte>t.pax+0.05||c>t.payload+0.05) msg="TE VOL · "+msg;
-    if(info)info.textContent=msg;
     const warnEl=k.querySelector("#warn"+(idx+1));
     const wb=k.querySelector(".warnbox");
+    const vliegt=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
+    if(!type){if(info){info.textContent="";info.className="tiny"};if(warnEl){warnEl.style.display="none";warnEl.textContent=""};return}
+    const t=typeSpec(type),ruimte=y+j*jkost+f*fkost;
+    if(info){info.className="tiny info-ok";info.textContent="Bezetting (pax) "+ruimte.toFixed(1)+"/"+t.pax}
     const fill=t.pax?(ruimte/t.pax):0;const pct=Math.round(fill*100);
-    const showWarn=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
-    if(wb) wb.dataset.on=showWarn?"1":"0";
-    if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Door deze retourvlucht is de bezetting maar "+pct+"% — te leeg."}else{warnEl.style.display="none";warnEl.textContent=""}}
+    const thin=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
+    if(wb) wb.dataset.on=thin?"1":"0";
+    let warnTxt="";
+    if(!canFly(type)) warnTxt="Dit type is te ver voor deze route.";
+    else if(ruimte>t.pax+0.05||c>t.payload+0.05) warnTxt="Deze mix is te vol voor max pax/payload.";
+    else if(thin) warnTxt="Door deze retourvlucht is de bezetting maar "+pct+"% — te leeg.";
+    if(warnEl){if(warnTxt){warnEl.style.display="block";warnEl.textContent=warnTxt}else{warnEl.style.display="none";warnEl.textContent=""}}
     if(!vliegt) return;
     weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
   });
