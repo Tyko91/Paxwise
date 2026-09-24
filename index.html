@@ -193,8 +193,8 @@ function worthExtraPlane(need,types,jk,fk){
   const p=plek(need,jk,fk);
   if(p<=0.5) return false;
   const small=typeSpec(types[types.length-1]).pax;
-  if(need.Y<=Math.max(1,small*0.12) && p<small*0.45) return false;
-  if(p<small*0.35 && need.Y<small*0.2) return false;
+  if(p<small*0.5) return false;
+  if(need.Y<=Math.max(1,small*0.12) && p<small*0.6) return false;
   return true;
 }
 function pickType(need,types,jk,fk){
@@ -216,18 +216,20 @@ function restBits(need){
   if(need.C>0.05) bits.push((Math.round(need.C*10)/10)+"t cargo");
   return bits.join(" / ");
 }
-function packNeed(need,types,jkost,fkost){
+function packNeed(need,types,jkost,fkost,already){
+  already=already||0;
   const planes=[],why=[];need={...need};let guard=0;
   why.push("Doel: zo min mogelijk retourvluchten, zo vol mogelijk. Halve retourvluchten kosten geld.");
   while((need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.05)&&guard++<16){
-    if(planes.length && !worthExtraPlane(need,types,jkost,fkost)){
+    const prior=already+planes.length;
+    if(prior>0 && !worthExtraPlane(need,types,jkost,fkost)){
       why.push("Rest "+restBits(need)+" laten liggen — geen extra halflege retourvlucht.");
       break;
     }
     const chosen=pickType(need,types,jkost,fkost);
     const p=packOne(need,chosen,jkost,fkost);if(!p)break;
     const fill=fillOf(p,jkost,fkost);
-    if(planes.length && fill<0.4 && need.Y<typeSpec(chosen).pax*0.2){
+    if(prior>0 && fill<0.5){
       why.push("Geen extra "+p.type+" (±"+Math.round(fill*100)+"% vol) voor dunne rest "+restBits(need)+".");
       break;
     }
@@ -266,7 +268,7 @@ function suggest(onlyRest){
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;
   let need={Y:num("qY")/fac,J:num("qJ")/fac,F:num("qF")/fac,C:num("qC")/fac},keep=[];
   if(onlyRest){keep=currentRows().filter(r=>r.type&&r.on!==false);keep.forEach(r=>{const fl=parseFloat(r.fl)||1;need.Y-=(parseFloat(r.y)||0)*fl;need.J-=(parseFloat(r.j)||0)*fl;need.F-=(parseFloat(r.f)||0)*fl;need.C-=(parseFloat(r.c)||0)*fl})}
-  const packed=packNeed(need,types,jkost,fkost);
+  const packed=packNeed(need,types,jkost,fkost,keep.length);
   lastWhy=[document.getElementById("route").value+" · "+num("km")+" km · mix "+types.join(" + ")].concat(packed.why);
   writeRows(keep.concat(packed.planes));saveRoute();
 }
