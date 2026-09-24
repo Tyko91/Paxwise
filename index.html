@@ -165,12 +165,13 @@ function applyIata(fillKm){
   if(a.length===3&&b.length===3) document.getElementById("route").value=a+"–"+b;
   const ha=HUBS[a],hb=HUBS[b],hint=document.getElementById("iataHint");
   if(ha&&hb){const km=Math.round(gcdKm(ha,hb)); if(fillKm) document.getElementById("km").value=km; hint.textContent="IATA "+a+"↔"+b+" ≈ "+km+" km. Zet Playrion-km in het gele veld.";}
-  else hint.textContent="Onbekende code: typ de km uit het spel.";
+  else{if(fillKm&&a.length===3&&b.length===3) document.getElementById("km").value=""; hint.textContent="Onbekende code: typ de km uit het spel.";}
   calc();
 }
 function typeSpec(t){const d=TYPE_DEFAULTS[t]||{pax:0,payload:0,speed:0,range:0};return{pax:nval(document.getElementById(sid(t,"pax")))||d.pax,payload:nval(document.getElementById(sid(t,"payload")))||d.payload,speed:nval(document.getElementById(sid(t,"speed")))||d.speed,range:nval(document.getElementById(sid(t,"range")))||d.range}}
 function rawVl(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:12*s/km}
-function canFly(t){return num("km")>0&&typeSpec(t).range+0.5>=num("km")}
+function tooFar(t){const km=num("km");return km>0&&typeSpec(t).range+0.5<km}
+function canFly(t){return num("km")>0&&!tooFar(t)}
 function planVl(t){if(!canFly(t))return 0;const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
 function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
@@ -241,26 +242,22 @@ function storeList(list){try{localStorage.setItem(KEY,JSON.stringify(list))}catc
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+(r.route||r.id)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
 function saveRoute(){const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);renderChips()}
 function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
-function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips()}
+function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips();calc()}
 function renderTypes(){
   document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><h3>"+t+"</h3><div class='grid4'><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
   applyTypesLock();
   renderKiezen();
 }
 function renderKiezen(){
+  const prev={};
+  TYPE_ORDER.forEach(t=>{const el=document.getElementById("use_"+t);if(el)prev[t]=el.checked});
   document.getElementById("kiezen").innerHTML=TYPE_ORDER.map(t=>{
-    const ok=canFly(t);
-    return "<label class='"+(ok?"":"off")+"'><input type='checkbox' id='use_"+t+"' "+(ok?"checked":"disabled")+"> "+t+(ok?"":" · te ver")+"</label>";
+    const far=tooFar(t);
+    const on=far?false:(prev[t]===undefined?true:!!prev[t]);
+    return "<label class='"+(far?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(far?"disabled":(on?"checked":""))+"> "+t+(far?" · te ver":"")+"</label>";
   }).join("");
 }
-function refreshKiezen(){
-  TYPE_ORDER.forEach(t=>{
-    const el=document.getElementById("use_"+t); if(!el) return;
-    const lab=el.parentElement;
-    if(!canFly(t)){el.checked=false;el.disabled=true;if(lab)lab.classList.add("off")}
-    else{el.disabled=false;if(lab)lab.classList.remove("off")}
-  });
-}
+function refreshKiezen(){renderKiezen()}
 function addCustomType(){
   const n=(document.getElementById("nName").value||"").trim();
   const pax=+document.getElementById("nPax").value, pay=+document.getElementById("nPay").value, spd=+document.getElementById("nSpd").value, rng=+document.getElementById("nRng").value;
@@ -272,7 +269,7 @@ function addCustomType(){
 function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
 function calc(){
   refreshKiezen();
-  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;el.textContent=canFly(t)?("Blok heen "+blokU(t).toFixed(1)+" u · "+planVl(t)+"×/dag"):("TE VER voor "+num("km")+" km")});
+  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("TE VER voor "+km+" km"):("Blok heen "+blokU(t).toFixed(1)+" u · "+planVl(t)+"×/dag"))});
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let weg={Y:0,J:0,F:0,C:0};
   document.querySelectorAll(".kist").forEach((k,idx)=>{
     const type=k.querySelector(".type").value,y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
@@ -292,7 +289,7 @@ function calc(){
   const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
   document.getElementById("rest").innerHTML=pill("Nog Y",over.Y.toFixed(0),kind(over.Y))+pill("Nog J",over.J.toFixed(0),kind(over.J))+pill("Nog F",over.F.toFixed(0),kind(over.F))+pill("Nog cargo t",over.C.toFixed(1),kind(over.C));
-  document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>canFly(t)?(t+": "+planVl(t)+"×/dag"):(t+": te ver"))).map(t=>"<div>"+t+"</div>").join("");
+  document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
 }
 try{
 loadTypes();
