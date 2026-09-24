@@ -473,10 +473,7 @@ function typeColor(type,idxMap){
 }
 function urenPerRetour(type){
   const one=blokU(type);
-  if(!one) return 0;
-  const q=kwartierOmhoog(one*2);
-  // Korte vluchten: minstens één roosterblok van 3 u (as 00/03/06/…)
-  return q<3?3:q;
+  return one?kwartierOmhoog(one*2):0;
 }
 function plannedFleet(){
   const out=[];
