@@ -67,9 +67,15 @@ button:active{transform:translateY(1px)}
 button.sec{background:linear-gradient(135deg,#1a3d6d,#25507f);box-shadow:0 6px 14px rgba(11,31,58,.15)}
 button.ghost{background:#fff;color:var(--navy);border:1px solid var(--line);box-shadow:none}
 button.ghost:hover{border-color:var(--gold);color:var(--navy)}
+button.ok{background:#ecfdf3;color:var(--ok);border:1px solid #86efac;box-shadow:none}
+button.ok:hover{border-color:var(--ok);background:#dcfce7}
+button.danger{background:#fef2f2;color:var(--bad);border:1px solid #fecaca;box-shadow:none}
+button.danger:hover{border-color:var(--bad);background:#fee2e2}
 button:disabled{opacity:.5}
 .tiny{font-size:11px;color:var(--muted);margin-top:6px}
+.autosave{font-size:11px;color:var(--muted);margin:6px 0 0;font-weight:600}
 .warn{color:var(--bad);font-weight:700;font-size:12px;margin-top:8px;padding:8px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px}
+.warn::before{content:"Let op · ";font-weight:800}
 .past.ok{color:var(--ok);font-weight:700}.past.bad{color:var(--bad);font-weight:700}
 .chk{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
 .chk label{display:flex;align-items:center;gap:6px;background:#f1f5f9;padding:8px 12px;border-radius:999px;font-size:13px;color:var(--navy);font-weight:600;border:1px solid transparent}
@@ -95,9 +101,10 @@ details{margin-top:6px}
 <h2>Mijn routes</h2>
 <div class="chips" id="chips"></div>
 <div class="grid2">
-<button type="button" class="ghost" onclick="newRoute()">+ Nieuwe Route</button>
-<button type="button" class="ghost" onclick="deleteRoute()">− Route verwijderen</button>
+<button type="button" class="ok" onclick="newRoute()">+ Nieuwe Route</button>
+<button type="button" class="danger" onclick="deleteRoute()">− Route verwijderen</button>
 </div>
+<p class="autosave" id="autosaveHint">Wijzigingen worden automatisch opgeslagen.</p>
 </section>
 <section>
 <h2>Route</h2>
@@ -152,9 +159,9 @@ details{margin-top:6px}
 <section>
 <h2>Vlootinzet</h2>
 <div class="chk" id="kiezen"></div>
-<button type="button" onclick="suggest(false)">Stel mix voor</button>
+<button type="button" onclick="suggest(false)">Stel vlootmix voor</button>
 <button type="button" class="sec" onclick="suggest(true)">Alleen de rest bijvullen</button>
-<button type="button" class="ghost" onclick="clearFleet()">Wis vloot</button>
+<button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
 </section>
 <section>
 <h2>Vloot</h2>
@@ -266,7 +273,7 @@ function packNeed(need,types,jkost,fkost,already){
     const fl=+p.fl;
     planes.push(p);need.Y-=+p.y*fl;need.J-=+p.j*fl;need.F-=+p.f*fl;need.C-=+p.c*fl;
     let line=planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"Y / "+p.j+"J / "+p.f+"F / "+p.c+"t · "+pct+"% vol";
-    if(p.warn) line+=" — waarschuwing: door deze retourvlucht is de bezetting maar "+pct+"% (te leeg)";
+    if(p.warn) line+=" — let op: door deze retourvlucht is de bezetting maar "+pct+"% (te leeg)";
     why.push(line);
     if(p.warn) break;
   }
@@ -283,7 +290,7 @@ function kistEl(i,r){
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   const on=r.on!==false;
   const fl=r.type&&canFly(r.type)?String(planVl(r.type)):(r.fl||"1");
-  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='0.1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
+  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='0.1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
   const box=d.querySelector(".plan"), lab=d.querySelector(".planlab"), cb=d.querySelector(".flybox");
   function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
   cb.addEventListener("change",paint);
@@ -327,8 +334,8 @@ function clampKist(k,changed){
   cEl.max=String(Math.max(0,+t.payload||0));
 }
 function addKist(){writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]))}
-function dropKist(i){const rows=currentRows();rows.splice(i-1,1);writeRows(rows.length?rows:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}])}
-function clearFleet(){lastWhy=["Vloot gewist."];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}])}
+function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows.length?rows:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}])}
+function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}])}
 function suggest(onlyRest){
   refreshKiezen();
   const types=selectedTypes();if(!types.length){lastWhy=["Geen type dat deze afstand aankan."];calc();return}
@@ -347,6 +354,7 @@ function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!cur
 function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
 function deleteRoute(){
   if(!currentId){lastWhy=["Geen route om te verwijderen."];calc();return}
+  if(!confirm("Deze route verwijderen?"))return
   const list=loadList().filter(r=>r.id!==currentId);
   storeList(list);
   currentId=null;
@@ -420,7 +428,7 @@ function calc(){
     const fill=t.pax?(ruimte/t.pax):0;const pct=Math.round(fill*100);
     const showWarn=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
     if(wb) wb.dataset.on=showWarn?"1":"0";
-    if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Waarschuwing: door deze retourvlucht is de bezetting maar "+pct+"% — te leeg."}else{warnEl.style.display="none";warnEl.textContent=""}}
+    if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Door deze retourvlucht is de bezetting maar "+pct+"% — te leeg."}else{warnEl.style.display="none";warnEl.textContent=""}}
     weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
   });
   const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
@@ -433,6 +441,7 @@ try{
 loadTypes();
 renderTypes();
 bindNums();
+try{const ah=document.getElementById("autosaveHint");if(ah)setTimeout(()=>{ah.style.opacity="0";ah.style.transition="opacity .6s";setTimeout(()=>ah.remove(),700)},8000)}catch(e){}
 ["fromA","toA"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>{el.value=el.value.toUpperCase();applyIata(true)})});
 document.getElementById("km").addEventListener("input",calc);
 document.getElementById("route").addEventListener("input",()=>{calc();if(currentId)saveRoute(false)});
