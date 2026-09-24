@@ -474,7 +474,10 @@ function typeColor(type,idxMap){
 }
 function urenPerRetour(type){
   const one=blokU(type);
-  return one?kwartierOmhoog(one*2):0;
+  if(!one) return 0;
+  const q=kwartierOmhoog(one*2);
+  // Korte hops: spel telt opstijgen/landen mee → min 3 u per retour
+  return Math.max(q,3);
 }
 function plannedFleet(){
   const out=[];
