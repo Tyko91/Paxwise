@@ -93,24 +93,22 @@ button:disabled{opacity:.5}
 details{margin-top:6px}
 
 .roost{margin-top:0}
-.roost-day{margin-bottom:12px}
-.roost-day h3{margin:0 0 8px;font-size:14px;color:var(--navy);font-weight:750}
-.roost-axis{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-weight:600;padding:0 2px 4px;font-variant-numeric:tabular-nums}
-.roost-lanes{display:flex;flex-direction:column;gap:8px}
-.roost-lane{border:1px solid var(--line);border-radius:12px;padding:8px;background:linear-gradient(180deg,#fff,#f8fafc)}
-.roost-lane .nm{font-size:12px;font-weight:750;color:var(--navy);margin:0 0 6px}
-.roost-track{position:relative;height:28px;border-radius:8px;background:#e8eef6;overflow:hidden;border:1px solid #dbe3ef}
-.roost-bar{position:absolute;top:3px;bottom:3px;border-radius:6px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));box-shadow:inset 0 -2px 0 var(--gold);min-width:2px}
-.roost-bar.over{background:linear-gradient(135deg,#9f1239,#e11d48);box-shadow:none}
-.roost-empty{font-size:13px;color:var(--muted);padding:8px 0}
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
-.week-tile{border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center;background:#fff;cursor:pointer;min-height:72px;box-shadow:none;width:100%;margin:0;color:var(--navy)}
-.week-tile .dn{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
-.week-tile .cnt{display:block;font-size:16px;font-weight:800;line-height:1.1}
-.week-tile .ty{display:block;font-size:9px;color:var(--muted);font-weight:650;margin-top:4px;line-height:1.25;word-break:break-word}
-.week-tile.on{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:inset 0 -2px 0 var(--gold)}
-.week-tile.on .ty{color:var(--gold-soft)}
-.week-tile.today:not(.on){border-color:var(--gold)}
+.roost-wrap{background:linear-gradient(180deg,#0B1F3A,#143056);border-radius:14px;padding:10px 8px 12px;color:#fff;border:1px solid rgba(201,162,39,.25);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.roost-legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;padding:0 2px}
+.roost-legend span{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:650;color:var(--gold-soft)}
+.roost-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.roost-axis{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:end;margin-bottom:4px;min-width:320px}
+.roost-axis .pad{font-size:9px;opacity:0}
+.roost-hours{display:flex;justify-content:space-between;font-size:9px;font-weight:600;color:rgba(247,231,181,.75);font-variant-numeric:tabular-nums;padding:0 1px}
+.roost-grid{display:flex;flex-direction:column;gap:5px;min-width:320px}
+.roost-row{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:center}
+.roost-row .dn{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-soft);text-align:center}
+.roost-track{position:relative;height:26px;border-radius:4px;background:rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.roost-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;min-width:2px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:8px;font-weight:800;color:#1a1208;padding:0 2px;white-space:nowrap;box-sizing:border-box}
+.roost-bar.over{outline:1px solid #fecaca;opacity:.85}
+.roost-empty{font-size:12px;color:rgba(247,231,181,.8);padding:10px 4px}
+.roost-note{font-size:11px;color:var(--muted);margin-top:8px}
+
 @media (max-width:420px){.grid4{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -193,12 +191,13 @@ details{margin-top:6px}
 </section>
 <section class="roost">
 <h2>Rooster</h2>
-<div class="roost-day">
-<h3 id="roosterDayTitle">Dag</h3>
-<div class="roost-axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
-<div class="roost-lanes" id="roosterLanes"></div>
+<p class="tiny">Weekmix · alle ingeplande retourvluchten · balk = uren per retour</p>
+<div class="roost-wrap" id="roosterWrap">
+<div class="roost-legend" id="roosterLegend"></div>
+<div class="roost-axis"><span class="pad">·</span><div class="roost-hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
+<div class="roost-grid" id="roosterGrid"></div>
 </div>
-<div class="week" id="weekTiles"></div>
+<p class="roost-note" id="roosterNote"></p>
 </section>
 <section>
 <h2>Waarom</h2>
@@ -439,13 +438,12 @@ function bindNums(root){
 }
 
 
+
 const DAGEN=["ma","di","wo","do","vr","za","zo"];
-let roostDag=null;
-function defaultRoostDag(){
-  try{
-    const js=new Date().getDay(); // 0 zo .. 6 za
-    return js===0?6:js-1; // ma=0
-  }catch(e){return 0}
+const TYPE_COLORS=["#C9A227","#7dd3fc","#f9a8d4","#86efac","#fdba74","#c4b5fd","#fcd34d","#5eead4"];
+function typeColor(type,idxMap){
+  if(!(type in idxMap)) idxMap[type]=Object.keys(idxMap).length;
+  return TYPE_COLORS[idxMap[type]%TYPE_COLORS.length];
 }
 function urenPerRetour(type){
   const g=num("blockGame");
@@ -459,65 +457,74 @@ function plannedFleet(){
     const on=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
     const type=k.querySelector(".type").value;
     if(!on||!type) return;
-    const fl=Math.max(0,Math.floor(nval(k.querySelector(".fl"))||0));
-    out.push({i:i+1,type,ritjes:fl||ritjesFallback(type),uren:urenPerRetour(type)});
+    let fl=Math.max(0,Math.floor(nval(k.querySelector(".fl"))||0));
+    const u=urenPerRetour(type);
+    if(!fl){
+      if(u>0) fl=Math.max(1,Math.floor(24/u));
+      else fl=planVl(type)||0;
+    }
+    out.push({i:i+1,type,ritjes:fl,uren:u});
   });
   return out;
 }
-function ritjesFallback(type){
-  const u=urenPerRetour(type);
-  if(u>0) return Math.max(1,Math.floor(24/u));
-  return planVl(type)||0;
+function shortType(t){
+  const x=String(t);
+  if(x.indexOf("A320")>=0) return "neo";
+  if(x.indexOf("A350")>=0) return "A350";
+  if(x.indexOf("A330")>=0) return "A330";
+  return x.slice(0,8);
 }
-function fleetSummary(list){
-  const n=list.reduce((s,p)=>s+p.ritjes,0);
-  const types=[...new Set(list.map(p=>p.type))];
-  return{n,types,label:types.length?types.join(", "):"—"};
-}
-function renderWeekTiles(){
-  const box=document.getElementById("weekTiles");
-  if(!box) return;
-  if(roostDag==null) roostDag=defaultRoostDag();
-  const sum=fleetSummary(plannedFleet());
-  const today=defaultRoostDag();
-  box.innerHTML=DAGEN.map((d,i)=>{
-    const on=i===roostDag?" on":"";
-    const tod=i===today?" today":"";
-    return "<button type='button' class='week-tile"+on+tod+"' data-dag='"+i+"'><span class='dn'>"+d+"</span><span class='cnt'>"+sum.n+"</span><span class='ty'>"+sum.label+"</span></button>";
-  }).join("");
-  box.querySelectorAll(".week-tile").forEach(btn=>{
-    btn.addEventListener("click",()=>{roostDag=+btn.dataset.dag;renderRooster()});
-  });
-}
-function renderRoosterDay(){
-  const lanes=document.getElementById("roosterLanes");
-  const title=document.getElementById("roosterDayTitle");
-  if(!lanes||!title) return;
-  if(roostDag==null) roostDag=defaultRoostDag();
-  const naam=DAGEN[roostDag]||"ma";
-  title.textContent=naam.charAt(0).toUpperCase()+naam.slice(1)+" · 00–24";
-  const list=plannedFleet();
-  if(!list.length){
-    lanes.innerHTML="<p class='roost-empty'>Geen ingeplande retourvluchten.</p>";
-    return;
-  }
-  lanes.innerHTML=list.map(p=>{
-    const u=p.uren||0;
-    let bars="", t=0;
+function buildDayBars(list,colorMap){
+  const bars=[];
+  let t=0;
+  list.forEach(p=>{
     for(let r=0;r<p.ritjes;r++){
-      const left=(t/24)*100;
-      const width=u>0?(u/24)*100:0;
-      const over=t+u>24.01;
-      bars+="<div class='roost-bar"+(over?" over":"")+"' style='left:"+left+"%;width:"+Math.max(0,Math.min(width,100-left))+"%' title='"+p.type+" · retour "+(r+1)+" · "+(u?u.toFixed(1):"?")+" u'></div>";
+      const u=p.uren||0;
+      bars.push({type:p.type,start:t,dur:u,over:u>0&&t+u>24.01,color:typeColor(p.type,colorMap),n:r+1});
       t+=u;
     }
-    return "<div class='roost-lane'><p class='nm'>"+p.type+" · "+p.ritjes+"× · "+(u?u.toFixed(1)+" u":"—")+"</p><div class='roost-track'>"+bars+"</div></div>";
-  }).join("");
+  });
+  return{bars,used:t};
 }
 function renderRooster(){
-  renderWeekTiles();
-  renderRoosterDay();
+  const grid=document.getElementById("roosterGrid");
+  const legend=document.getElementById("roosterLegend");
+  const note=document.getElementById("roosterNote");
+  if(!grid) return;
+  const list=plannedFleet();
+  const colorMap={};
+  if(!list.length){
+    if(legend) legend.innerHTML="";
+    grid.innerHTML="<p class='roost-empty'>Geen ingeplande retourvluchten — vink groen aan in Vloot.</p>";
+    if(note) note.textContent="";
+    return;
+  }
+  list.forEach(p=>typeColor(p.type,colorMap));
+  if(legend){
+    legend.innerHTML=Object.keys(colorMap).map(t=>"<span><i style='background:"+typeColor(t,colorMap)+"'></i>"+t+"</span>").join("");
+  }
+  const day=buildDayBars(list,colorMap);
+  const route=(document.getElementById("route")||{}).value||"";
+  grid.innerHTML=DAGEN.map(d=>{
+    const html=day.bars.map(b=>{
+      if(b.dur<=0) return "";
+      const left=(b.start/24)*100;
+      const width=(b.dur/24)*100;
+      const w=Math.max(0,Math.min(width,100-left));
+      if(w<=0&&b.start>=24) return "";
+      const lab=w>8?shortType(b.type):"";
+      const tip=(b.type+" · "+route+" · "+(b.dur?b.dur.toFixed(1):"?")+" u").replace(/'/g,"");
+      return "<div class='roost-bar"+(b.over?" over":"")+"' style='left:"+left+"%;width:"+w+"%;background:"+b.color+"' title='"+tip+"'>"+lab+"</div>";
+    }).join("");
+    return "<div class='roost-row'><span class='dn'>"+d+"</span><div class='roost-track'>"+html+"</div></div>";
+  }).join("");
+  const nRet=day.bars.length;
+  const types=Object.keys(colorMap).length;
+  let msg=nRet+" retour"+(nRet===1?"":"s")+" · "+types+" type"+(types===1?"":"s")+" gemengd · zelfde patroon elke dag";
+  if(day.used>24.01) msg+=" · let op: past niet in 24 u ("+day.used.toFixed(1)+" u)";
+  if(note) note.textContent=msg;
 }
+
 function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
 function calc(){
   refreshKiezen();
