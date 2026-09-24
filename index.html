@@ -494,7 +494,7 @@ function barsForPlane(p,color){
   }
   return{bars,used:t};
 }
-function fmtBezet(n){const x=+n||0;const r=Math.round(x*10)/10;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):String(r).replace(/\.0$/,"").replace(".",",")}
+function fmtBezet(n){const x=+n||0;const r=Math.round(x*10)/10;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):r.toFixed(1)}
 function fmtU(u){if(!(u>0))return "?";const s=u.toFixed(2).replace(/\.?0+$/,"");return s.replace(".",",")}
 function renderRooster(){
   const grid=document.getElementById("roosterGrid");
