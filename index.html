@@ -494,6 +494,7 @@ function barsForPlane(p,color){
   }
   return{bars,used:t};
 }
+function fmtBezet(n){const x=+n||0;const r=Math.round(x*10)/10;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):String(r).replace(/\.0$/,"").replace(".",",")}
 function fmtU(u){if(!(u>0))return "?";const s=u.toFixed(2).replace(/\.?0+$/,"");return s.replace(".",",")}
 function renderRooster(){
   const grid=document.getElementById("roosterGrid");
@@ -565,7 +566,7 @@ function calc(){
     const vliegt=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
     if(!type){if(info){info.textContent="";info.className="tiny"};if(warnEl){warnEl.style.display="none";warnEl.textContent=""};return}
     const t=typeSpec(type),ruimte=y+j*jkost+f*fkost;
-    if(info){info.className="tiny info-ok";info.textContent="Bezetting (pax) "+ruimte.toFixed(1)+"/"+t.pax}
+    if(info){info.className="tiny info-ok";info.textContent="Bezetting (pax) "+fmtBezet(ruimte)+"/"+t.pax}
     const fill=t.pax?(ruimte/t.pax):0;const pct=Math.round(fill*100);
     const thin=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
     if(wb) wb.dataset.on=thin?"1":"0";
