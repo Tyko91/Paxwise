@@ -186,6 +186,15 @@ function packOne(need,typeName,jkost,fkost){
   return{type:typeName,fl:String(fl),y:String(y),j:String(j),f:String(f),c:String(Math.round(c*10)/10),on:true};
 }
 function plek(need,jk,fk){return Math.max(0,need.Y)+Math.max(0,need.J)*jk+Math.max(0,need.F)*fk}
+function fillOf(p,jk,fk){const t=typeSpec(p.type);if(!t.pax)return 0;return ((+p.y)+(+p.j)*jk+(+p.f)*fk)/t.pax}
+function worthExtraPlane(need,types,jk,fk){
+  const p=plek(need,jk,fk);
+  if(p<=0.5) return false;
+  const small=typeSpec(types[types.length-1]).pax;
+  if(need.Y<=Math.max(1,small*0.12) && p<small*0.45) return false;
+  if(p<small*0.35 && need.Y<small*0.2) return false;
+  return true;
+}
 function pickType(need,types,jk,fk){
   const large=types[0], small=types[types.length-1];
   const p=plek(need,jk,fk);
@@ -197,15 +206,37 @@ function pickType(need,types,jk,fk){
   if(p<=typeSpec(mid).pax) return mid;
   return large;
 }
+function restBits(need){
+  const bits=[];
+  if(need.Y>0.5) bits.push(Math.ceil(need.Y)+"Y");
+  if(need.J>0.5) bits.push(Math.ceil(need.J)+"J");
+  if(need.F>0.5) bits.push(Math.ceil(need.F)+"F");
+  if(need.C>0.05) bits.push((Math.round(need.C*10)/10)+"t cargo");
+  return bits.join(" / ");
+}
 function packNeed(need,types,jkost,fkost){
   const planes=[],why=[];need={...need};let guard=0;
+  why.push("Doel: zo min mogelijk kisten, zo vol mogelijk. Halve kisten kosten geld.");
   while((need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.05)&&guard++<16){
+    if(planes.length && !worthExtraPlane(need,types,jkost,fkost)){
+      why.push("Rest "+restBits(need)+" laten liggen — geen extra halflege kist.");
+      break;
+    }
     const chosen=pickType(need,types,jkost,fkost);
-    const p=packOne(need,chosen,jkost,fkost);if(!p)break;const fl=+p.fl;
+    const p=packOne(need,chosen,jkost,fkost);if(!p)break;
+    const fill=fillOf(p,jkost,fkost);
+    if(planes.length && fill<0.4 && need.Y<typeSpec(chosen).pax*0.2){
+      why.push("Geen extra "+p.type+" (±"+Math.round(fill*100)+"% vol) voor dunne rest "+restBits(need)+".");
+      break;
+    }
+    const fl=+p.fl;
     planes.push(p);need.Y-=+p.y*fl;need.J-=+p.j*fl;need.F-=+p.f*fl;need.C-=+p.c*fl;
-    why.push(planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"Y / "+p.j+"J / "+p.f+"F / "+p.c+"t");
+    why.push(planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"Y / "+p.j+"J / "+p.f+"F / "+p.c+"t · ±"+Math.round(fill*100)+"% vol");
   }
-  if(need.Y>0.5||need.J>0.5||need.F>0.5) why.push("Nog open: "+Math.ceil(need.Y)+"Y / "+Math.ceil(need.J)+"J / "+Math.ceil(need.F)+"F.");
+  if(need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.05){
+    if(!why.some(w=>w.indexOf("laten liggen")>=0||w.indexOf("dunne rest")>=0))
+      why.push("Nog open: "+restBits(need)+".");
+  }
   return{planes,why};
 }
 function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,on:k.querySelector(".flybox")?k.querySelector(".flybox").checked:true}))}
@@ -234,7 +265,7 @@ function suggest(onlyRest){
   let need={Y:num("qY")/fac,J:num("qJ")/fac,F:num("qF")/fac,C:num("qC")/fac},keep=[];
   if(onlyRest){keep=currentRows().filter(r=>r.type&&r.on!==false);keep.forEach(r=>{const fl=parseFloat(r.fl)||1;need.Y-=(parseFloat(r.y)||0)*fl;need.J-=(parseFloat(r.j)||0)*fl;need.F-=(parseFloat(r.f)||0)*fl;need.C-=(parseFloat(r.c)||0)*fl})}
   const packed=packNeed(need,types,jkost,fkost);
-  lastWhy=[document.getElementById("route").value+" · "+num("km")+" km","Mix: "+types.join(" + ")].concat(packed.why);
+  lastWhy=[document.getElementById("route").value+" · "+num("km")+" km · mix "+types.join(" + ")].concat(packed.why);
   writeRows(keep.concat(packed.planes));saveRoute();
 }
 function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,fleet:currentRows()}}
