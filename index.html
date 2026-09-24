@@ -41,6 +41,7 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .lock{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:13px;color:var(--navy);font-weight:600}
 .lock input{width:auto}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ask4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .kist,.typekaart{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;background:linear-gradient(180deg,#fff,#f8fafc)}
 .kist{position:relative;padding-left:16px}
@@ -117,7 +118,12 @@ details{margin-top:6px}
 .roost-empty{font-size:12px;color:rgba(247,231,181,.8);padding:10px 4px}
 .roost-note{font-size:11px;color:var(--muted);margin-top:8px}
 
-@media (max-width:420px){.grid4{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){
+.typekaart .grid4{grid-template-columns:1fr 1fr}
+.grid4{gap:6px}
+.grid4 label{font-size:11px}
+.grid4 input{padding:8px 6px;font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -168,7 +174,7 @@ details{margin-top:6px}
 <section>
 <h2>Vraag per dag (pax)</h2>
 <label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
-<div class="grid4">
+<div class="grid4 ask4">
 <div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
 <div><label>Business</label><input class="yellow" id="qJ" type="number" value="300"></div>
 <div><label>First</label><input class="yellow" id="qF" type="number" value="96"></div>
