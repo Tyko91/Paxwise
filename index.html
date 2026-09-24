@@ -479,7 +479,7 @@ function plannedFleet(){
 }
 function shortType(t){
   const x=String(t);
-  if(x.indexOf("A320")>=0) return "neo";
+  if(x.indexOf("A320")>=0) return "A320";
   if(x.indexOf("A350")>=0) return "A350";
   if(x.indexOf("A330")>=0) return "A330";
   return x.slice(0,8);
@@ -489,7 +489,7 @@ function barsForPlane(p,color){
   let t=0;
   for(let r=0;r<p.ritjes;r++){
     const u=p.uren||0;
-    bars.push({start:t,dur:u,over:u>0&&t+u>24.01,color:color,lab:shortType(p.type),tip:p.type+" #"+p.i+" · retour "+(r+1)+" · "+(u?u.toFixed(2):"?")+" u"});
+    bars.push({start:t,dur:u,over:u>0&&t+u>24.01,color:color,lab:r===0?("#"+p.i):"",tip:p.type+" #"+p.i+" · retour "+(r+1)+" · "+(u?u.toFixed(2):"?")+" u"});
     t+=u;
   }
   return{bars,used:t};
@@ -523,7 +523,7 @@ function renderRooster(){
         const width=(b.dur/24)*100;
         const w=Math.max(0,Math.min(width,100-left));
         if(w<=0&&b.start>=24) return "";
-        const lab=w>7?b.lab:"";
+        const lab=(w>5&&b.lab)?b.lab:"";
         return "<div class='roost-bar"+(b.over?" over":"")+"' style='left:"+left+"%;width:"+w+"%;background:"+b.color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>";
       }).join("");
       return "<div class='roost-track' title='"+p.type+" #"+p.i+"'>"+html+"</div>";
