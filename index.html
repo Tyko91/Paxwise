@@ -101,10 +101,11 @@ details{margin-top:6px}
 .roost-axis .pad{font-size:9px;opacity:0}
 .roost-hours{display:flex;justify-content:space-between;font-size:9px;font-weight:600;color:rgba(247,231,181,.75);font-variant-numeric:tabular-nums;padding:0 1px}
 .roost-grid{display:flex;flex-direction:column;gap:5px;min-width:320px}
-.roost-row{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:center}
-.roost-row .dn{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-soft);text-align:center}
-.roost-track{position:relative;height:26px;border-radius:4px;background:rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
-.roost-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;min-width:2px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:8px;font-weight:800;color:#1a1208;padding:0 2px;white-space:nowrap;box-sizing:border-box}
+.roost-row{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:start}
+.roost-row .dn{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-soft);text-align:center;padding-top:6px}
+.roost-daystack{display:flex;flex-direction:column;gap:3px}
+.roost-track{position:relative;height:18px;border-radius:4px;background:rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.roost-bar{position:absolute;top:2px;bottom:2px;border-radius:3px;min-width:2px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:7px;font-weight:800;color:#1a1208;padding:0 2px;white-space:nowrap;box-sizing:border-box}
 .roost-bar.over{outline:1px solid #fecaca;opacity:.85}
 .roost-empty{font-size:12px;color:rgba(247,231,181,.8);padding:10px 4px}
 .roost-note{font-size:11px;color:var(--muted);margin-top:8px}
@@ -188,7 +189,7 @@ details{margin-top:6px}
 </section>
 <section class="roost">
 <h2>Rooster</h2>
-<p class="tiny">Weekmix · balklengte per type (2×km÷km/h, omhoog op kwartier)</p>
+<p class="tiny">Weekmix · kleur per kist · parallel vanaf 00:00 · balk = 2×km÷km/h (kwartier)</p>
 <div class="roost-wrap" id="roosterWrap">
 <div class="roost-legend" id="roosterLegend"></div>
 <div class="roost-axis"><span class="pad">·</span><div class="roost-hours"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
@@ -470,16 +471,14 @@ function shortType(t){
   if(x.indexOf("A330")>=0) return "A330";
   return x.slice(0,8);
 }
-function buildDayBars(list,colorMap){
+function barsForPlane(p,color){
   const bars=[];
   let t=0;
-  list.forEach(p=>{
-    for(let r=0;r<p.ritjes;r++){
-      const u=p.uren||0;
-      bars.push({type:p.type,start:t,dur:u,over:u>0&&t+u>24.01,color:typeColor(p.type,colorMap),n:r+1});
-      t+=u;
-    }
-  });
+  for(let r=0;r<p.ritjes;r++){
+    const u=p.uren||0;
+    bars.push({start:t,dur:u,over:u>0&&t+u>24.01,color:color,lab:shortType(p.type),tip:p.type+" #"+p.i+" · retour "+(r+1)+" · "+(u?u.toFixed(2):"?")+" u"});
+    t+=u;
+  }
   return{bars,used:t};
 }
 function renderRooster(){
@@ -488,39 +487,39 @@ function renderRooster(){
   const note=document.getElementById("roosterNote");
   if(!grid) return;
   const list=plannedFleet();
-  const colorMap={};
   if(!list.length){
     if(legend) legend.innerHTML="";
     grid.innerHTML="<p class='roost-empty'>Geen ingeplande retourvluchten — vink groen aan in Vloot.</p>";
     if(note) note.textContent="";
     return;
   }
-  list.forEach(p=>typeColor(p.type,colorMap));
+  const colors=list.map((p,idx)=>({p,color:TYPE_COLORS[idx%TYPE_COLORS.length]}));
   if(legend){
-    legend.innerHTML=Object.keys(colorMap).map(t=>"<span><i style='background:"+typeColor(t,colorMap)+"'></i>"+t+"</span>").join("");
+    legend.innerHTML=colors.map(({p,color})=>"<span><i style='background:"+color+"'></i>"+shortType(p.type)+" #"+p.i+"</span>").join("");
   }
-  const day=buildDayBars(list,colorMap);
-  const route=(document.getElementById("route")||{}).value||"";
+  const planeBars=colors.map(({p,color})=>({p,color,...barsForPlane(p,color)}));
   grid.innerHTML=DAGEN.map(d=>{
-    const html=day.bars.map(b=>{
-      if(b.dur<=0) return "";
-      const left=(b.start/24)*100;
-      const width=(b.dur/24)*100;
-      const w=Math.max(0,Math.min(width,100-left));
-      if(w<=0&&b.start>=24) return "";
-      const lab=w>8?shortType(b.type):"";
-      const tip=(b.type+" · "+route+" · "+(b.dur?b.dur.toFixed(1):"?")+" u").replace(/'/g,"");
-      return "<div class='roost-bar"+(b.over?" over":"")+"' style='left:"+left+"%;width:"+w+"%;background:"+b.color+"' title='"+tip+"'>"+lab+"</div>";
+    const stack=planeBars.map(({p,color,bars})=>{
+      const html=bars.map(b=>{
+        if(b.dur<=0) return "";
+        const left=(b.start/24)*100;
+        const width=(b.dur/24)*100;
+        const w=Math.max(0,Math.min(width,100-left));
+        if(w<=0&&b.start>=24) return "";
+        const lab=w>7?b.lab:"";
+        return "<div class='roost-bar"+(b.over?" over":"")+"' style='left:"+left+"%;width:"+w+"%;background:"+b.color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>";
+      }).join("");
+      return "<div class='roost-track' title='"+p.type+" #"+p.i+"'>"+html+"</div>";
     }).join("");
-    return "<div class='roost-row'><span class='dn'>"+d+"</span><div class='roost-track'>"+html+"</div></div>";
+    return "<div class='roost-row'><span class='dn'>"+d+"</span><div class='roost-daystack'>"+stack+"</div></div>";
   }).join("");
-  const nRet=day.bars.length;
-  const types=Object.keys(colorMap).length;
-  let msg=nRet+" retour"+(nRet===1?"":"s")+" · "+types+" type"+(types===1?"":"s")+" gemengd · zelfde patroon elke dag";
-  if(day.used>24.01) msg+=" · let op: past niet in 24 u ("+day.used.toFixed(1)+" u)";
+  const nPlane=list.length;
+  const nRet=list.reduce((s,p)=>s+p.ritjes,0);
+  let over=planeBars.filter(x=>x.used>24.01);
+  let msg=nPlane+" kist"+(nPlane===1?"":"en")+" · "+nRet+" retour"+(nRet===1?"":"s")+" · parallel vanaf 00:00 · kleur per kist";
+  if(over.length) msg+=" · let op: "+over.map(x=>"#"+x.p.i+" "+x.used.toFixed(1)+" u").join(", ")+" past niet in 24 u";
   if(note) note.textContent=msg;
 }
-
 function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
 function calc(){
   refreshKiezen();
