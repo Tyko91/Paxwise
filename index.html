@@ -150,7 +150,7 @@ details{margin-top:6px}
 <div class="rest" id="rest"></div>
 </section>
 <section>
-<h2>Inzetten + suggestie</h2>
+<h2>Vlootinzet</h2>
 <div class="chk" id="kiezen"></div>
 <button type="button" onclick="suggest(false)">Stel mix voor</button>
 <button type="button" class="sec" onclick="suggest(true)">Alleen de rest bijvullen</button>
@@ -266,7 +266,7 @@ function packNeed(need,types,jkost,fkost,already){
     const fl=+p.fl;
     planes.push(p);need.Y-=+p.y*fl;need.J-=+p.j*fl;need.F-=+p.f*fl;need.C-=+p.c*fl;
     let line=planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"Y / "+p.j+"J / "+p.f+"F / "+p.c+"t · "+pct+"% vol";
-    if(p.warn) line+=" — waarschuwing: deze retourvlucht zit "+pct+"% vol";
+    if(p.warn) line+=" — waarschuwing: door deze retourvlucht is de bezetting maar "+pct+"% (te leeg)";
     why.push(line);
     if(p.warn) break;
   }
@@ -294,6 +294,7 @@ function kistEl(i,r){
   d.querySelector("input.f").addEventListener("input",onSeat("f"));
   d.querySelector("input.c").addEventListener("input",onSeat("c"));
   d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);clampKist(d,"type");calc()});
+  bindNums(d);
   return d;
 }
 function clampKist(k,changed){
@@ -360,6 +361,7 @@ function renderTypes(){
   document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><h3>"+t+"</h3><div class='grid4'><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
   applyTypesLock();
   renderKiezen();
+bindNums();
 }
 function renderKiezen(){
   const prev={};
@@ -378,6 +380,22 @@ function addCustomType(){
   TYPE_DEFAULTS[n]={pax:pax,payload:pay||0,speed:spd,range:rng};
   if(!TYPE_ORDER.includes(n)) TYPE_ORDER.push(n);
   saveTypes();renderTypes();calc();
+}
+function sanitizeNum(el,dec){
+  const raw=el.value;
+  let v=dec?raw.replace(/[^\d.]/g,"").replace(/(\..*)\./g,"$1"):raw.replace(/[^\d]/g,"");
+  if(v!==raw) el.value=v;
+}
+function bindNums(root){
+  (root||document).querySelectorAll('input[type="number"]').forEach(el=>{
+    if(el.dataset.numBound) return;
+    el.dataset.numBound="1";
+    const dec=!!(el.step&&String(el.step).includes("."));
+    el.addEventListener("keydown",e=>{
+      if(["e","E","+","-"].includes(e.key)) e.preventDefault();
+    });
+    el.addEventListener("input",()=>sanitizeNum(el,dec));
+  });
 }
 function pill(label,val,kind){return "<div class='pill "+kind+"'><span>"+label+"</span><b>"+val+"</b></div>"}
 function calc(){
@@ -402,7 +420,7 @@ function calc(){
     const fill=t.pax?(ruimte/t.pax):0;const pct=Math.round(fill*100);
     const showWarn=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
     if(wb) wb.dataset.on=showWarn?"1":"0";
-    if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Waarschuwing: deze retourvlucht zit "+pct+"% vol."}else{warnEl.style.display="none";warnEl.textContent=""}}
+    if(warnEl){if(showWarn){warnEl.style.display="block";warnEl.textContent="Waarschuwing: door deze retourvlucht is de bezetting maar "+pct+"% — te leeg."}else{warnEl.style.display="none";warnEl.textContent=""}}
     weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
   });
   const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
@@ -414,6 +432,7 @@ function calc(){
 try{
 loadTypes();
 renderTypes();
+bindNums();
 ["fromA","toA"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>{el.value=el.value.toUpperCase();applyIata(true)})});
 document.getElementById("km").addEventListener("input",calc);
 document.getElementById("route").addEventListener("input",()=>{calc();if(currentId)saveRoute(false)});
