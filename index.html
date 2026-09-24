@@ -112,8 +112,11 @@ details{margin-top:6px}
 .roost-row{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:start}
 .roost-row .dn{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-soft);text-align:center;padding-top:6px}
 .roost-daystack{display:flex;flex-direction:column;gap:3px}
-.roost-track{position:relative;height:22px;border-radius:4px;background:rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(255,255,255,.06);background-image:repeating-linear-gradient(to right,transparent 0,transparent calc(12.5% - 1px),rgba(247,231,181,.12) calc(12.5% - 1px),rgba(247,231,181,.12) 12.5%);background-size:100% 100%}
-.roost-bar{position:absolute;top:2px;bottom:2px;border-radius:4px;min-width:2px;display:flex;align-items:center;justify-content:flex-start;overflow:hidden;font-size:9px;font-weight:800;color:#1a1208;padding:0 6px;white-space:nowrap;box-sizing:border-box;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.roost-track{position:relative;height:20px;border-radius:4px;background:rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(255,255,255,.06);background-image:repeating-linear-gradient(to right,transparent 0,transparent calc(12.5% - 1px),rgba(247,231,181,.14) calc(12.5% - 1px),rgba(247,231,181,.14) 12.5%)}
+.roost-bar{position:absolute;top:2px;bottom:2px;border-radius:0;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:8px;font-weight:800;color:#1a1208;padding:0;white-space:nowrap;box-sizing:border-box;border-right:1px solid rgba(11,31,58,.25)}
+.roost-bar:last-child,.roost-bar.last{border-right:0;border-radius:0 3px 3px 0}
+.roost-bar.first{border-radius:3px 0 0 3px}
+.roost-bar.only{border-radius:3px;border-right:0}
 .roost-bar.over{outline:1px solid #fecaca;opacity:.85}
 .roost-empty{font-size:12px;color:rgba(247,231,181,.8);padding:10px 4px}
 .roost-note{font-size:11px;color:var(--muted);margin-top:8px}
@@ -473,7 +476,10 @@ function typeColor(type,idxMap){
 }
 function urenPerRetour(type){
   const one=blokU(type);
-  return one?kwartierOmhoog(one*2):0;
+  if(!one) return 0;
+  const q=kwartierOmhoog(one*2);
+  // Korte vluchten: minstens één roosterblok van 3 u (as 00/03/06/…)
+  return q<3?3:q;
 }
 function plannedFleet(){
   const out=[];
@@ -499,11 +505,16 @@ function shortType(t){
   return x.slice(0,8);
 }
 function barsForPlane(p,color){
-  const u=p.uren||0,n=Math.max(0,p.ritjes|0),used=u*n;
-  if(!n||!(u>0)) return{bars:[],used:0};
-  const lab="#"+p.i+" · "+n+"×";
-  const tip=p.type+" #"+p.i+" · "+n+" retour"+(n===1?"":"en")+" × "+fmtU(u)+" u (aaneengesloten blok, geen aparte starttijden)";
-  return{bars:[{start:0,dur:Math.min(used,24),over:used>24.01,color:color,lab:lab,tip:tip}],used:used};
+  const bars=[];
+  let t0=0;
+  const u=p.uren||0,n=Math.max(0,p.ritjes|0);
+  for(let r=0;r<n;r++){
+    const over=u>0&&t0+u>24.01;
+    const lab=(r===0?("#"+p.i):"");
+    bars.push({start:t0,dur:u,over:over,color:color,lab:lab,tip:p.type+" #"+p.i+" · retour "+(r+1)+"/"+n+" · "+fmtU(u)+" u"});
+    t0+=u;
+  }
+  return{bars,used:t0};
 }
 function fmtBezet(n){const x=+n||0;const r=Math.round(x*10)/10;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):r.toFixed(1)}
 function fmtU(u){if(!(u>0))return "?";const s=u.toFixed(2).replace(/\.?0+$/,"");return s.replace(".",",")}
@@ -529,14 +540,15 @@ function renderRooster(){
   const planeBars=colors.map(({p,color})=>({p,color,...barsForPlane(p,color)}));
   grid.innerHTML=DAGEN.map(d=>{
     const stack=planeBars.map(({p,color,bars})=>{
-      const html=bars.map(b=>{
+      const html=bars.map((b,bi)=>{
         if(b.dur<=0) return "";
         const left=(b.start/24)*100;
         const width=(b.dur/24)*100;
         const w=Math.max(0,Math.min(width,100-left));
         if(w<=0&&b.start>=24) return "";
-        const lab=(w>8&&b.lab)?b.lab:"";
-        return "<div class='roost-bar"+(b.over?" over":"")+"' style='left:"+left+"%;width:"+w+"%;background:"+b.color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>";
+        const lab=(w>10&&b.lab)?b.lab:"";
+        const edge=bars.length===1?" only":(bi===0?" first":(bi===bars.length-1?" last":""));
+        return "<div class='roost-bar"+edge+(b.over?" over":"")+"' style='left:"+left+"%;width:"+w+"%;background:"+b.color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>";
       }).join("");
       return "<div class='roost-track' title='"+p.type+" #"+p.i+"'>"+html+"</div>";
     }).join("");
