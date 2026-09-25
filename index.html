@@ -71,6 +71,13 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .sec-fold:not(.collapsed) .sec-sum{display:none}
 .sec-sum{display:flex;align-items:center;gap:8px;margin-top:4px}
 .sec-sum .ks-txt{flex:1;font-size:13px;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec-sum:has(.ask-sum-wrap){align-items:flex-start}
+.sec-sum .ask-sum-wrap{flex:1;min-width:0;overflow:visible;white-space:normal;text-overflow:unset}
+.ask-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%}
+.ask-sum-cell{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0}
+.ask-sum-cell b{font-size:15px;font-weight:750;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
+.ask-sum-cell span{font-size:10px;font-weight:650;color:#6b7280;letter-spacing:.02em;line-height:1.2}
+#secTypes[hidden]{display:none!important}
 .sec-sum button{width:auto;margin:0;padding:4px 10px;font-size:12px;box-shadow:none;flex:0 0 auto}
 .kist h3,.typekaart h3{margin:0 0 8px;font-size:15px;color:var(--navy);font-weight:750}
 .roost-legend .hrs{opacity:.75;font-weight:600;margin-left:2px}
@@ -214,7 +221,7 @@ details{margin-top:6px}
 </section>
 <section class="sec-fold" id="secAsk" hidden>
 <h2>Vraag per dag (pax)</h2>
-<div class="sec-sum" id="askSum"><span class="ks-txt" id="askSumTxt"></span><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
+<div class="sec-sum" id="askSum"><div class="ks-txt ask-sum-wrap" id="askSumTxt"></div><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
 <p class="warn" id="lockAskMsg" style="display:none"></p>
@@ -233,8 +240,8 @@ details{margin-top:6px}
 <section id="secVlootinzet" hidden>
 <h2>Vlootinzet</h2>
 <p class="warn" id="flowGateMsg" style="display:none"></p>
-<p id="kiezenLead" style="margin:8px 0 4px;font-weight:600;font-size:.92rem">Welke toestellen wil je op deze route gebruiken?</p>
-<p class="tiny" id="kiezenHint" style="margin:0 0 10px;color:#6b7280">Vink aan wat meedoet aan de mix.</p>
+<p id="kiezenLead" style="margin:8px 0 10px;font-weight:600;font-size:.92rem">Vink aan welke toestellen je wil inzetten op de route</p>
+<p class="tiny" id="kiezenHint" hidden></p>
 <div class="chk" id="kiezen"></div>
 <p class="tiny" style="margin:8px 0 0"><a href="#secTypes" id="linkTypes" class="types-jump">Toestellen beheren</a></p>
 <div class="ret-block" id="secRetour" hidden>
@@ -286,7 +293,7 @@ details{margin-top:6px}
 <div class="advies" id="advies"></div>
 </details>
 </section>
-<section class="sec-fold" id="secTypes">
+<section class="sec-fold" id="secTypes" hidden>
 <h2>Mijn toestellen</h2>
 <p class="tiny" style="margin:0 0 6px">Geldt voor alle routes.</p>
 <div class="sec-sum" id="typesSum"><span class="ks-txt" id="typesSumTxt"></span><button type="button" class="ghost" id="typesSumEdit">Wijzig</button></div>
@@ -477,10 +484,9 @@ function updateLockCtas(){
   const secWh=document.getElementById("secWhy");
   [secIn,secRs,secRo,secWh].forEach(el=>{if(el) el.hidden=!afterRet});
   syncPlanUi();
-  const kh=document.getElementById("kiezenHint");
+  syncKiezenLead();
   const lead=document.getElementById("kiezenLead");
   if(lead) lead.style.opacity="1";
-  if(kh){kh.textContent="Vink aan wat meedoet aan de mix.";kh.style.color="#6b7280"}
   if(!ready) window._clearKiezen=true;
   if(typeof renderKiezen==="function" && document.getElementById("kiezen")) renderKiezen();
 }
@@ -552,12 +558,35 @@ function routeSumLine(){
 function askSumLine(){
   return (document.getElementById("qY").value||"0")+"E / "+(document.getElementById("qJ").value||"0")+"B / "+(document.getElementById("qF").value||"0")+"F · "+(document.getElementById("qC").value||"0")+"t";
 }
+function askSumHtml(){
+  const cells=[
+    [document.getElementById("qY").value||"0","Economy"],
+    [document.getElementById("qJ").value||"0","Business"],
+    [document.getElementById("qF").value||"0","First"],
+    [(document.getElementById("qC").value||"0")+"t","Cargo"]
+  ];
+  return "<div class='ask-sum'>"+cells.map(([v,l])=>"<div class='ask-sum-cell'><b>"+v+"</b><span>"+l+"</span></div>").join("")+"</div>";
+}
+function fillAskSum(locked){
+  const t=document.getElementById("askSumTxt");
+  if(!t) return;
+  t.innerHTML=askSumHtml();
+  t.classList.toggle("locked-ok",!!locked);
+}
+function routeLabel(){
+  return (document.getElementById("route").value||"").trim()||((code("fromA")&&code("toA"))?code("fromA")+"–"+code("toA"):"—");
+}
+function syncKiezenLead(){
+  const lead=document.getElementById("kiezenLead");
+  if(lead) lead.textContent='Vink aan welke toestellen je wil inzetten op de route "'+routeLabel()+'"';
+}
 function applyRouteLock(){
   const locked=!!document.getElementById("lockRoute").checked;
   setLocked(["fromA","toA","route","km"].map(id=>document.getElementById(id)),locked);
   const sec=document.getElementById("secRoute");
   if(sec) sec.classList.toggle("collapsed", locked);
   const t=document.getElementById("routeSumTxt");if(t){t.textContent=routeSumLine();t.classList.toggle("locked-ok",locked)}
+  syncKiezenLead();
   updateLockCtas();
 }
 function applyAskLock(){
@@ -565,7 +594,7 @@ function applyAskLock(){
   setLocked(["qY","qJ","qF","qC"].map(id=>document.getElementById(id)),locked);
   const sec=document.getElementById("secAsk");
   if(sec) sec.classList.toggle("collapsed", locked);
-  const t=document.getElementById("askSumTxt");if(t){t.textContent=askSumLine();t.classList.toggle("locked-ok",locked)}
+  fillAskSum(locked);
   updateLockCtas();
 }
 function typesSumLine(){return TYPE_ORDER.length?TYPE_ORDER.join(" · "):"—"}
@@ -956,8 +985,9 @@ function renameType(oldN,newN){
 function openTypesPanel(){
   const sec=document.getElementById("secTypes");
   if(!sec) return;
-  // Alleen scrollen; lockTypes blijft zoals die is (geen unlock).
-  sec.scrollIntoView({behavior:"smooth",block:"start"});
+  // Toon catalogus; lockTypes blijft zoals die is (geen unlock).
+  sec.hidden=false;
+  setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"start"}),50);
 }
 function typeCardMissing(t){
   const m=[];
@@ -1377,7 +1407,7 @@ function calc(){
   document.getElementById("rest").innerHTML=pill("Economy",over.Y.toFixed(0),kind(over.Y))+pill("Business",over.J.toFixed(0),kind(over.J))+pill("First",over.F.toFixed(0),kind(over.F))+pill("Cargo",over.C.toFixed(0)+" t",kind(over.C));
   document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
   const rst=document.getElementById("routeSumTxt");if(rst){rst.textContent=routeSumLine();rst.classList.toggle("locked-ok",!!document.getElementById("lockRoute").checked)}
-  const ast=document.getElementById("askSumTxt");if(ast){ast.textContent=askSumLine();ast.classList.toggle("locked-ok",!!document.getElementById("lockAsk").checked)}
+  fillAskSum(!!document.getElementById("lockAsk").checked);syncKiezenLead();
   renderRooster();
   updateLockCtas();
   if(currentId) saveRoute(true);
