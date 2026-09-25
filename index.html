@@ -265,7 +265,7 @@ details{margin-top:6px}
 </div>
 <div class="plan-path" id="planNew" hidden>
 <p class="tiny" id="mixNewTip" style="margin:0 0 10px;color:#6b7280">Stel een volledig nieuwe vlootmix voor met de geselecteerde toestellen. Huidige vlootkaarten worden vervangen.</p>
-<button type="button" id="btnSuggestNew" onclick="suggestFromUi(false)">Stel mix voor</button>
+<button type="button" id="btnSuggestNew" onclick="suggestFromUi(false)">Stel vlootplanning voor</button>
 </div>
 <div id="vloot"></div>
 <button type="button" id="btnSuggestRest" onclick="suggestFromUi(true)" hidden>Vul tekort bij</button>
@@ -1403,7 +1403,7 @@ if(lockAskCta) lockAskCta.addEventListener("click",()=>doLock("lockAsk","lockAsk
 const btnMoreType=document.getElementById("btnMoreType");
 if(btnMoreType) btnMoreType.addEventListener("click",openNieuwTypeForm);
 const btnPlanKeep=document.getElementById("btnPlanKeep");
-if(btnPlanKeep) btnPlanKeep.addEventListener("click",()=>setPlanPath("keep",{add:true}));
+if(btnPlanKeep) btnPlanKeep.addEventListener("click",()=>setPlanPath("keep"));
 const btnPlanNew=document.getElementById("btnPlanNew");
 if(btnPlanNew) btnPlanNew.addEventListener("click",()=>setPlanPath("new"));
 const btnPlanBack=document.getElementById("btnPlanBack");
