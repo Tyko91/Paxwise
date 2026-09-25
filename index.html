@@ -117,6 +117,14 @@ a.types-jump:hover{opacity:.85}
 .chk label:has(input:checked){background:#fff;border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.15)}
 .chk input{width:auto}
 .chk label.off{opacity:.4;text-decoration:line-through}
+.chk-pax{color:#6b7280;font-weight:500}
+.ret-block{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ret-block > h3{font-size:13px;margin:0 0 8px;color:var(--navy);font-weight:750}
+.ret-sum-stack{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.ret-sum-stack .ret-sum-line{display:flex;gap:8px;align-items:baseline;font-size:13px}
+.ret-sum-stack .tn{flex:1;font-weight:650;color:var(--navy);min-width:0}
+.ret-sum-stack .tv{font-variant-numeric:tabular-nums;font-weight:750;color:var(--navy)}
+.sec-sum:has(.ret-sum-stack){align-items:flex-start}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .chip{border:1px solid var(--line);width:auto;padding:8px 14px;border-radius:999px;background:#fff;color:var(--navy);font-size:13px;margin:0;font-weight:650;box-shadow:none}
 .chip.on{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:inset 0 -2px 0 var(--gold)}
@@ -132,9 +140,6 @@ a.types-jump:hover{opacity:.85}
 button.ks-ack{margin:10px 0 8px}
 .type-body .type-save{margin-top:10px}
 .type-body .type-wipe{margin-top:8px}
-.ret-block{margin-top:10px}
-.ret-block h3{font-size:13px;margin:0 0 2px;color:var(--navy)}
-.ret-block .hint{margin:0 0 6px;color:var(--muted);font-size:11px;line-height:1.35}
 .ret-sum{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}
 .ret-sum:last-child{border-bottom:0}
 .ret-sum .tn{flex:1;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -227,17 +232,17 @@ details{margin-top:6px}
 <section id="secVlootinzet" hidden>
 <h2>Vlootinzet</h2>
 <p class="warn" id="flowGateMsg" style="display:none"></p>
-<p class="tiny" style="margin:0 0 8px"><a href="#secTypes" id="linkTypes" class="types-jump">Toestellen beheren</a></p>
 <p id="kiezenLead" style="margin:8px 0 4px;font-weight:600;font-size:.92rem">Welke toestellen wil je op deze route gebruiken?</p>
 <p class="tiny" id="kiezenHint" style="margin:0 0 10px;color:#6b7280">Vink aan wat meedoet aan de mix.</p>
 <div class="chk" id="kiezen"></div>
-</section>
-<section class="sec-fold" id="secRetour" hidden>
-<h2>Retourtijd per toestel</h2>
-<div class="sec-sum" id="retourSum"><span class="ks-txt" id="retourSumTxt"></span><button type="button" class="ghost" id="retourSumEdit">Wijzig</button></div>
+<p class="tiny" style="margin:8px 0 0"><a href="#secTypes" id="linkTypes" class="types-jump">Toestellen beheren</a></p>
+<div class="ret-block" id="secRetour" hidden>
+<h3>Retourtijd(en) per toestel</h3>
+<div class="sec-sum" id="retourSum" style="display:none"><div class="ret-sum-stack" id="retourSumTxt"></div><button type="button" class="ghost" id="retourSumEdit">Wijzig</button></div>
 <div class="sec-body" id="retourBody">
-<p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Per aangevinkt toestel: zet de retourtijd uit het routescherm in-game. Daarna klapt dit dicht.</p>
+<p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Per aangevinkt toestel: zet de retourtijd uit het routescherm in-game.</p>
 <div id="retourTypes"></div>
+</div>
 </div>
 </section>
 <section id="secRest" hidden>
@@ -654,7 +659,7 @@ function setRetConfirmed(t,val){
   const u=parseHM(val);if(!(u>0))return;
   routeRet[t]=fmtHM(u);retEditOpen[t]=false;renderRetourTypes(null,true);calc();
 }
-function editRet(t){retEditOpen[t]=true;const sec=document.getElementById("secRetour");if(sec)sec.classList.remove("collapsed");renderRetourTypes(null,true)}
+function editRet(t){retEditOpen[t]=true;const sec=document.getElementById("secRetour");if(sec)sec.hidden=false;renderRetourTypes(null,true)}
 function planVl(t){if(!canFly(t))return 0;const u=typeUren(t);if(u>0){const n=Math.floor(24/u+1e-9);return n>=1?n:(24/u>=0.45?1:0)}const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
 function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
@@ -1028,25 +1033,33 @@ function renderTypes(){
   renderKiezen();
   bindNums();
 }
+function kiezenOrder(){
+  return TYPE_ORDER.slice().sort((a,b)=>{
+    const fa=tooFar(a),fb=tooFar(b);
+    if(fa!==fb) return fa?1:-1;
+    return (typeSpec(b).pax||0)-(typeSpec(a).pax||0);
+  });
+}
 function renderKiezen(){
   const prev={};
   TYPE_ORDER.forEach(t=>{const el=document.getElementById("use_"+t);if(el)prev[t]=el.checked});
   const clear=!!window._clearKiezen;window._clearKiezen=false;
   syncRetFromDom();
   const ready=flowReady();
-  document.getElementById("kiezen").innerHTML=TYPE_ORDER.map(t=>{
+  document.getElementById("kiezen").innerHTML=kiezenOrder().map(t=>{
     const far=tooFar(t);
+    const pax=typeSpec(t).pax||0;
     const on=far||!ready?false:(clear?false:(prev[t]===undefined?false:!!prev[t]));
     const dis=far||!ready;
-    return "<label class='"+(dis?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(dis?"disabled":"")+(on?" checked":"")+"> "+t+(far?" · te ver":"")+"</label>";
+    return "<label class='"+(dis?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(dis?"disabled":"")+(on?" checked":"")+"> "+t+" <span class='chk-pax'>("+pax+" pax)</span>"+(far?" · te ver":"")+"</label>";
   }).join("");
   document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{
     const t=el.id.replace(/^use_/,"");
     if(el.checked){
       retEditOpen[t]=true;
       const sec=document.getElementById("secRetour");
-      if(sec){sec.hidden=false;sec.classList.remove("collapsed");}
-      setTimeout(()=>{const s2=document.getElementById("secRetour");if(s2)s2.scrollIntoView({behavior:"smooth",block:"start"})},50);
+      if(sec){sec.hidden=false;}
+      setTimeout(()=>{const s2=document.getElementById("secRetour");if(s2)s2.scrollIntoView({behavior:"smooth",block:"nearest"})},50);
     }else{
       delete retEditOpen[t];
     }
@@ -1055,7 +1068,7 @@ function renderKiezen(){
   renderRetourTypes();
 }
 function retourTypesSelected(){
-  return TYPE_ORDER.filter(t=>{
+  return kiezenOrder().filter(t=>{
     const el=document.getElementById("use_"+t);
     return !!(el&&el.checked&&!el.disabled&&canFly(t));
   });
@@ -1075,12 +1088,13 @@ function applyRetourFold(){
   if(!sec) return;
   const types=retourTypesSelected();
   const ready=flowReady();
-  const txt=document.getElementById("retourSumTxt");
-  if(txt){txt.textContent=retourSumLine(types);txt.classList.toggle("locked-ok",retourAllConfirmed(types))}
-  if(!ready||!types.length){sec.hidden=true;sec.classList.remove("collapsed");return}
+  const sum=document.getElementById("retourSum");
+  const body=document.getElementById("retourBody");
+  if(sum) sum.style.display="none";
+  if(body) body.style.display="";
+  sec.classList.remove("collapsed");
+  if(!ready||!types.length){sec.hidden=true;return}
   sec.hidden=false;
-  const collapse=retourAllConfirmed(types);
-  sec.classList.toggle("collapsed", collapse);
 }
 function renderRetourTypes(seed,force){
   const box=document.getElementById("retourTypes");
@@ -1277,7 +1291,11 @@ function pill(label,val,kind){const st=kind==="left"?"tekort":(kind==="over"?"te
 function softRefreshKiezen(){
   let need=false;
   const ready=flowReady();
-  TYPE_ORDER.forEach(t=>{
+  const order=kiezenOrder();
+  const box=document.getElementById("kiezen");
+  const kids=box?Array.from(box.querySelectorAll("input[type=checkbox]")).map(el=>el.id.replace(/^use_/,"")):[];
+  if(kids.join("|")!==order.join("|")) need=true;
+  order.forEach(t=>{
     const el=document.getElementById("use_"+t);if(!el){need=true;return}
     const far=tooFar(t);
     const shouldDis=far||!ready;
@@ -1289,9 +1307,11 @@ function softRefreshKiezen(){
       const txt=lab.textContent||"";
       if(far && txt.indexOf("te ver")<0) need=true;
       if(!far && txt.indexOf("te ver")>=0) need=true;
+      const pax=String(typeSpec(t).pax||0);
+      if(txt.indexOf("("+pax+" pax)")<0) need=true;
     }
   });
-  if(need || !document.getElementById("kiezen").children.length) renderKiezen();
+  if(need || !box || !box.children.length) renderKiezen();
   else renderRetourTypes();
 }
 function calc(){
@@ -1366,7 +1386,7 @@ if(retourSumEdit) retourSumEdit.addEventListener("click",()=>{
   const types=retourTypesSelected();
   types.forEach(t=>{retEditOpen[t]=true});
   const sec=document.getElementById("secRetour");
-  if(sec) sec.classList.remove("collapsed");
+  if(sec) sec.hidden=false;
   renderRetourTypes(null,true);
 });
 const typesSumEdit=document.getElementById("typesSumEdit");
