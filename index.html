@@ -257,7 +257,7 @@ details{margin-top:6px}
 <script>
 const HUBS={VIE:[48.1103,16.5697],GRU:[-23.4319,-46.4678],GIG:[-22.8099,-43.2506],BSB:[-15.8711,-47.9186],AMS:[52.3086,4.7639],FRA:[50.0333,8.5706],MUC:[48.3538,11.7861],DUS:[51.2895,6.7668],HAM:[53.6304,9.9882],BER:[52.3667,13.5033],LHR:[51.47,-0.4543],LGW:[51.1537,-0.1821],MAN:[53.3537,-2.275],CDG:[49.0097,2.5478],ORY:[48.7233,2.3794],MAD:[40.4983,-3.5676],BCN:[41.2971,2.0785],FCO:[41.8003,12.2389],MXP:[45.6306,8.7281],ZRH:[47.4581,8.5481],GVA:[46.2381,6.1089],BRU:[50.9014,4.4844],DUB:[53.4213,-6.2701],CPH:[55.618,12.656],ARN:[59.6519,17.9186],OSL:[60.1939,11.1004],HEL:[60.3172,24.9633],WAW:[52.1658,20.9671],PRG:[50.1008,14.26],BUD:[47.4298,19.2611],ATH:[37.9364,23.9445],IST:[41.2753,28.7519],LIS:[38.7742,-9.1342],DXB:[25.2532,55.3657],DOH:[25.2731,51.6081],AUH:[24.433,54.6511],CAI:[30.1219,31.4056],JNB:[-26.1392,28.246],CPT:[-33.9648,18.6017],JFK:[40.6398,-73.7789],EWR:[40.6925,-74.1687],ORD:[41.9786,-87.9048],ATL:[33.6367,-84.4281],MIA:[25.7959,-80.287],DFW:[32.8968,-97.038],LAX:[33.9425,-118.408],SFO:[37.6189,-122.375],YYZ:[43.6772,-79.6306],MEX:[19.4363,-99.0721],EZE:[-34.8222,-58.5358],SCL:[-33.393,-70.7858],BOG:[4.7016,-74.1469],LIM:[-12.0219,-77.1143],NRT:[35.7647,140.386],HND:[35.5523,139.78],ICN:[37.4691,126.451],PEK:[40.0801,116.585],PVG:[31.1434,121.805],HKG:[22.308,113.919],SIN:[1.3502,103.994],BKK:[13.6811,100.747],DEL:[28.5562,77.1],BOM:[19.0887,72.8679],SYD:[-33.9461,151.177],MEL:[-37.6733,144.843],AKL:[-37.0082,174.792]};
 
-const KEY="am_routes_v1", TKEY="am_types_v1";
+const KEY="am_routes_v1", TKEY="am_types_v1", LAST="am_last_route_v1";
 let TYPE_ORDER=["A350-1000LR","A330-300","A320neo"];
 let TYPE_DEFAULTS={
 "A350-1000LR":{pax:480,payload:55,speed:950,range:18000},
@@ -545,9 +545,10 @@ function suggest(onlyRest){
 function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,retByType:readRetByType(),fleet:currentRows()}}
 function loadList(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
 function storeList(list){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
+function rememberRoute(id){if(!id)return;try{localStorage.setItem(LAST,id)}catch(e){}}
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+(r.route||r.id)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
-function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!currentId)return;const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);if(!quiet)renderChips()}
-function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();routeRet=Object.assign({},r.retByType||{});retEditOpen={};writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);applyIata(false);renderChips()}
+function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!currentId)return;const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);rememberRoute(currentId);if(!quiet)renderChips()}
+function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;rememberRoute(currentId);document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();routeRet=Object.assign({},r.retByType||{});retEditOpen={};writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);applyIata(false);renderChips()}
 function deleteRoute(){
   if(!currentId){lastWhy=["Geen route om te verwijderen."];calc();return}
   if(!confirm("Deze route verwijderen?"))return
@@ -638,12 +639,16 @@ function bindNums(root){
     if(el.dataset.numBound) return;
     el.dataset.numBound="1";
     const dec=!!(el.step&&String(el.step).includes("."));
+    el.addEventListener("focus",()=>{try{el.select()}catch(e){}});
     el.addEventListener("keydown",e=>{
       const bad=["e","E","+","-"];
       if(!dec) bad.push(".",",");
       if(bad.includes(e.key)) e.preventDefault();
     });
-    el.addEventListener("input",()=>sanitizeNum(el,dec));
+    el.addEventListener("input",()=>{
+      sanitizeNum(el,dec);
+      if(!dec && /^0\d/.test(el.value)) el.value=String(parseInt(el.value,10));
+    });
   });
 }
 
@@ -833,10 +838,19 @@ const askSumEdit=document.getElementById("askSumEdit");
 if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;applyAskLock();saveRoute()});
 document.getElementById("lockTypes").addEventListener("change",()=>{applyTypesLock();saveTypes()});
 applyRouteLock();applyAskLock();applyTypesLock();
-writeRows([{type:"A350-1000LR",fl:"1",y:"480",j:"0",f:"0",c:"0",status:"draft"}]);
-currentId="r-vie-gru";
-try{saveRoute()}catch(e){}
-applyIata(false);
+(function boot(){
+  const list=loadList();
+  let last=null;try{last=localStorage.getItem(LAST)}catch(e){}
+  const pick=(last&&list.find(r=>r.id===last))||(list.length?list[list.length-1]:null);
+  if(pick){openRoute(pick.id);return}
+  ["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("lockRoute").checked=false;
+  document.getElementById("lockAsk").checked=false;
+  applyRouteLock();applyAskLock();
+  writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);
+  renderChips();
+  calc();
+})();
 }catch(e){document.getElementById("advies").textContent="Fout: "+e.message}
 </script>
 </body>
