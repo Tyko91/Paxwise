@@ -54,6 +54,11 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .kist-sum .ks-n{font-size:11px;font-weight:800;color:var(--muted);flex:0 0 auto}
 .kist-sum .ks-txt{flex:1;font-size:13px;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kist-sum button{width:auto;margin:0;padding:4px 10px;font-size:12px;box-shadow:none;flex:0 0 auto}
+.sec-fold.collapsed .sec-body{display:none}
+.sec-fold:not(.collapsed) .sec-sum{display:none}
+.sec-sum{display:flex;align-items:center;gap:8px;margin-top:4px}
+.sec-sum .ks-txt{flex:1;font-size:13px;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec-sum button{width:auto;margin:0;padding:4px 10px;font-size:12px;box-shadow:none;flex:0 0 auto}
 .kist h3,.typekaart h3{margin:0 0 8px;font-size:15px;color:var(--navy);font-weight:750}
 .roost-legend .hrs{opacity:.75;font-weight:600;margin-left:2px}
 .roost-empty-tip{font-size:12px;color:rgba(247,231,181,.9);padding:8px 4px 10px;line-height:1.45;font-weight:650}
@@ -160,8 +165,10 @@ details{margin-top:6px}
 </div>
 <p class="autosave" id="autosaveHint">Wijzigingen worden automatisch opgeslagen.</p>
 </section>
-<section>
+<section class="sec-fold" id="secRoute">
 <h2>Route</h2>
+<div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
+<div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
 <div class="grid2">
 <div><label>Heen</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
@@ -171,6 +178,7 @@ details{margin-top:6px}
 <div class="grid2" style="margin-top:8px">
 <div><label>Route</label><input class="yellow" id="route" value="VIE–GRU"></div>
 <div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
+</div>
 </div>
 </section>
 <section>
@@ -193,8 +201,10 @@ details{margin-top:6px}
 </div>
 </details>
 </section>
-<section>
+<section class="sec-fold" id="secAsk">
 <h2>Vraag per dag (pax)</h2>
+<div class="sec-sum" id="askSum"><span class="ks-txt" id="askSumTxt"></span><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
+<div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
 <div class="grid4 ask4">
 <div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
@@ -205,6 +215,7 @@ details{margin-top:6px}
 <input id="factor" type="hidden" value="2">
 <input id="jkost" type="hidden" value="1.8">
 <input id="fkost" type="hidden" value="4.2">
+</div>
 </section>
 <section>
 <h2>Resterende vraag (pax)</h2>
@@ -237,8 +248,10 @@ details{margin-top:6px}
 <p class="roost-note" id="roosterNote"></p>
 </section>
 <section>
-<h2>Waarom</h2>
+<details>
+<summary class="h">Waarom</summary>
 <div class="advies" id="advies"></div>
+</details>
 </section>
 </main>
 <script>
@@ -259,8 +272,28 @@ function code(id){return (document.getElementById(id).value||"").trim().toUpperC
 function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");if(s&&s.order&&s.defs){TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs;const el=document.getElementById("lockTypes");if(el&&typeof s.lock!=="undefined")el.checked=!!s.lock}}catch(e){}}
 function saveTypes(){try{const lock=document.getElementById("lockTypes");localStorage.setItem(TKEY,JSON.stringify({order:TYPE_ORDER,defs:TYPE_DEFAULTS,lock:lock?!!lock.checked:false}))}catch(e){}}
 function setLocked(els,locked){els.forEach(el=>{if(!el)return;el.disabled=!!locked;if(el.tagName==="INPUT"&&el.type!=="checkbox"&&el.type!=="hidden"){el.classList.toggle("yellow",!locked)}})}
-function applyRouteLock(){const locked=!!document.getElementById("lockRoute").checked;setLocked(["fromA","toA","route","km"].map(id=>document.getElementById(id)),locked)}
-function applyAskLock(){const locked=!!document.getElementById("lockAsk").checked;setLocked(["qY","qJ","qF","qC"].map(id=>document.getElementById(id)),locked)}
+function routeSumLine(){
+  const name=(document.getElementById("route").value||"").trim()||((code("fromA")&&code("toA"))?code("fromA")+"–"+code("toA"):"—");
+  const km=num("km");
+  return name+(km?(" · "+km+" km"):"");
+}
+function askSumLine(){
+  return (document.getElementById("qY").value||"0")+"E / "+(document.getElementById("qJ").value||"0")+"B / "+(document.getElementById("qF").value||"0")+"F · "+(document.getElementById("qC").value||"0")+"t";
+}
+function applyRouteLock(){
+  const locked=!!document.getElementById("lockRoute").checked;
+  setLocked(["fromA","toA","route","km"].map(id=>document.getElementById(id)),locked);
+  const sec=document.getElementById("secRoute");
+  if(sec) sec.classList.toggle("collapsed", locked);
+  const t=document.getElementById("routeSumTxt");if(t) t.textContent=routeSumLine();
+}
+function applyAskLock(){
+  const locked=!!document.getElementById("lockAsk").checked;
+  setLocked(["qY","qJ","qF","qC"].map(id=>document.getElementById(id)),locked);
+  const sec=document.getElementById("secAsk");
+  if(sec) sec.classList.toggle("collapsed", locked);
+  const t=document.getElementById("askSumTxt");if(t) t.textContent=askSumLine();
+}
 function applyTypesLock(){
   const locked=!!document.getElementById("lockTypes").checked;
   TYPE_ORDER.forEach(t=>["pax","payload","speed","range"].forEach(k=>{const el=document.getElementById(sid(t,k));if(el){el.disabled=locked;el.classList.toggle("yellow",!locked)}}));
@@ -778,6 +811,8 @@ function calc(){
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
   document.getElementById("rest").innerHTML=pill("Economy",over.Y.toFixed(0),kind(over.Y))+pill("Business",over.J.toFixed(0),kind(over.J))+pill("First",over.F.toFixed(0),kind(over.F))+pill("Cargo",over.C.toFixed(0)+" t",kind(over.C));
   document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
+  const rst=document.getElementById("routeSumTxt");if(rst) rst.textContent=routeSumLine();
+  const ast=document.getElementById("askSumTxt");if(ast) ast.textContent=askSumLine();
   renderRooster();
   if(currentId) saveRoute(true);
 }
@@ -792,6 +827,10 @@ document.getElementById("route").addEventListener("input",()=>{calc();if(current
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
 document.getElementById("lockRoute").addEventListener("change",()=>{applyRouteLock();saveRoute()});
 document.getElementById("lockAsk").addEventListener("change",()=>{applyAskLock();saveRoute()});
+const routeSumEdit=document.getElementById("routeSumEdit");
+if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementById("lockRoute").checked=false;applyRouteLock();saveRoute()});
+const askSumEdit=document.getElementById("askSumEdit");
+if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;applyAskLock();saveRoute()});
 document.getElementById("lockTypes").addEventListener("change",()=>{applyTypesLock();saveTypes()});
 applyRouteLock();applyAskLock();applyTypesLock();
 writeRows([{type:"A350-1000LR",fl:"1",y:"480",j:"0",f:"0",c:"0",status:"draft"}]);
