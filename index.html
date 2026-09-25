@@ -39,9 +39,9 @@ input.yellow{background:linear-gradient(180deg,#FFF8DC,#F7E7B5);border-color:#e6
 .withunit .unit{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;font-weight:600}
 input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);border-color:#eef2f7}
 .lock{display:none}
-.lock-cta{display:none;width:100%;margin:0 0 12px;padding:12px 14px;border-radius:12px;border:2px solid var(--gold);background:linear-gradient(180deg,#FFF8DC,#F7E7B5);color:var(--navy);font-weight:750;font-size:14px;box-shadow:none;cursor:pointer;text-align:center}
+.lock-cta{display:none;width:100%;margin:12px 0 0;padding:14px 16px;border-radius:12px;border:2px solid var(--gold);background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);color:#fff;font-weight:750;font-size:14px;box-shadow:0 6px 16px rgba(11,31,58,.25);cursor:pointer;text-align:center}
 .lock-cta.show{display:block}
-.lock-cta:disabled{opacity:.45;cursor:not-allowed}
+.lock-cta:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 .mix-mode{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}
 .mix-mode label{display:flex;align-items:center;gap:8px;margin:0;font-size:13px;color:var(--navy);font-weight:650;letter-spacing:0;text-transform:none}
 .mix-mode input{width:auto;margin:0}
@@ -185,7 +185,6 @@ details{margin-top:6px}
 <div class="sec-sum" id="typesSum"><span class="ks-txt" id="typesSumTxt"></span><button type="button" class="ghost" id="typesSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockTypes"> Vastzetten</label>
-<button type="button" class="lock-cta" id="lockTypesCta">Zet deze gegevens vast om door te gaan</button>
 <p class="warn" id="lockTypesMsg" style="display:none"></p>
 <div class="typekaart" id="nieuwType">
 <h3>Voeg nieuw type toestel toe</h3>
@@ -202,6 +201,7 @@ details{margin-top:6px}
 </div>
 <button type="button" class="ghost" id="btnMoreType" hidden>+ Voeg nog een toestel toe</button>
 <div id="types"></div>
+<button type="button" class="lock-cta" id="lockTypesCta">Zet deze gegevens vast om door te gaan</button>
 </div>
 </section>
 <section class="sec-fold" id="secRoute">
@@ -209,7 +209,6 @@ details{margin-top:6px}
 <div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
-<button type="button" class="lock-cta" id="lockRouteCta">Zet deze gegevens vast om door te gaan</button>
 <p class="warn" id="lockRouteMsg" style="display:none"></p>
 <div class="grid2">
 <div><label>Van</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
@@ -220,6 +219,7 @@ details{margin-top:6px}
 <div><label>Route</label><input class="yellow" id="route" value="VIE–GRU"></div>
 <div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
 </div>
+<button type="button" class="lock-cta" id="lockRouteCta">Zet deze gegevens vast om door te gaan</button>
 </div>
 </section>
 <section class="sec-fold" id="secAsk">
@@ -227,7 +227,6 @@ details{margin-top:6px}
 <div class="sec-sum" id="askSum"><span class="ks-txt" id="askSumTxt"></span><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
-<button type="button" class="lock-cta" id="lockAskCta">Zet deze gegevens vast om door te gaan</button>
 <p class="warn" id="lockAskMsg" style="display:none"></p>
 <div class="grid4 ask4">
 <div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
@@ -238,6 +237,7 @@ details{margin-top:6px}
 <input id="factor" type="hidden" value="2">
 <input id="jkost" type="hidden" value="1.8">
 <input id="fkost" type="hidden" value="4.2">
+<button type="button" class="lock-cta" id="lockAskCta">Zet deze gegevens vast om door te gaan</button>
 </div>
 </section>
 <section>
@@ -263,8 +263,8 @@ details{margin-top:6px}
 </section>
 <section>
 <h2>Vloot</h2>
-<div id="vloot"></div>
 <button type="button" class="ghost" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
+<div id="vloot"></div>
 </section>
 <section class="roost">
 <h2>Rooster</h2>
@@ -333,6 +333,8 @@ function askLockMissing(){
   if(emptyField(document.getElementById("qJ"))) m.push("Business");
   if(emptyField(document.getElementById("qF"))) m.push("First");
   if(emptyField(document.getElementById("qC"))) m.push("Cargo");
+  if(m.length) return m;
+  if(num("qY")+num("qJ")+num("qF")+num("qC")<=0) m.push("minstens één vraag groter dan 0");
   return m;
 }
 function typesLockMissing(){
@@ -697,8 +699,8 @@ function clampKist(k,changed){
   cEl.max=String(Math.max(0,+t.payload||0));
 }
 function addKist(){writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]))}
-function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows.length?rows:[{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}])}
-function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}])}
+function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
+function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([])}
 function suggest(onlyRest){
   refreshKiezen();
   const types=selectedTypes();if(!types.length){lastWhy=["Geen type dat deze afstand aankan."];calc();return}
@@ -716,7 +718,10 @@ function rememberRoute(id){if(!id)return;try{localStorage.setItem(LAST,id)}catch
 function chipLabel(r){const n=(r.route||"").trim();if(n)return n;const a=(r.from||"").trim(),b=(r.to||"").trim();if(a&&b)return a+"–"+b;return "Nieuwe route"}
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+chipLabel(r)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
 function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!currentId)return;const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);rememberRoute(currentId);if(!quiet)renderChips()}
-function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;rememberRoute(currentId);document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();routeRet=Object.assign({},r.retByType||{});retEditOpen={};writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);applyIata(false);renderChips()}
+function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;rememberRoute(currentId);document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();routeRet=Object.assign({},r.retByType||{});retEditOpen={};writeRows(cleanFleet(r.fleet));applyIata(false);renderChips()}
+function cleanFleet(list){
+  return (list||[]).filter(k=>k&&(k.type||String(k.y??"").trim()!==""||String(k.j??"").trim()!==""||String(k.f??"").trim()!==""||String(k.c??"").trim()!==""||k.status==="on"));
+}
 function deleteRoute(){
   if(!currentId){lastWhy=["Geen route om te verwijderen."];calc();return}
   if(!confirm("Deze route verwijderen?"))return
@@ -727,9 +732,9 @@ function deleteRoute(){
   ["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;
   applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
-  writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc();
+  writeRows([]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()}lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);window._clearKiezen=true;calc();saveRoute(false)}
+function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()}lastWhy=[];writeRows([]);window._clearKiezen=true;calc();saveRoute(false)}
 function renameTypeSilent(oldN,newN){
   if(!oldN||!newN||oldN===newN) return;
   if(!(oldN in TYPE_DEFAULTS)) return;
@@ -1091,7 +1096,7 @@ applyRouteLock();applyAskLock();applyTypesLock();
   document.getElementById("lockRoute").checked=false;
   document.getElementById("lockAsk").checked=false;
   applyRouteLock();applyAskLock();
-  writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);
+  writeRows([]);
   renderChips();
   calc();
 })();
