@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paxwise</title>
 <style>
+html{overflow-anchor:none}
 :root{
   --navy:#0B1F3A;
   --navy-mid:#143056;
@@ -638,10 +639,6 @@ function applyVlootInFold(){
   if(!ok){sec.classList.remove("collapsed");sec.classList.remove("vloot-force-open")}
   const foldBtn=document.getElementById("vlootInFoldBtn");
   if(foldBtn) foldBtn.hidden=!(ok && !sec.classList.contains("collapsed"));
-  // Inklappen: alleen blur (geen scrollIntoView — dat versprong bij accorderen)
-  if(ok && !wasCollapsed && sec.classList.contains("collapsed")){
-    try{if(document.activeElement&&document.activeElement.blur) document.activeElement.blur()}catch(e){}
-  }
 }
 function collapseVlootIn(){
   const sec=document.getElementById("secVlootinzet");
@@ -779,10 +776,17 @@ function readRetByType(){
   Object.keys(routeRet).forEach(t=>{if(routeRet[t]&&parseHM(routeRet[t]))o[t]=routeRet[t]});
   return o;
 }
+function keepScroll(fn){
+  const y=window.scrollY;
+  try{const a=document.activeElement;if(a&&a!==document.body&&a.blur)a.blur()}catch(e){}
+  fn();
+  const back=()=>{if(Math.abs(window.scrollY-y)>1)window.scrollTo(0,y)};
+  back();
+  requestAnimationFrame(()=>{back();requestAnimationFrame(back)});
+}
 function setRetConfirmed(t,val){
   const u=parseHM(val);if(!(u>0))return;
-  try{if(document.activeElement&&document.activeElement.blur) document.activeElement.blur()}catch(e){}
-  routeRet[t]=fmtHM(u);retEditOpen[t]=false;renderRetourTypes(null,true);calc();
+  keepScroll(()=>{routeRet[t]=fmtHM(u);retEditOpen[t]=false;renderRetourTypes(null,true);calc()});
 }
 function editRet(t){retEditOpen[t]=true;const sec=document.getElementById("secRetour");if(sec)sec.hidden=false;renderRetourTypes(null,true)}
 function planVl(t){if(!canFly(t))return 0;const u=typeUren(t);if(u>0){const n=Math.floor(24/u+1e-9);return n>=1?n:(24/u>=0.45?1:0)}const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
@@ -1200,9 +1204,7 @@ function renderKiezen(){
   document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{
     const t=el.id.replace(/^use_/,"");
     if(el.checked){
-      retEditOpen[t]=true;
-      const sec=document.getElementById("secRetour");
-      if(sec){sec.hidden=false;}
+      if(!(routeRet[t]&&parseHM(routeRet[t]))) retEditOpen[t]=true;
     }else{
       delete retEditOpen[t];
     }
