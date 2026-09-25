@@ -826,14 +826,6 @@ function pickType(need,types,jk,fk){
   if(p<=typeSpec(mid).pax) return mid;
   return large;
 }
-function restBits(need){
-  const bits=[];
-  if(need.Y>0.5) bits.push(Math.ceil(need.Y)+"E");
-  if(need.J>0.5) bits.push(Math.ceil(need.J)+"B");
-  if(need.F>0.5) bits.push(Math.ceil(need.F)+"F");
-  if(need.C>0.5) bits.push(Math.ceil(need.C)+"t cargo");
-  return bits.join(" / ");
-}
 function packNeed(need,types,jkost,fkost,already){
   already=already||0;
   const planes=[];need={...need};let guard=0;
