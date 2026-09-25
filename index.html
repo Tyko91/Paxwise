@@ -165,26 +165,27 @@ details{margin-top:6px}
 </div>
 <p class="autosave" id="autosaveHint">Wijzigingen worden automatisch opgeslagen.</p>
 </section>
-<section id="secTypes">
-<details id="typesDetails">
-<summary class="h">Mijn toestellen</summary>
-<p class="tiny" style="margin:0 0 8px">Geldt voor alle routes.</p>
+<section class="sec-fold" id="secTypes">
+<h2>Mijn toestellen</h2>
+<p class="tiny" style="margin:0 0 6px">Geldt voor alle routes.</p>
+<div class="sec-sum" id="typesSum"><span class="ks-txt" id="typesSumTxt"></span><button type="button" class="ghost" id="typesSumEdit">Wijzig</button></div>
+<div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockTypes"> Vastzetten</label>
 <div id="types"></div>
 <div class="typekaart" id="nieuwType">
 <h3>Nieuw type</h3>
 <div class="grid2">
-<div><label>Naam</label><input id="nName" placeholder="bijv. 787-9"></div>
-<div><label>Max pax</label><input id="nPax" type="number"></div>
+<div><label>Naam</label><input class="yellow" id="nName" placeholder="bijv. 787-9"></div>
+<div><label>Max pax</label><input class="yellow" id="nPax" type="number"></div>
 </div>
 <div class="grid4" style="margin-top:8px">
-<div><label>Payload t</label><input id="nPay" type="number"></div>
-<div><label>km/h</label><input id="nSpd" type="number"></div>
-<div><label>Max km</label><input id="nRng" type="number"></div>
+<div><label>Payload t</label><input class="yellow" id="nPay" type="number"></div>
+<div><label>km/h</label><input class="yellow" id="nSpd" type="number"></div>
+<div><label>Max km</label><input class="yellow" id="nRng" type="number"></div>
 </div>
 <button type="button" class="sec" id="btnAddType" onclick="addCustomType()">Voeg toestel toe</button>
 </div>
-</details>
+</div>
 </section>
 <section class="sec-fold" id="secRoute">
 <h2>Route</h2>
@@ -298,12 +299,16 @@ function applyAskLock(){
   if(sec) sec.classList.toggle("collapsed", locked);
   const t=document.getElementById("askSumTxt");if(t) t.textContent=askSumLine();
 }
+function typesSumLine(){return TYPE_ORDER.length?TYPE_ORDER.join(" · "):"—"}
 function applyTypesLock(){
   const locked=!!document.getElementById("lockTypes").checked;
   TYPE_ORDER.forEach(t=>["pax","payload","speed","range"].forEach(k=>{const el=document.getElementById(sid(t,k));if(el){el.disabled=locked;el.classList.toggle("yellow",!locked)}}));
-  ["nName","nPax","nPay","nSpd","nRng"].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=locked});
-  const btn=document.getElementById("btnAddType");if(btn)btn.disabled=locked;
-  document.querySelectorAll("input.type-name").forEach(el=>{el.disabled=false;el.classList.add("yellow")});
+  document.querySelectorAll("input.type-name").forEach(el=>{el.disabled=locked;el.classList.toggle("yellow",!locked)});
+  setLocked(["nName","nPax","nPay","nSpd","nRng"].map(id=>document.getElementById(id)),locked);
+  const btn=document.getElementById("btnAddType");if(btn){btn.disabled=locked;btn.style.display=locked?"none":""}
+  const sec=document.getElementById("secTypes");
+  if(sec) sec.classList.toggle("collapsed", locked);
+  const t=document.getElementById("typesSumTxt");if(t) t.textContent=typesSumLine();
 }
 function rowStatus(r){
   if(r&&r.status) return r.status;
@@ -596,8 +601,8 @@ function renameType(oldN,newN){
   saveTypes();renderTypes();renderKiezen();if(currentId)saveRoute(true);calc();
 }
 function openTypesPanel(){
-  const d=document.getElementById("typesDetails");
-  if(d) d.open=true;
+  const lock=document.getElementById("lockTypes");
+  if(lock&&lock.checked){lock.checked=false;applyTypesLock();saveTypes()}
   const sec=document.getElementById("secTypes");
   if(sec) sec.scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -879,6 +884,8 @@ if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementB
 const askSumEdit=document.getElementById("askSumEdit");
 if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;applyAskLock();saveRoute()});
 document.getElementById("lockTypes").addEventListener("change",()=>{applyTypesLock();saveTypes()});
+const typesSumEdit=document.getElementById("typesSumEdit");
+if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;applyTypesLock();saveTypes()});
 const linkTypes=document.getElementById("linkTypes");
 if(linkTypes) linkTypes.addEventListener("click",e=>{e.preventDefault();openTypesPanel()});
 applyRouteLock();applyAskLock();applyTypesLock();
