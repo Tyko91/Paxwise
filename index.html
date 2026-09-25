@@ -174,10 +174,93 @@ details{margin-top:6px}
 <h2>Mijn routes</h2>
 <div class="chips" id="chips"></div>
 <div class="grid2">
-<button type="button" class="ok" onclick="newRoute()">+ Nieuwe Route</button>
+<button type="button" class="ok" onclick="newRoute()">+ Nieuwe route</button>
 <button type="button" class="danger" onclick="deleteRoute()">− Route verwijderen</button>
 </div>
 <p class="autosave" id="autosaveHint">Wijzigingen worden automatisch opgeslagen.</p>
+</section>
+<section class="sec-fold" id="secRoute">
+<h2>Deze route</h2>
+<div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
+<div class="sec-body">
+<label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
+<p class="warn" id="lockRouteMsg" style="display:none"></p>
+<div class="grid2">
+<div><label>Van</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
+<div><label>Naar</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
+</div>
+<p class="tiny" id="iataHint"></p>
+<div class="grid2" style="margin-top:8px">
+<div><label>Route</label><input class="yellow" id="route" value="VIE–GRU"></div>
+<div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
+</div>
+<button type="button" class="lock-cta" id="lockRouteCta">Zet deze gegevens vast om door te gaan</button>
+</div>
+</section>
+<section class="sec-fold" id="secAsk" hidden>
+<h2>Vraag per dag (pax)</h2>
+<div class="sec-sum" id="askSum"><span class="ks-txt" id="askSumTxt"></span><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
+<div class="sec-body">
+<label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
+<p class="warn" id="lockAskMsg" style="display:none"></p>
+<div class="grid4 ask4">
+<div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
+<div><label>Business</label><input class="yellow" id="qJ" type="number" value="300"></div>
+<div><label>First</label><input class="yellow" id="qF" type="number" value="96"></div>
+<div><label>Cargo</label><div class="withunit"><input class="yellow" id="qC" type="number" step="1" value="21"><span class="unit">t</span></div></div>
+</div>
+<input id="factor" type="hidden" value="2">
+<input id="jkost" type="hidden" value="1.8">
+<input id="fkost" type="hidden" value="4.2">
+<button type="button" class="lock-cta" id="lockAskCta">Zet deze gegevens vast om door te gaan</button>
+</div>
+</section>
+<section id="secVlootinzet" hidden>
+<h2>Vlootinzet</h2>
+<p class="warn" id="flowGateMsg" style="display:none"></p>
+<p class="tiny" style="margin:0 0 8px"><a href="#secTypes" id="linkTypes" class="types-jump">Toestellen beheren</a></p>
+<p id="kiezenLead" style="margin:8px 0 4px;font-weight:600;font-size:.92rem">Welke toestellen wil je op deze route gebruiken?</p>
+<p class="tiny" id="kiezenHint" style="margin:0 0 10px;color:#6b7280">Vink aan wat meedoet aan de mix.</p>
+<div class="chk" id="kiezen"></div>
+</section>
+<section id="secRetour" hidden>
+<h2>Retourtijd per type</h2>
+<p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Pas de retourtijd aan vanuit het routescherm in-game.</p>
+<div id="retourTypes"></div>
+</section>
+<section id="secInplannen" hidden>
+<h2>Inplannen</h2>
+<div class="mix-mode">
+<label><input type="radio" name="mixMode" value="new" checked> Nieuwe mix over de hele vraag</label>
+<label><input type="radio" name="mixMode" value="rest"> Houd ingeplande vluchten, vul tekort bij</label>
+</div>
+<p class="tiny" id="mixRestTip" style="margin:0 0 10px;color:#6b7280">Zet eerst je game-retourvluchten in de vloot; die blijven staan.</p>
+<button type="button" id="btnSuggest" onclick="suggestFromUi()">Stel mix voor</button>
+<button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
+</section>
+<section id="secVloot" hidden>
+<h2>Vloot</h2>
+<button type="button" class="ghost" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
+<div id="vloot"></div>
+</section>
+<section id="secRest" hidden>
+<h2>Resterende vraag (pax)</h2>
+<div class="rest" id="rest"></div>
+</section>
+<section class="roost" id="secRooster" hidden>
+<h2>Rooster</h2>
+<div class="roost-wrap" id="roosterWrap">
+<div class="roost-legend" id="roosterLegend"></div>
+<div class="roost-axis"><span class="pad">·</span><div class="roost-hours"><span>00</span><span>03</span><span>06</span><span>09</span><span>12</span><span>15</span><span>18</span><span>21</span><span>24</span></div></div>
+<div class="roost-grid" id="roosterGrid"></div>
+</div>
+<p class="roost-note" id="roosterNote"></p>
+</section>
+<section id="secWhy" hidden>
+<details>
+<summary class="h">Waarom</summary>
+<div class="advies" id="advies"></div>
+</details>
 </section>
 <section class="sec-fold" id="secTypes">
 <h2>Mijn toestellen</h2>
@@ -203,87 +286,6 @@ details{margin-top:6px}
 <div id="types"></div>
 <button type="button" class="lock-cta" id="lockTypesCta">Zet deze gegevens vast om door te gaan</button>
 </div>
-</section>
-<section class="sec-fold" id="secRoute">
-<h2>Route</h2>
-<div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
-<div class="sec-body">
-<label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
-<p class="warn" id="lockRouteMsg" style="display:none"></p>
-<div class="grid2">
-<div><label>Van</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
-<div><label>Naar</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
-</div>
-<p class="tiny" id="iataHint"></p>
-<div class="grid2" style="margin-top:8px">
-<div><label>Route</label><input class="yellow" id="route" value="VIE–GRU"></div>
-<div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
-</div>
-<button type="button" class="lock-cta" id="lockRouteCta">Zet deze gegevens vast om door te gaan</button>
-</div>
-</section>
-<section class="sec-fold" id="secAsk">
-<h2>Vraag per dag (pax)</h2>
-<div class="sec-sum" id="askSum"><span class="ks-txt" id="askSumTxt"></span><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
-<div class="sec-body">
-<label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
-<p class="warn" id="lockAskMsg" style="display:none"></p>
-<div class="grid4 ask4">
-<div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
-<div><label>Business</label><input class="yellow" id="qJ" type="number" value="300"></div>
-<div><label>First</label><input class="yellow" id="qF" type="number" value="96"></div>
-<div><label>Cargo</label><div class="withunit"><input class="yellow" id="qC" type="number" step="1" value="21"><span class="unit">t</span></div></div>
-</div>
-<input id="factor" type="hidden" value="2">
-<input id="jkost" type="hidden" value="1.8">
-<input id="fkost" type="hidden" value="4.2">
-<button type="button" class="lock-cta" id="lockAskCta">Zet deze gegevens vast om door te gaan</button>
-</div>
-</section>
-<section>
-<h2>Resterende vraag (pax)</h2>
-<div class="rest" id="rest"></div>
-</section>
-<section>
-<h2>Vlootinzet</h2>
-<p class="warn" id="flowGateMsg" style="display:none"></p>
-<p class="tiny"><a href="#secTypes" id="linkTypes" class="types-jump">↑ Mijn toestellen</a></p>
-<p id="kiezenLead" style="margin:8px 0 4px;font-weight:600;font-size:.92rem">Welke toestellen wil je op deze route gebruiken?</p>
-<p class="tiny" id="kiezenHint" style="margin:0 0 10px;color:#6b7280">Vink aan wat meedoet aan de mix.</p>
-<div class="chk" id="kiezen"></div>
-<div class="ret-block" id="retourBlock" hidden>
-<h3>Retourvlucht deze route per toestel</h3>
-<p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Pas de retourtijd aan vanuit het routescherm in-game.</p>
-<div id="retourTypes"></div>
-</div>
-<h3 style="margin:14px 0 8px">Inplannen</h3>
-<div class="mix-mode">
-<label><input type="radio" name="mixMode" value="new" checked> Nieuwe mix over de hele vraag</label>
-<label><input type="radio" name="mixMode" value="rest"> Houd ingeplande vluchten, vul tekort bij</label>
-</div>
-<p class="tiny" id="mixRestTip" style="margin:0 0 10px;color:#6b7280">Zet eerst je game-retourvluchten in de vloot; die blijven staan.</p>
-<button type="button" id="btnSuggest" onclick="suggestFromUi()">Stel mix voor</button>
-<button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
-</section>
-<section>
-<h2>Vloot</h2>
-<button type="button" class="ghost" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
-<div id="vloot"></div>
-</section>
-<section class="roost">
-<h2>Rooster</h2>
-<div class="roost-wrap" id="roosterWrap">
-<div class="roost-legend" id="roosterLegend"></div>
-<div class="roost-axis"><span class="pad">·</span><div class="roost-hours"><span>00</span><span>03</span><span>06</span><span>09</span><span>12</span><span>15</span><span>18</span><span>21</span><span>24</span></div></div>
-<div class="roost-grid" id="roosterGrid"></div>
-</div>
-<p class="roost-note" id="roosterNote"></p>
-</section>
-<section>
-<details>
-<summary class="h">Waarom</summary>
-<div class="advies" id="advies"></div>
-</details>
 </section>
 </main>
 <script>
@@ -377,6 +379,37 @@ function flowBlockMsg(){
   if(miss.length===1) return "Zet eerst "+miss[0]+" vast om door te gaan.";
   return "Zet eerst Route en Vraag vast om door te gaan.";
 }
+function clearLockMsgs(){
+  clearLockMsg("lockRouteMsg");
+  clearLockMsg("lockAskMsg");
+  clearLockMsg("lockTypesMsg");
+  const gate=document.getElementById("flowGateMsg");
+  if(gate){gate.style.display="none";gate.textContent=""}
+}
+function syncWizard(){
+  const routeEl=document.getElementById("lockRoute");
+  const askEl=document.getElementById("lockAsk");
+  const routeLocked=!!(routeEl&&routeEl.checked);
+  const askLocked=!!(askEl&&askEl.checked);
+  const ready=routeLocked&&askLocked;
+  const secAsk=document.getElementById("secAsk");
+  if(secAsk){
+    secAsk.hidden=!routeLocked;
+    if(routeLocked&&!askLocked) secAsk.classList.remove("collapsed");
+  }
+  ["secVlootinzet","secInplannen","secVloot","secRest","secRooster","secWhy"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.hidden=!ready;
+  });
+  const secRetour=document.getElementById("secRetour");
+  if(secRetour&&!ready) secRetour.hidden=true;
+}
+function showFlowGateOnce(){
+  const gate=document.getElementById("flowGateMsg");
+  if(!gate) return;
+  gate.style.display="block";
+  gate.textContent=flowBlockMsg();
+}
 function updateLockCtas(){
   [
     ["lockRoute","lockRouteCta"],
@@ -395,8 +428,9 @@ function updateLockCtas(){
   const gate=document.getElementById("flowGateMsg");
   const ready=flowReady();
   const hasKeep=currentRows().some(r=>r.type&&countsDemand(rowStatus(r)));
+  syncWizard();
   if(tip) tip.style.display=(rest&&rest.checked)?"":"none";
-  if(gate){gate.style.display=ready?"none":"block";gate.textContent=ready?"":flowBlockMsg()}
+  if(gate&&ready){gate.style.display="none";gate.textContent=""}
   if(btn){
     if(!ready){btn.disabled=true;btn.title=flowBlockMsg()}
     else if(rest&&rest.checked&&!hasKeep){btn.disabled=true;btn.title="Zet eerst game-retourvluchten in de vloot"}
@@ -405,8 +439,8 @@ function updateLockCtas(){
   if(addBtn){addBtn.disabled=!ready;addBtn.title=ready?"":flowBlockMsg()}
   const kh=document.getElementById("kiezenHint");
   const lead=document.getElementById("kiezenLead");
-  if(lead) lead.style.opacity=ready?"1":".55";
-  if(kh){kh.textContent=ready?"Vink aan wat meedoet aan de mix.":flowBlockMsg();kh.style.color=ready?"#6b7280":""}
+  if(lead) lead.style.opacity="1";
+  if(kh){kh.textContent="Vink aan wat meedoet aan de mix.";kh.style.color="#6b7280"}
   document.querySelectorAll('input[name="mixMode"]').forEach(el=>{el.disabled=!ready});
   const clearBtn=document.querySelector('button[onclick="clearFleet()"]');
   if(clearBtn){clearBtn.disabled=!ready;clearBtn.title=ready?"":flowBlockMsg()}
@@ -430,8 +464,7 @@ function doLock(lockId,msgId,missFn,applyFn,saveFn){
 }
 function suggestFromUi(){
   if(!flowReady()){
-    const gate=document.getElementById("flowGateMsg");
-    if(gate){gate.style.display="block";gate.textContent=flowBlockMsg()}
+    showFlowGateOnce();
     return;
   }
   const rest=document.querySelector('input[name="mixMode"][value="rest"]');
@@ -744,8 +777,7 @@ function clampKist(k,changed){
 }
 function addKist(){
   if(!flowReady()){
-    const gate=document.getElementById("flowGateMsg");
-    if(gate){gate.style.display="block";gate.textContent=flowBlockMsg()}
+    showFlowGateOnce();
     return;
   }
   writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]));
@@ -785,7 +817,7 @@ function deleteRoute(){
   applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
   writeRows([]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()}lastWhy=[];writeRows([]);window._clearKiezen=true;calc();saveRoute(false)}
+function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;clearLockMsgs();applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;applyTypesLock();saveTypes()}lastWhy=[];writeRows([]);window._clearKiezen=true;calc();saveRoute(false)}
 function renameTypeSilent(oldN,newN){
   if(!oldN||!newN||oldN===newN) return;
   if(!(oldN in TYPE_DEFAULTS)) return;
@@ -816,7 +848,9 @@ function renameType(oldN,newN){
 }
 function openTypesPanel(){
   const sec=document.getElementById("secTypes");
-  if(sec) sec.scrollIntoView({behavior:"smooth",block:"start"});
+  if(!sec) return;
+  // Alleen scrollen; lockTypes blijft zoals die is (geen unlock).
+  sec.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function renderTypes(){
   document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{
@@ -860,13 +894,17 @@ function renderKiezen(){
 }
 function renderRetourTypes(seed,force){
   const box=document.getElementById("retourTypes");
-  const block=document.getElementById("retourBlock");
+  const block=document.getElementById("secRetour");
   const hint=document.getElementById("retourHint");
   if(!box||!block) return;
   if(seed) Object.assign(routeRet, seed);
   syncRetFromDom();
-  const types=TYPE_ORDER.filter(t=>canFly(t));
-  if(!types.length){block.hidden=true;box.innerHTML="";box.dataset.types="";return}
+  const ready=flowReady();
+  const types=TYPE_ORDER.filter(t=>{
+    const el=document.getElementById("use_"+t);
+    return !!(el&&el.checked&&!el.disabled&&canFly(t));
+  });
+  if(!ready||!types.length){block.hidden=true;box.innerHTML="";box.dataset.types="";return}
   const key=types.join("|")+"|"+types.map(t=>(retEditOpen[t]?"1":"0")+(routeRet[t]||"")).join(",");
   if(!force && !seed && box.dataset.types===key && box.childNodes.length){block.hidden=false;return}
   block.hidden=false;
@@ -1133,16 +1171,17 @@ const btnMoreType=document.getElementById("btnMoreType");
 if(btnMoreType) btnMoreType.addEventListener("click",openNieuwTypeForm);
 document.querySelectorAll('input[name="mixMode"]').forEach(el=>el.addEventListener("change",updateLockCtas));
 const routeSumEdit=document.getElementById("routeSumEdit");
-if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementById("lockRoute").checked=false;clearLockMsg("lockRouteMsg");applyRouteLock();saveRoute()});
+if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementById("lockRoute").checked=false;clearLockMsgs();applyRouteLock();saveRoute()});
 const askSumEdit=document.getElementById("askSumEdit");
-if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;clearLockMsg("lockAskMsg");applyAskLock();saveRoute()});
+if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;clearLockMsgs();applyAskLock();saveRoute()});
 document.getElementById("lockTypes").addEventListener("change",()=>{tryLock("lockTypes","lockTypesMsg",typesLockMissing,applyTypesLock,()=>saveTypes());updateLockCtas()});
 const typesSumEdit=document.getElementById("typesSumEdit");
 if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;clearLockMsg("lockTypesMsg");typeEditOpen={};nieuwTypeOpen=!TYPE_ORDER.length;applyTypesLock();saveTypes()});
 const linkTypes=document.getElementById("linkTypes");
 if(linkTypes) linkTypes.addEventListener("click",e=>{e.preventDefault();openTypesPanel()});
-clearLockMsg("lockRouteMsg");clearLockMsg("lockAskMsg");clearLockMsg("lockTypesMsg");
+clearLockMsgs();
 applyRouteLock();applyAskLock();applyTypesLock();
+syncWizard();
 (function boot(){
   const list=loadList();
   let last=null;try{last=localStorage.getItem(LAST)}catch(e){}
