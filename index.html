@@ -630,11 +630,18 @@ function applyVlootInFold(){
   const ok=ready && types.length>0 && retourAllConfirmed(types);
   const txt=document.getElementById("vlootInSumTxt");
   if(txt){txt.innerHTML=vlootInSumHtml(types);txt.classList.toggle("locked-ok",ok)}
+  const wasCollapsed=sec.classList.contains("collapsed");
   // Dichtklappen zodra retourtijden rond zijn (door naar Inplannen)
   if(ok && !sec.classList.contains("vloot-force-open")) sec.classList.add("collapsed");
   if(!ok){sec.classList.remove("collapsed");sec.classList.remove("vloot-force-open")}
   const foldBtn=document.getElementById("vlootInFoldBtn");
   if(foldBtn) foldBtn.hidden=!(ok && !sec.classList.contains("collapsed"));
+  // Inklappen verwijdert focus/knoppen → browser springt raar; focus weg + rustig naar Inplannen
+  if(ok && !wasCollapsed && sec.classList.contains("collapsed")){
+    try{if(document.activeElement&&document.activeElement.blur) document.activeElement.blur()}catch(e){}
+    const next=document.getElementById("secInplannen")||document.getElementById("secRest")||sec;
+    requestAnimationFrame(()=>{try{next.scrollIntoView({behavior:"auto",block:"start"})}catch(e){}});
+  }
 }
 function collapseVlootIn(){
   const sec=document.getElementById("secVlootinzet");
@@ -774,6 +781,7 @@ function readRetByType(){
 }
 function setRetConfirmed(t,val){
   const u=parseHM(val);if(!(u>0))return;
+  try{if(document.activeElement&&document.activeElement.blur) document.activeElement.blur()}catch(e){}
   routeRet[t]=fmtHM(u);retEditOpen[t]=false;renderRetourTypes(null,true);calc();
 }
 function editRet(t){retEditOpen[t]=true;const sec=document.getElementById("secRetour");if(sec)sec.hidden=false;renderRetourTypes(null,true)}
@@ -1187,7 +1195,6 @@ function renderKiezen(){
       retEditOpen[t]=true;
       const sec=document.getElementById("secRetour");
       if(sec){sec.hidden=false;}
-      setTimeout(()=>{const s2=document.getElementById("secRetour");if(s2)s2.scrollIntoView({behavior:"smooth",block:"nearest"})},50);
     }else{
       delete retEditOpen[t];
     }
