@@ -241,6 +241,7 @@ details{margin-top:6px}
 <h2>Vlootinzet</h2>
 <div class="sec-sum" id="vlootInSum"><span class="ks-txt" id="vlootInSumTxt"></span><button type="button" class="ghost" id="vlootInSumEdit">Wijzig</button></div>
 <div class="sec-body" id="vlootInBody">
+<button type="button" class="ghost" id="vlootInFoldBtn" hidden style="width:auto;margin:0 0 10px;padding:6px 12px;font-size:12px">Inklappen</button>
 <p class="warn" id="flowGateMsg" style="display:none"></p>
 <p id="kiezenLead" style="margin:8px 0 10px;font-weight:600;font-size:.92rem">Vink aan welke toestellen je wil inzetten op de route</p>
 <p class="tiny" id="kiezenHint" hidden></p>
@@ -602,6 +603,14 @@ function applyVlootInFold(){
   // Dichtklappen zodra retourtijden rond zijn (door naar Inplannen)
   if(ok && !sec.classList.contains("vloot-force-open")) sec.classList.add("collapsed");
   if(!ok){sec.classList.remove("collapsed");sec.classList.remove("vloot-force-open")}
+  const foldBtn=document.getElementById("vlootInFoldBtn");
+  if(foldBtn) foldBtn.hidden=!(ok && !sec.classList.contains("collapsed"));
+}
+function collapseVlootIn(){
+  const sec=document.getElementById("secVlootinzet");
+  if(!sec) return;
+  sec.classList.remove("vloot-force-open");
+  applyVlootInFold();
 }
 function applyRouteLock(){
   const locked=!!document.getElementById("lockRoute").checked;
@@ -1492,7 +1501,10 @@ const vlootInSumEdit=document.getElementById("vlootInSumEdit");
 if(vlootInSumEdit) vlootInSumEdit.addEventListener("click",()=>{
   const sec=document.getElementById("secVlootinzet");
   if(sec){sec.classList.add("vloot-force-open");sec.classList.remove("collapsed");}
+  applyVlootInFold();
 });
+const vlootInFoldBtn=document.getElementById("vlootInFoldBtn");
+if(vlootInFoldBtn) vlootInFoldBtn.addEventListener("click",collapseVlootIn);
 clearLockMsgs();
 applyRouteLock();applyAskLock();applyTypesLock();
 syncWizard();
