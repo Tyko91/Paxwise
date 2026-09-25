@@ -108,9 +108,6 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .pill.over{background:#fff1f2;border-color:#e11d48;color:#9f1239;box-shadow:inset 0 0 0 1px rgba(225,29,72,.12)}
 .pill.over .pill-lab,.pill.over .pill-st{color:#be123c}
 .pill.over b{color:#9f1239}
-.advies{font-size:13px;line-height:1.5;color:#334155}
-.advies div{padding:8px 0;border-bottom:1px solid var(--line)}
-.advies div:last-child{border-bottom:0}
 button{width:100%;padding:12px 14px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:#fff;font-size:15px;font-weight:700;margin-top:8px;box-shadow:0 8px 18px rgba(11,31,58,.2);letter-spacing:.01em}
 button:active{transform:translateY(1px)}
 button.sec{background:linear-gradient(135deg,#1a3d6d,#25507f);box-shadow:0 6px 14px rgba(11,31,58,.15)}
@@ -299,12 +296,6 @@ details{margin-top:6px}
 </div>
 <p class="roost-note" id="roosterNote"></p>
 </section>
-<section id="secWhy" hidden>
-<details>
-<summary class="h">Waarom</summary>
-<div class="advies" id="advies"></div>
-</details>
-</section>
 <section class="sec-fold" id="secTypes" hidden>
 <h2>Mijn toestellen</h2>
 <p class="tiny" style="margin:0 0 6px">Geldt voor alle routes.</p>
@@ -340,7 +331,7 @@ let TYPE_DEFAULTS={
 "A330-300":{pax:440,payload:46,speed:871,range:11750},
 "A320neo":{pax:195,payload:20,speed:893,range:6482}
 };
-let lastWhy=[], currentId=null, routeRet={}, retEditOpen={}, typeEditOpen={}, nieuwTypeOpen=false, planPath=null;
+let currentId=null, routeRet={}, retEditOpen={}, typeEditOpen={}, nieuwTypeOpen=false, planPath=null;
 function num(id){return parseFloat(document.getElementById(id).value)||0}
 function nval(el){return parseFloat(el&&el.value)||0}
 function sid(t,k){return k+"_"+t.replace(/[^A-Za-z0-9]/g,"")}
@@ -516,8 +507,7 @@ function updateLockCtas(){
   const secIn=document.getElementById("secInplannen");
   const secRs=document.getElementById("secRest");
   const secRo=document.getElementById("secRooster");
-  const secWh=document.getElementById("secWhy");
-  [secIn,secRs,secRo,secWh].forEach(el=>{if(el) el.hidden=!afterRet});
+  [secIn,secRs,secRo].forEach(el=>{if(el) el.hidden=!afterRet});
   syncPlanUi();
   syncKiezenLead();
   const lead=document.getElementById("kiezenLead");
@@ -846,28 +836,19 @@ function restBits(need){
 }
 function packNeed(need,types,jkost,fkost,already){
   already=already||0;
-  const planes=[],why=[];need={...need};let guard=0;
-  why.push("Doel: zo min mogelijk retourvluchten, zo vol mogelijk. Halve retourvluchten kosten geld.");
+  const planes=[];need={...need};let guard=0;
   while((need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.5)&&guard++<16){
     const prior=already+planes.length;
     const thin=prior>0 && !worthExtraPlane(need,types,jkost,fkost);
     const chosen=pickType(need,types,jkost,fkost);
     const p=packOne(need,chosen,jkost,fkost);if(!p)break;
     const fill=fillOf(p,jkost,fkost);
-    const pct=Math.round(fill*100);
     p.warn=prior>0 && (thin || fill<0.5);
     const fl=+p.fl;
     planes.push(p);need.Y-=+p.y*fl;need.J-=+p.j*fl;need.F-=+p.f*fl;need.C-=+p.c*fl;
-    let line=planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"E / "+p.j+"B / "+p.f+"F / "+p.c+"t · "+pct+"% vol";
-    if(p.warn) line+=" — let op: door deze retourvlucht is de bezetting maar "+pct+"% (te leeg)";
-    why.push(line);
     if(p.warn) break;
   }
-  if(need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.5){
-    if(!why.some(w=>w.indexOf("laten liggen")>=0||w.indexOf("dunne rest")>=0))
-      why.push("Nog open: "+restBits(need)+".");
-  }
-  return{planes,why};
+  return{planes};
 }
 function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,status:statusOf(k),warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
 function writeRows(rows){const box=document.getElementById("vloot");if(!box)return;box.innerHTML="";rows.forEach((r,i)=>box.appendChild(kistEl(i+1,r)));calc()}
@@ -1001,7 +982,6 @@ function addKist(){
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
 function clearFleet(){
   if(!confirm("Hele vloot wissen?"))return;
-  lastWhy=["Vloot gewist."];
   planPath=null;
   const box=document.getElementById("vloot");
   if(box) box.innerHTML="";
@@ -1011,12 +991,11 @@ function clearFleet(){
 }
 function suggest(onlyRest){
   refreshKiezen();
-  const types=selectedTypes();if(!types.length){lastWhy=["Geen type dat deze afstand aankan."];calc();return}
+  const types=selectedTypes();if(!types.length){alert("Geen type dat deze afstand aankan.");return}
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;
   let need={Y:num("qY")/fac,J:num("qJ")/fac,F:num("qF")/fac,C:num("qC")/fac},keep=[];
   if(onlyRest){keep=currentRows().filter(r=>r.type&&countsDemand(rowStatus(r)));keep.forEach(r=>{const fl=parseFloat(r.fl)||1;need.Y-=(parseFloat(r.y)||0)*fl;need.J-=(parseFloat(r.j)||0)*fl;need.F-=(parseFloat(r.f)||0)*fl;need.C-=(parseFloat(r.c)||0)*fl})}
   const packed=packNeed(need,types,jkost,fkost,keep.length);
-  lastWhy=[document.getElementById("route").value+" · "+num("km")+" km · mix "+types.join(" + ")].concat(packed.why);
   writeRows(keep.concat(packed.planes));saveRoute();
 }
 function readUseTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return !!(el&&el.checked)})}
@@ -1033,7 +1012,7 @@ function cleanFleet(list){
   return (list||[]).filter(k=>k&&(k.type||String(k.y??"").trim()!==""||String(k.j??"").trim()!==""||String(k.f??"").trim()!==""||String(k.c??"").trim()!==""||k.status==="on"));
 }
 function deleteRoute(){
-  if(!currentId){lastWhy=["Geen route om te verwijderen."];calc();return}
+  if(!currentId){alert("Geen route om te verwijderen.");return}
   if(!confirm("Deze route verwijderen?"))return
   const list=loadList().filter(r=>r.id!==currentId);
   storeList(list);
@@ -1041,10 +1020,10 @@ function deleteRoute(){
   if(list.length){openRoute(list[0].id);return}
   ["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;
-  applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
+  applyRouteLock();applyAskLock();
   writeRows([]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;clearLockMsgs();applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;applyTypesLock();saveTypes()}lastWhy=[];planPath=null;writeRows([]);window._clearKiezen=true;calc();saveRoute(false);syncPlanUi()}
+function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;clearLockMsgs();applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;applyTypesLock();saveTypes()}planPath=null;writeRows([]);window._clearKiezen=true;calc();saveRoute(false);syncPlanUi()}
 function renameTypeSilent(oldN,newN){
   if(!oldN||!newN||oldN===newN) return;
   if(!(oldN in TYPE_DEFAULTS)) return;
@@ -1501,7 +1480,6 @@ function calc(){
   const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
   document.getElementById("rest").innerHTML=pill("Economy",over.Y.toFixed(0),kind(over.Y))+pill("Business",over.J.toFixed(0),kind(over.J))+pill("First",over.F.toFixed(0),kind(over.F))+pill("Cargo",over.C.toFixed(0)+" t",kind(over.C));
-  document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
   const rst=document.getElementById("routeSumTxt");if(rst){rst.textContent=routeSumLine();rst.classList.remove("locked-ok")}markHead("secRoute",!!document.getElementById("lockRoute").checked)
   fillAskSum(!!document.getElementById("lockAsk").checked);syncKiezenLead();
   renderRooster();
@@ -1574,7 +1552,7 @@ syncWizard();
   renderChips();
   calc();
 })();
-}catch(e){document.getElementById("advies").textContent="Fout: "+e.message}
+}catch(e){console.error(e);alert("Fout: "+e.message)}
 </script>
 </body>
 </html>
