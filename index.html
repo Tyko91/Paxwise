@@ -252,15 +252,16 @@ details{margin-top:6px}
 <p class="tiny" id="kiezenHint" style="margin:0 0 10px;color:#6b7280">Vink aan wat meedoet aan de mix.</p>
 <div class="chk" id="kiezen"></div>
 <div class="ret-block" id="retourBlock" hidden>
-<h3>Retourvlucht</h3>
-<p class="hint" id="retourHint">Neem de retourtijd over uit het routescherm. Klopt deze retourtijd?</p>
+<h3>Retourvlucht deze route per toestel</h3>
+<p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Pas de retourtijd aan vanuit het routescherm in-game.</p>
 <div id="retourTypes"></div>
 </div>
+<h3 style="margin:14px 0 8px">Inplannen</h3>
 <div class="mix-mode">
-<label><input type="radio" name="mixMode" value="new" checked> Hele vloot opnieuw</label>
-<label><input type="radio" name="mixMode" value="rest"> Alleen tekort</label>
+<label><input type="radio" name="mixMode" value="new" checked> Nieuwe mix over de hele vraag</label>
+<label><input type="radio" name="mixMode" value="rest"> Houd ingeplande vluchten, vul tekort bij</label>
 </div>
-<p class="tiny" id="mixRestTip" style="margin:0 0 10px">Alleen tekort: zet eerst je al ingeplande game-retourvluchten in de vloot; die blijven staan.</p>
+<p class="tiny" id="mixRestTip" style="margin:0 0 10px;color:#6b7280">Zet eerst je game-retourvluchten in de vloot; die blijven staan.</p>
 <button type="button" id="btnSuggest" onclick="suggestFromUi()">Stel mix voor</button>
 <button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
 </section>
@@ -883,7 +884,7 @@ function renderRetourTypes(seed,force){
     }
     return "<div class='ret-sum'><span class='tn'>"+t+"</span><span class='tv'>"+v+"</span><button type='button' class='ghost' data-edit='"+t+"'>Wijzig</button></div>";
   }).join("");
-  if(hint) hint.style.display=anyOpen?"":"none";
+  if(hint) hint.style.display="";
   box.querySelectorAll("input.ret-type").forEach(el=>{
     el.addEventListener("input",()=>{el.value=el.value.replace(/[^\d:]/g,"")});
     el.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const t=el.closest(".ret-edit").dataset.type;setRetConfirmed(t,el.value)}});
