@@ -256,7 +256,7 @@ details{margin-top:6px}
 <p class="plan-ask">Heb je al retourvluchten in-game die je wilt behouden?</p>
 <div class="plan-choice">
 <button type="button" id="btnPlanKeep">Ja, vul in</button>
-<button type="button" class="ghost" id="btnPlanNew">Nee, nieuwe mix</button>
+<button type="button" class="ghost" id="btnPlanNew">Nee, stel vlootplanning voor</button>
 </div>
 </div>
 <div class="plan-path" id="planKeep" hidden>
@@ -264,8 +264,7 @@ details{margin-top:6px}
 <button type="button" class="ghost" id="btnAddKist" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
 </div>
 <div class="plan-path" id="planNew" hidden>
-<p class="tiny" id="mixNewTip" style="margin:0 0 10px;color:#6b7280">Stel een volledig nieuwe vlootmix voor met de geselecteerde toestellen. Huidige vlootkaarten worden vervangen.</p>
-<button type="button" id="btnSuggestNew" onclick="suggestFromUi(false)">Stel vlootplanning voor</button>
+<p class="tiny" id="mixNewTip" style="margin:0 0 10px;color:#6b7280">Nieuwe vlootplanning met de geselecteerde toestellen. Eerdere vlootkaarten zijn vervangen.</p>
 </div>
 <div id="vloot"></div>
 <button type="button" id="btnSuggestRest" onclick="suggestFromUi(true)" hidden>Vul tekort bij</button>
@@ -1405,7 +1404,7 @@ if(btnMoreType) btnMoreType.addEventListener("click",openNieuwTypeForm);
 const btnPlanKeep=document.getElementById("btnPlanKeep");
 if(btnPlanKeep) btnPlanKeep.addEventListener("click",()=>setPlanPath("keep"));
 const btnPlanNew=document.getElementById("btnPlanNew");
-if(btnPlanNew) btnPlanNew.addEventListener("click",()=>setPlanPath("new"));
+if(btnPlanNew) btnPlanNew.addEventListener("click",()=>{setPlanPath("new");suggestFromUi(false)});
 const btnPlanBack=document.getElementById("btnPlanBack");
 if(btnPlanBack) btnPlanBack.addEventListener("click",()=>setPlanPath(null));
 const routeSumEdit=document.getElementById("routeSumEdit");
