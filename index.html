@@ -38,8 +38,20 @@ input.yellow{background:linear-gradient(180deg,#FFF8DC,#F7E7B5);border-color:#e6
 .withunit input{padding-right:1.6em}
 .withunit .unit{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;font-weight:600}
 input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);border-color:#eef2f7}
-.lock{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:13px;color:var(--navy);font-weight:600}
-.lock input{width:auto}
+.lock{display:none}
+.lock-cta{display:none;width:100%;margin:0 0 12px;padding:12px 14px;border-radius:12px;border:2px solid var(--gold);background:linear-gradient(180deg,#FFF8DC,#F7E7B5);color:var(--navy);font-weight:750;font-size:14px;box-shadow:none;cursor:pointer;text-align:center}
+.lock-cta.show{display:block}
+.lock-cta:disabled{opacity:.45;cursor:not-allowed}
+.mix-mode{display:flex;flex-direction:column;gap:8px;margin:0 0 10px}
+.mix-mode label{display:flex;align-items:center;gap:8px;margin:0;font-size:13px;color:var(--navy);font-weight:650;letter-spacing:0;text-transform:none}
+.mix-mode input{width:auto;margin:0}
+.type-sum{display:flex;align-items:center;gap:8px}
+.type-sum .ks-txt{flex:1;font-size:13px;font-weight:650;color:var(--navy);min-width:0}
+.type-sum button{width:auto;margin:0;padding:4px 10px;font-size:12px;box-shadow:none;flex:0 0 auto}
+.typekaart.collapsed .type-body{display:none}
+.typekaart:not(.collapsed) .type-sum{display:none}
+#nieuwType[hidden],#btnMoreType[hidden]{display:none!important}
+.sec-sum .ks-txt.locked-ok::after{content:" ✓";color:var(--ok);font-weight:800}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .ask4{grid-template-columns:repeat(4,minmax(0,1fr))}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -173,10 +185,10 @@ details{margin-top:6px}
 <div class="sec-sum" id="typesSum"><span class="ks-txt" id="typesSumTxt"></span><button type="button" class="ghost" id="typesSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockTypes"> Vastzetten</label>
+<button type="button" class="lock-cta" id="lockTypesCta">Zet deze gegevens vast om door te gaan</button>
 <p class="warn" id="lockTypesMsg" style="display:none"></p>
-<div id="types"></div>
 <div class="typekaart" id="nieuwType">
-<h3>Nieuw type</h3>
+<h3>Voeg nieuw type toestel toe</h3>
 <div class="grid2">
 <div><label>Naam</label><input class="yellow" id="nName" placeholder="bijv. 787-9"></div>
 <div><label>Max pax</label><input class="yellow" id="nPax" type="number"></div>
@@ -188,6 +200,8 @@ details{margin-top:6px}
 </div>
 <button type="button" class="sec" id="btnAddType" onclick="addCustomType()">Voeg toestel toe</button>
 </div>
+<button type="button" class="ghost" id="btnMoreType" hidden>+ Voeg nog een toestel toe</button>
+<div id="types"></div>
 </div>
 </section>
 <section class="sec-fold" id="secRoute">
@@ -195,6 +209,7 @@ details{margin-top:6px}
 <div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
+<button type="button" class="lock-cta" id="lockRouteCta">Zet deze gegevens vast om door te gaan</button>
 <p class="warn" id="lockRouteMsg" style="display:none"></p>
 <div class="grid2">
 <div><label>Van</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
@@ -212,6 +227,7 @@ details{margin-top:6px}
 <div class="sec-sum" id="askSum"><span class="ks-txt" id="askSumTxt"></span><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
+<button type="button" class="lock-cta" id="lockAskCta">Zet deze gegevens vast om door te gaan</button>
 <p class="warn" id="lockAskMsg" style="display:none"></p>
 <div class="grid4 ask4">
 <div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
@@ -237,15 +253,18 @@ details{margin-top:6px}
 <p class="hint" id="retourHint">Neem de retourtijd over uit het routescherm. Klopt deze retourtijd?</p>
 <div id="retourTypes"></div>
 </div>
-<button type="button" onclick="suggest(false)">Nieuwe mix (vervangt vloot)</button>
-<button type="button" class="ghost" onclick="suggest(true)">Vul tekort aan (houd vloot)</button>
-<p class="tiny" style="margin:6px 0 0">Tekort: zet eerst je al ingeplande game-retourvluchten in de vloot, daarna deze knop.</p>
+<div class="mix-mode">
+<label><input type="radio" name="mixMode" value="new" checked> Hele vloot opnieuw</label>
+<label><input type="radio" name="mixMode" value="rest"> Alleen tekort</label>
+</div>
+<p class="tiny" id="mixRestTip" style="margin:0 0 10px">Alleen tekort: zet eerst je al ingeplande game-retourvluchten in de vloot; die blijven staan.</p>
+<button type="button" id="btnSuggest" onclick="suggestFromUi()">Stel mix voor</button>
 <button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
 </section>
 <section>
 <h2>Vloot</h2>
 <div id="vloot"></div>
-<button type="button" class="ghost" onclick="addKist()">+ retourvlucht zelf (al in game)</button>
+<button type="button" class="ghost" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
 </section>
 <section class="roost">
 <h2>Rooster</h2>
@@ -273,7 +292,7 @@ let TYPE_DEFAULTS={
 "A330-300":{pax:440,payload:46,speed:871,range:11750},
 "A320neo":{pax:195,payload:20,speed:893,range:6482}
 };
-let lastWhy=[], currentId=null, routeRet={}, retEditOpen={};
+let lastWhy=[], currentId=null, routeRet={}, retEditOpen={}, typeEditOpen={}, nieuwTypeOpen=false;
 function num(id){return parseFloat(document.getElementById(id).value)||0}
 function nval(el){return parseFloat(el&&el.value)||0}
 function sid(t,k){return k+"_"+t.replace(/[^A-Za-z0-9]/g,"")}
@@ -321,12 +340,56 @@ function typesLockMissing(){
   if(!TYPE_ORDER.length){m.push("minstens één toestel");return m}
   TYPE_ORDER.forEach(t=>{
     const nameEl=[...document.querySelectorAll("input.type-name")].find(el=>el.dataset.old===t);
-    if(emptyField(nameEl)) m.push("Naam van "+t);
+    const name=nameEl?String(nameEl.value||"").trim():t;
+    if(!name) m.push("Naam van "+t);
+    const d=TYPE_DEFAULTS[t]||{};
     [["pax","Max pax"],["payload","Payload t"],["speed","km/h"],["range","Max km"]].forEach(([k,lab])=>{
-      if(emptyField(document.getElementById(sid(t,k)))) m.push(lab+" van "+t);
+      const el=document.getElementById(sid(t,k));
+      const v=el?String(el.value||"").trim():(d[k]==null?"":String(d[k]));
+      if(v==="") m.push(lab+" van "+t);
     });
   });
   return m;
+}
+function syncTypeDefsFromDom(){
+  TYPE_ORDER.forEach(t=>{
+    const d=TYPE_DEFAULTS[t]||(TYPE_DEFAULTS[t]={pax:0,payload:0,speed:0,range:0});
+    ["pax","payload","speed","range"].forEach(k=>{
+      const el=document.getElementById(sid(t,k));
+      if(el&&String(el.value).trim()!=="") d[k]=+el.value;
+    });
+  });
+}
+function updateLockCtas(){
+  [
+    ["lockRoute","lockRouteCta",routeLockMissing],
+    ["lockAsk","lockAskCta",askLockMissing],
+    ["lockTypes","lockTypesCta",typesLockMissing]
+  ].forEach(([lockId,ctaId,missFn])=>{
+    const lock=document.getElementById(lockId), cta=document.getElementById(ctaId);
+    if(!lock||!cta) return;
+    const show=!lock.checked && missFn().length===0;
+    cta.classList.toggle("show", show);
+    cta.disabled=!show;
+  });
+  const tip=document.getElementById("mixRestTip");
+  const rest=document.querySelector('input[name="mixMode"][value="rest"]');
+  const btn=document.getElementById("btnSuggest");
+  const hasKeep=currentRows().some(r=>r.type&&countsDemand(rowStatus(r)));
+  if(tip) tip.style.display=(rest&&rest.checked)?"":"none";
+  if(btn&&rest&&rest.checked){btn.disabled=!hasKeep;btn.title=hasKeep?"":"Zet eerst game-retourvluchten in de vloot"}
+  else if(btn){btn.disabled=false;btn.title=""}
+}
+function doLock(lockId,msgId,missFn,applyFn,saveFn){
+  const lock=document.getElementById(lockId);
+  if(!lock) return;
+  lock.checked=true;
+  tryLock(lockId,msgId,missFn,applyFn,saveFn);
+  updateLockCtas();
+}
+function suggestFromUi(){
+  const rest=document.querySelector('input[name="mixMode"][value="rest"]');
+  suggest(!!(rest&&rest.checked));
 }
 function tryLock(lockId,msgId,missingFn,applyFn,saveFn){
   const lock=document.getElementById(lockId);
@@ -357,25 +420,52 @@ function applyRouteLock(){
   setLocked(["fromA","toA","route","km"].map(id=>document.getElementById(id)),locked);
   const sec=document.getElementById("secRoute");
   if(sec) sec.classList.toggle("collapsed", locked);
-  const t=document.getElementById("routeSumTxt");if(t) t.textContent=routeSumLine();
+  const t=document.getElementById("routeSumTxt");if(t){t.textContent=routeSumLine();t.classList.toggle("locked-ok",locked)}
+  updateLockCtas();
 }
 function applyAskLock(){
   const locked=!!document.getElementById("lockAsk").checked;
   setLocked(["qY","qJ","qF","qC"].map(id=>document.getElementById(id)),locked);
   const sec=document.getElementById("secAsk");
   if(sec) sec.classList.toggle("collapsed", locked);
-  const t=document.getElementById("askSumTxt");if(t) t.textContent=askSumLine();
+  const t=document.getElementById("askSumTxt");if(t){t.textContent=askSumLine();t.classList.toggle("locked-ok",locked)}
+  updateLockCtas();
 }
 function typesSumLine(){return TYPE_ORDER.length?TYPE_ORDER.join(" · "):"—"}
+function typeSumLine(t){
+  const d=typeSpec(t);
+  return t+" · "+d.pax+" pax · "+d.payload+" t · "+d.speed+" km/h · "+d.range+" km";
+}
 function applyTypesLock(){
   const locked=!!document.getElementById("lockTypes").checked;
+  if(locked){typeEditOpen={};nieuwTypeOpen=false}
   TYPE_ORDER.forEach(t=>["pax","payload","speed","range"].forEach(k=>{const el=document.getElementById(sid(t,k));if(el){el.disabled=locked;el.classList.toggle("yellow",!locked)}}));
   document.querySelectorAll("input.type-name").forEach(el=>{el.disabled=locked;el.classList.toggle("yellow",!locked)});
   setLocked(["nName","nPax","nPay","nSpd","nRng"].map(id=>document.getElementById(id)),locked);
-  const btn=document.getElementById("btnAddType");if(btn){btn.disabled=locked;btn.style.display=locked?"none":""}
+  const btn=document.getElementById("btnAddType");if(btn) btn.disabled=locked;
+  syncNieuwTypeUi(locked);
+  document.querySelectorAll("#types .typekaart").forEach(card=>{
+    const t=card.dataset.type;
+    const open=!locked && !!typeEditOpen[t];
+    card.classList.toggle("collapsed", !open);
+  });
   const sec=document.getElementById("secTypes");
   if(sec) sec.classList.toggle("collapsed", locked);
-  const t=document.getElementById("typesSumTxt");if(t) t.textContent=typesSumLine();
+  const t=document.getElementById("typesSumTxt");if(t){t.textContent=typesSumLine();t.classList.toggle("locked-ok",locked)}
+  updateLockCtas();
+}
+function syncNieuwTypeUi(locked){
+  const form=document.getElementById("nieuwType");
+  const more=document.getElementById("btnMoreType");
+  if(!form) return;
+  if(locked){
+    form.hidden=true;
+    if(more) more.hidden=true;
+    return;
+  }
+  const showForm=nieuwTypeOpen || !TYPE_ORDER.length;
+  form.hidden=!showForm;
+  if(more) more.hidden=showForm || !TYPE_ORDER.length;
 }
 function rowStatus(r){
   if(r&&r.status) return r.status;
@@ -673,13 +763,29 @@ function openTypesPanel(){
   if(sec) sec.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function renderTypes(){
-  document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><div class='grid2'><div><label>Naam</label><input class='yellow type-name' data-old='"+t+"' value='"+t+"'></div><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div></div><div class='grid4' style='margin-top:8px'><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
+  document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{
+    const d=TYPE_DEFAULTS[t];
+    const open=!!typeEditOpen[t];
+    return "<div class='typekaart"+(open?"":" collapsed")+"' data-type='"+t+"'>"+
+      "<div class='type-sum'><span class='ks-txt'>"+typeSumLine(t)+"</span><button type='button' class='ghost type-edit' data-t='"+t+"'>Wijzig</button></div>"+
+      "<div class='type-body'><div class='grid2'><div><label>Naam</label><input class='yellow type-name' data-old='"+t+"' value='"+t+"'></div><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div></div>"+
+      "<div class='grid4' style='margin-top:8px'><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div>"+
+      "<p class='tiny' id='"+sid(t,"stat")+"'></p>"+
+      "<button type='button' class='ghost type-fold' data-t='"+t+"'>Inklappen</button></div></div>";
+  }).join("");
   document.querySelectorAll("input.type-name").forEach(el=>{
     el.addEventListener("change",()=>renameType(el.dataset.old,el.value));
   });
+  document.querySelectorAll(".type-edit").forEach(btn=>btn.addEventListener("click",()=>{
+    typeEditOpen[btn.getAttribute("data-t")]=true;renderTypes();
+  }));
+  document.querySelectorAll(".type-fold").forEach(btn=>btn.addEventListener("click",()=>{
+    const t=btn.getAttribute("data-t");syncTypeDefsFromDom();delete typeEditOpen[t];saveTypes();renderTypes();calc();
+  }));
+  document.querySelectorAll("#types input").forEach(el=>el.addEventListener("change",()=>{syncTypeDefsFromDom();saveTypes();updateLockCtas()}));
   applyTypesLock();
   renderKiezen();
-bindNums();
+  bindNums();
 }
 function renderKiezen(){
   const prev={};
@@ -739,9 +845,18 @@ function addCustomType(){
   const n=(document.getElementById("nName").value||"").trim();
   const pax=+document.getElementById("nPax").value, pay=+document.getElementById("nPay").value, spd=+document.getElementById("nSpd").value, rng=+document.getElementById("nRng").value;
   if(!n||!pax||!spd||!rng){alert("Naam, pax, km/h en max km invullen.");return}
+  if(TYPE_ORDER.includes(n)){alert("Die naam bestaat al.");return}
   TYPE_DEFAULTS[n]={pax:pax,payload:pay||0,speed:spd,range:rng};
-  if(!TYPE_ORDER.includes(n)) TYPE_ORDER.push(n);
+  TYPE_ORDER.push(n);
+  ["nName","nPax","nPay","nSpd","nRng"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
+  nieuwTypeOpen=false;
   saveTypes();renderTypes();calc();
+}
+function openNieuwTypeForm(){
+  nieuwTypeOpen=true;
+  syncNieuwTypeUi(!!document.getElementById("lockTypes").checked);
+  const form=document.getElementById("nieuwType");
+  if(form) form.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function sanitizeNum(el,dec){
   const raw=el.value;
@@ -930,9 +1045,10 @@ function calc(){
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
   document.getElementById("rest").innerHTML=pill("Economy",over.Y.toFixed(0),kind(over.Y))+pill("Business",over.J.toFixed(0),kind(over.J))+pill("First",over.F.toFixed(0),kind(over.F))+pill("Cargo",over.C.toFixed(0)+" t",kind(over.C));
   document.getElementById("advies").innerHTML=lastWhy.concat(TYPE_ORDER.map(t=>!num("km")?(t+": —"):(tooFar(t)?(t+": te ver"):(t+": "+planVl(t)+"×/dag")))).map(t=>"<div>"+t+"</div>").join("");
-  const rst=document.getElementById("routeSumTxt");if(rst) rst.textContent=routeSumLine();
-  const ast=document.getElementById("askSumTxt");if(ast) ast.textContent=askSumLine();
+  const rst=document.getElementById("routeSumTxt");if(rst){rst.textContent=routeSumLine();rst.classList.toggle("locked-ok",!!document.getElementById("lockRoute").checked)}
+  const ast=document.getElementById("askSumTxt");if(ast){ast.textContent=askSumLine();ast.classList.toggle("locked-ok",!!document.getElementById("lockAsk").checked)}
   renderRooster();
+  updateLockCtas();
   if(currentId) saveRoute(true);
 }
 try{
@@ -945,15 +1061,24 @@ try{const ah=document.getElementById("autosaveHint");if(ah)setTimeout(()=>{ah.st
 document.getElementById("km").addEventListener("input",calc);
 document.getElementById("route").addEventListener("input",()=>{calc();if(currentId)saveRoute(false)});
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
-document.getElementById("lockRoute").addEventListener("change",()=>{tryLock("lockRoute","lockRouteMsg",routeLockMissing,applyRouteLock,()=>saveRoute())});
-document.getElementById("lockAsk").addEventListener("change",()=>{tryLock("lockAsk","lockAskMsg",askLockMissing,applyAskLock,()=>saveRoute())});
+document.getElementById("lockRoute").addEventListener("change",()=>{tryLock("lockRoute","lockRouteMsg",routeLockMissing,applyRouteLock,()=>saveRoute());updateLockCtas()});
+document.getElementById("lockAsk").addEventListener("change",()=>{tryLock("lockAsk","lockAskMsg",askLockMissing,applyAskLock,()=>saveRoute());updateLockCtas()});
+const lockRouteCta=document.getElementById("lockRouteCta");
+if(lockRouteCta) lockRouteCta.addEventListener("click",()=>doLock("lockRoute","lockRouteMsg",routeLockMissing,applyRouteLock,()=>saveRoute()));
+const lockAskCta=document.getElementById("lockAskCta");
+if(lockAskCta) lockAskCta.addEventListener("click",()=>doLock("lockAsk","lockAskMsg",askLockMissing,applyAskLock,()=>saveRoute()));
+const lockTypesCta=document.getElementById("lockTypesCta");
+if(lockTypesCta) lockTypesCta.addEventListener("click",()=>{syncTypeDefsFromDom();doLock("lockTypes","lockTypesMsg",typesLockMissing,applyTypesLock,()=>saveTypes())});
+const btnMoreType=document.getElementById("btnMoreType");
+if(btnMoreType) btnMoreType.addEventListener("click",openNieuwTypeForm);
+document.querySelectorAll('input[name="mixMode"]').forEach(el=>el.addEventListener("change",updateLockCtas));
 const routeSumEdit=document.getElementById("routeSumEdit");
 if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementById("lockRoute").checked=false;clearLockMsg("lockRouteMsg");applyRouteLock();saveRoute()});
 const askSumEdit=document.getElementById("askSumEdit");
 if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;clearLockMsg("lockAskMsg");applyAskLock();saveRoute()});
-document.getElementById("lockTypes").addEventListener("change",()=>{tryLock("lockTypes","lockTypesMsg",typesLockMissing,applyTypesLock,()=>saveTypes())});
+document.getElementById("lockTypes").addEventListener("change",()=>{tryLock("lockTypes","lockTypesMsg",typesLockMissing,applyTypesLock,()=>saveTypes());updateLockCtas()});
 const typesSumEdit=document.getElementById("typesSumEdit");
-if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()});
+if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;clearLockMsg("lockTypesMsg");typeEditOpen={};nieuwTypeOpen=!TYPE_ORDER.length;applyTypesLock();saveTypes()});
 const linkTypes=document.getElementById("linkTypes");
 if(linkTypes) linkTypes.addEventListener("click",e=>{e.preventDefault();openTypesPanel()});
 applyRouteLock();applyAskLock();applyTypesLock();
