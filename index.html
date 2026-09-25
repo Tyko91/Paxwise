@@ -247,10 +247,11 @@ details{margin-top:6px}
 <section id="secInplannen" hidden>
 <h2>Inplannen</h2>
 <div class="mix-mode">
-<label><input type="radio" name="mixMode" value="rest" checked> Houd ingeplande vluchten, vul tekort bij</label>
-<label><input type="radio" name="mixMode" value="new"> Nieuwe mix over de hele vraag</label>
+<label><input type="radio" name="mixMode" value="rest" checked> Behoud wat al in de vloot staat — vul alleen het tekort</label>
+<label><input type="radio" name="mixMode" value="new"> Stel een volledig nieuwe vlootmix voor met de geselecteerde toestellen</label>
 </div>
-<p class="tiny" id="mixRestTip" style="margin:0 0 10px;color:#6b7280">Zet eerst je game-retourvluchten in de vloot; die blijven staan.</p>
+<p class="tiny" id="mixRestTip" style="margin:0 0 10px;color:#6b7280">Eerst je game-retourvluchten in de vloot zetten; die blijven staan. Het tekort wordt bijgevuld.</p>
+<p class="tiny" id="mixNewTip" style="margin:0 0 10px;color:#6b7280;display:none">Let op: de huidige vlootkaarten worden vervangen door een nieuw voorstel.</p>
 <button type="button" id="btnSuggest" onclick="suggestFromUi()">Stel mix voor</button>
 <button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
 </section>
@@ -439,6 +440,8 @@ function updateLockCtas(){
   const hasKeep=currentRows().some(r=>r.type&&countsDemand(rowStatus(r)));
   syncWizard();
   if(tip) tip.style.display=(rest&&rest.checked)?"":"none";
+  const tipNew=document.getElementById("mixNewTip");
+  if(tipNew) tipNew.style.display=(rest&&rest.checked)?"none":"";
   if(gate&&ready){gate.style.display="none";gate.textContent=""}
   const retOk=retourTypesSelected().length>0 && retourAllConfirmed(retourTypesSelected());
   const retMsg="Zet eerst de retourtijden per toestel vast.";
