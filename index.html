@@ -244,7 +244,7 @@ function applyTypesLock(){
 }
 function applyKistLock(d){
   const on=d.querySelector(".flybox")?d.querySelector(".flybox").checked:true;
-  d.querySelectorAll("input.y,input.j,input.f,input.c").forEach(el=>{el.disabled=on;el.classList.toggle("yellow",!on)});
+  d.querySelectorAll("input.y,input.j,input.f,input.c,input.ret").forEach(el=>{el.disabled=on;el.classList.toggle("yellow",!on)});
   const sel=d.querySelector("select.type");if(sel)sel.disabled=on;
 }
 function gcdKm(a,b){const R=6371,to=d=>d*Math.PI/180,dlat=to(b[0]-a[0]),dlon=to(b[1]-a[1]),x=Math.sin(dlat/2)**2+Math.cos(to(a[0]))*Math.cos(to(b[0]))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(x)))}
@@ -261,6 +261,25 @@ function rawVl(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:12*s/
 function tooFar(t){const km=num("km");return km>0&&typeSpec(t).range+0.5<km}
 function canFly(t){return num("km")>0&&!tooFar(t)}
 function kwartierOmhoog(u){if(!(u>0))return 0;return Math.ceil(u*4-1e-9)/4}
+function parseHM(s){
+  s=String(s||"").trim();
+  const m=s.match(/^(\d{1,2}):(\d{2})$/);
+  if(m){const h=+m[1],mi=+m[2];if(mi>59)return 0;return h+mi/60}
+  return 0;
+}
+function fmtHM(u){
+  if(!(u>0))return "";
+  let h=Math.floor(u+1e-9),mi=Math.round((u-h)*60);
+  if(mi===60){h+=1;mi=0}
+  return h+":"+String(mi).padStart(2,"0");
+}
+function defaultRet(t){return canFly(t)?fmtHM(urenPerRetour(t)):""}
+function kistUren(k){
+  const el=k&&k.querySelector(".ret");
+  if(el&&String(el.value||"").trim()){const u=parseHM(el.value);if(u>0)return u}
+  const type=k&&k.querySelector(".type")?k.querySelector(".type").value:"";
+  return type?urenPerRetour(type):0;
+}
 function planVl(t){if(!canFly(t))return 0;const u=urenPerRetour(t);if(u>0){const n=Math.floor(24/u+1e-9);return n>=1?n:(24/u>=0.45?1:0)}const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
 function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
@@ -280,7 +299,7 @@ function packOne(need,typeName,jkost,fkost){
   const f=Math.min(Math.max(0,Math.ceil(need.F/fl-1e-9)),Math.floor(space/fkost));
   const c=Math.min(Math.max(0,Math.ceil(need.C/fl-1e-9)),Math.floor(t.payload));
   if(y+j+f+c<=0)return null;
-  return{type:typeName,fl:String(fl),y:String(y),j:String(j),f:String(f),c:String(c),on:true};
+  return{type:typeName,fl:String(fl),y:String(y),j:String(j),f:String(f),c:String(c),ret:defaultRet(typeName),on:true};
 }
 function plek(need,jk,fk){return Math.max(0,need.Y)+Math.max(0,need.J)*jk+Math.max(0,need.F)*fk}
 function fillOf(p,jk,fk){const t=typeSpec(p.type);if(!t.pax)return 0;return ((+p.y)+(+p.j)*jk+(+p.f)*fk)/t.pax}
@@ -336,7 +355,7 @@ function packNeed(need,types,jkost,fkost,already){
   }
   return{planes,why};
 }
-function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,on:k.querySelector(".flybox")?k.querySelector(".flybox").checked:true,warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
+function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,ret:k.querySelector(".ret")?k.querySelector(".ret").value:"",on:k.querySelector(".flybox")?k.querySelector(".flybox").checked:true,warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
 function writeRows(rows){const box=document.getElementById("vloot");box.innerHTML="";rows.forEach((r,i)=>box.appendChild(kistEl(i+1,r)));calc()}
 function kistColor(i){return TYPE_COLORS[(Math.max(1,i)-1)%TYPE_COLORS.length]}
 function kistEl(i,r){
@@ -345,7 +364,9 @@ function kistEl(i,r){
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   const on=r.on!==false;
   const fl=(r.fl!==undefined&&r.fl!==null&&String(r.fl)!=="")?String(r.fl):(r.type&&canFly(r.type)?String(planVl(r.type)):"1");
-  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
+  let ret=(r.ret!==undefined&&r.ret!==null&&String(r.ret).trim()!=="")?String(r.ret).trim():(r.type?defaultRet(r.type):"");
+  if(ret&&!parseHM(ret)&&r.type) ret=defaultRet(r.type);
+  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div class='grid2' style='margin-top:4px'><div><label>Type</label><select class='type'>"+opts+"</select></div><div><label>Retour</label><input class='ret yellow' type='text' inputmode='numeric' placeholder='17:45' value='"+ret+"'></div></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
   const box=d.querySelector(".plan"), lab=d.querySelector(".planlab"), cb=d.querySelector(".flybox");
   function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
   cb.addEventListener("change",paint);
@@ -355,7 +376,12 @@ function kistEl(i,r){
   d.querySelector("input.j").addEventListener("input",onSeat("j"));
   d.querySelector("input.f").addEventListener("input",onSeat("f"));
   d.querySelector("input.c").addEventListener("input",onSeat("c"));
-  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);clampKist(d,"type");calc()});
+  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp)){d.querySelector(".fl").value=planVl(tp);d.querySelector(".ret").value=defaultRet(tp)}else if(d.querySelector(".ret"))d.querySelector(".ret").value="";clampKist(d,"type");calc()});
+  const retEl=d.querySelector(".ret");
+  if(retEl){
+    retEl.addEventListener("input",()=>{retEl.value=retEl.value.replace(/[^\d:]/g,"");calc()});
+    retEl.addEventListener("change",()=>{const u=parseHM(retEl.value);if(u>0)retEl.value=fmtHM(u);calc()});
+  }
   bindNums(d);
   return d;
 }
@@ -487,7 +513,7 @@ function plannedFleet(){
     const type=k.querySelector(".type").value;
     if(!on||!type) return;
     let fl=Math.max(0,Math.floor(nval(k.querySelector(".fl"))||0));
-    const u=urenPerRetour(type);
+    const u=kistUren(k);
     if(!fl){
       if(u>0) fl=Math.max(1,Math.floor(24/u));
       else fl=planVl(type)||0;
@@ -516,7 +542,7 @@ function barsForPlane(p,color){
   return{bars,used:t0};
 }
 function fmtBezet(n){const x=+n||0;const r=Math.round(x*10)/10;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):r.toFixed(1)}
-function fmtU(u){if(!(u>0))return "?";const s=u.toFixed(2).replace(/\.?0+$/,"");return s.replace(".",",")}
+function fmtU(u){if(!(u>0))return "?";return fmtHM(u)||"?"}
 function renderRooster(){
   const grid=document.getElementById("roosterGrid");
   const legend=document.getElementById("roosterLegend");
@@ -576,17 +602,20 @@ function renderRooster(){
 function pill(label,val,kind){const st=kind==="left"?"tekort":(kind==="over"?"teveel":"ok");return "<div class='pill "+kind+"'><span class='pill-lab'>"+label+"</span><span class='pill-st'>"+st+"</span><b>"+val+"</b></div>"}
 function calc(){
   refreshKiezen();
-  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour "+urenPerRetour(t).toFixed(2).replace(/\.?0+$/,"")+" u · "+planVl(t)+"×/dag"))});
+  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour ~"+fmtHM(urenPerRetour(t))+" · "+planVl(t)+"×/dag"))});
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let weg={Y:0,J:0,F:0,C:0};
   document.querySelectorAll(".kist").forEach((k,idx)=>{
     const type=k.querySelector(".type").value,y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
     const flEl=k.querySelector(".fl");
     let fl=nval(flEl);
+    const retEl=k.querySelector(".ret");
     if(type&&canFly(type)){
-      const auto=planVl(type);
+      if(retEl&&!String(retEl.value||"").trim()) retEl.value=defaultRet(type);
+      const u=kistUren(k);
+      const auto=u>0?(Math.floor(24/u+1e-9)>=1?Math.floor(24/u+1e-9):(24/u>=0.45?1:0)):planVl(type);
       // Ritjes: bewaar lagere waarde op de kist; nooit omhoog forceren naar plafond
       if(!flEl||flEl.value===""||flEl.value==null){fl=auto;if(flEl)flEl.value=String(auto)}
-      else{fl=Math.min(nval(flEl)||auto,auto);if(flEl)flEl.value=String(fl)}
+      else{fl=Math.min(nval(flEl)||auto,auto||nval(flEl)||1);if(flEl)flEl.value=String(fl)}
     }else{fl=fl||1;if(flEl&&(flEl.value===""||flEl.value==null))flEl.value=String(fl)}
     const info=k.querySelector("#info"+(idx+1));
     const warnEl=k.querySelector("#warn"+(idx+1));
