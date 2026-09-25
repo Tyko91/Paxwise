@@ -171,6 +171,7 @@ details{margin-top:6px}
 <div class="sec-sum" id="typesSum"><span class="ks-txt" id="typesSumTxt"></span><button type="button" class="ghost" id="typesSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockTypes"> Vastzetten</label>
+<p class="warn" id="lockTypesMsg" style="display:none"></p>
 <div id="types"></div>
 <div class="typekaart" id="nieuwType">
 <h3>Nieuw type</h3>
@@ -192,6 +193,7 @@ details{margin-top:6px}
 <div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
+<p class="warn" id="lockRouteMsg" style="display:none"></p>
 <div class="grid2">
 <div><label>Heen</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
 <div><label>Terug</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
@@ -208,6 +210,7 @@ details{margin-top:6px}
 <div class="sec-sum" id="askSum"><span class="ks-txt" id="askSumTxt"></span><button type="button" class="ghost" id="askSumEdit">Wijzig</button></div>
 <div class="sec-body">
 <label class="lock"><input type="checkbox" id="lockAsk"> Vastzetten</label>
+<p class="warn" id="lockAskMsg" style="display:none"></p>
 <div class="grid4 ask4">
 <div><label>Economy</label><input class="yellow" id="qY" type="number" value="1788"></div>
 <div><label>Business</label><input class="yellow" id="qJ" type="number" value="300"></div>
@@ -277,6 +280,59 @@ function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");
 }
 function saveTypes(){try{const lock=document.getElementById("lockTypes");localStorage.setItem(TKEY,JSON.stringify({order:TYPE_ORDER,defs:TYPE_DEFAULTS,lock:lock?!!lock.checked:false}))}catch(e){}}
 function setLocked(els,locked){els.forEach(el=>{if(!el)return;el.disabled=!!locked;if(el.tagName==="INPUT"&&el.type!=="checkbox"&&el.type!=="hidden"){el.classList.toggle("yellow",!locked)}})}
+function emptyField(el){return !el||String(el.value).trim()===""}
+function lockNeedMsg(names){
+  if(!names.length) return "";
+  if(names.length===1) return "Vul eerst "+names[0]+" in om vast te zetten.";
+  if(names.length===2) return "Vul eerst "+names[0]+" en "+names[1]+" in om vast te zetten.";
+  return "Vul eerst "+names.slice(0,-1).join(", ")+" en "+names[names.length-1]+" in om vast te zetten.";
+}
+function showLockMsg(id,txt){const el=document.getElementById(id);if(!el)return;el.textContent=txt;el.style.display=txt?"block":"none"}
+function clearLockMsg(id){showLockMsg(id,"")}
+function routeLockMissing(){
+  const m=[];
+  if(emptyField(document.getElementById("fromA"))) m.push("Heen");
+  if(emptyField(document.getElementById("toA"))) m.push("Terug");
+  if(emptyField(document.getElementById("route"))) m.push("Route");
+  if(emptyField(document.getElementById("km"))) m.push("Afstand km");
+  return m;
+}
+function askLockMissing(){
+  const m=[];
+  if(emptyField(document.getElementById("qY"))) m.push("Economy");
+  if(emptyField(document.getElementById("qJ"))) m.push("Business");
+  if(emptyField(document.getElementById("qF"))) m.push("First");
+  if(emptyField(document.getElementById("qC"))) m.push("Cargo");
+  return m;
+}
+function typesLockMissing(){
+  const m=[];
+  if(!TYPE_ORDER.length){m.push("minstens één toestel");return m}
+  TYPE_ORDER.forEach(t=>{
+    const nameEl=[...document.querySelectorAll("input.type-name")].find(el=>el.dataset.old===t);
+    if(emptyField(nameEl)) m.push("Naam van "+t);
+    [["pax","Max pax"],["payload","Payload t"],["speed","km/h"],["range","Max km"]].forEach(([k,lab])=>{
+      if(emptyField(document.getElementById(sid(t,k)))) m.push(lab+" van "+t);
+    });
+  });
+  return m;
+}
+function tryLock(lockId,msgId,missingFn,applyFn,saveFn){
+  const lock=document.getElementById(lockId);
+  if(!lock) return;
+  if(lock.checked){
+    const miss=missingFn();
+    if(miss.length){
+      lock.checked=false;
+      showLockMsg(msgId, lockNeedMsg(miss));
+      applyFn();
+      return;
+    }
+  }
+  clearLockMsg(msgId);
+  applyFn();
+  if(saveFn) saveFn();
+}
 function routeSumLine(){
   const name=(document.getElementById("route").value||"").trim()||((code("fromA")&&code("toA"))?code("fromA")+"–"+code("toA"):"—");
   const km=num("km");
@@ -877,15 +933,15 @@ try{const ah=document.getElementById("autosaveHint");if(ah)setTimeout(()=>{ah.st
 document.getElementById("km").addEventListener("input",calc);
 document.getElementById("route").addEventListener("input",()=>{calc();if(currentId)saveRoute(false)});
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
-document.getElementById("lockRoute").addEventListener("change",()=>{applyRouteLock();saveRoute()});
-document.getElementById("lockAsk").addEventListener("change",()=>{applyAskLock();saveRoute()});
+document.getElementById("lockRoute").addEventListener("change",()=>{tryLock("lockRoute","lockRouteMsg",routeLockMissing,applyRouteLock,()=>saveRoute())});
+document.getElementById("lockAsk").addEventListener("change",()=>{tryLock("lockAsk","lockAskMsg",askLockMissing,applyAskLock,()=>saveRoute())});
 const routeSumEdit=document.getElementById("routeSumEdit");
-if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementById("lockRoute").checked=false;applyRouteLock();saveRoute()});
+if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementById("lockRoute").checked=false;clearLockMsg("lockRouteMsg");applyRouteLock();saveRoute()});
 const askSumEdit=document.getElementById("askSumEdit");
-if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;applyAskLock();saveRoute()});
-document.getElementById("lockTypes").addEventListener("change",()=>{applyTypesLock();saveTypes()});
+if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;clearLockMsg("lockAskMsg");applyAskLock();saveRoute()});
+document.getElementById("lockTypes").addEventListener("change",()=>{tryLock("lockTypes","lockTypesMsg",typesLockMissing,applyTypesLock,()=>saveTypes())});
 const typesSumEdit=document.getElementById("typesSumEdit");
-if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;applyTypesLock();saveTypes()});
+if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()});
 const linkTypes=document.getElementById("linkTypes");
 if(linkTypes) linkTypes.addEventListener("click",e=>{e.preventDefault();openTypesPanel()});
 applyRouteLock();applyAskLock();applyTypesLock();
