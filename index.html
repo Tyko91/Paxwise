@@ -248,6 +248,8 @@ details{margin-top:6px}
 <h2>Vlootinzet</h2>
 <p class="warn" id="flowGateMsg" style="display:none"></p>
 <p class="tiny"><a href="#secTypes" id="linkTypes" class="types-jump">↑ Mijn toestellen</a></p>
+<p id="kiezenLead" style="margin:8px 0 4px;font-weight:600;font-size:.92rem">Welke toestellen wil je op deze route gebruiken?</p>
+<p class="tiny" id="kiezenHint" style="margin:0 0 10px;color:#6b7280">Vink aan wat meedoet aan de mix.</p>
 <div class="chk" id="kiezen"></div>
 <div class="ret-block" id="retourBlock" hidden>
 <h3>Retourvlucht</h3>
@@ -400,6 +402,15 @@ function updateLockCtas(){
     else{btn.disabled=false;btn.title=""}
   }
   if(addBtn){addBtn.disabled=!ready;addBtn.title=ready?"":flowBlockMsg()}
+  const kh=document.getElementById("kiezenHint");
+  const lead=document.getElementById("kiezenLead");
+  if(lead) lead.style.opacity=ready?"1":".55";
+  if(kh){kh.textContent=ready?"Vink aan wat meedoet aan de mix.":flowBlockMsg();kh.style.color=ready?"#6b7280":""}
+  document.querySelectorAll('input[name="mixMode"]').forEach(el=>{el.disabled=!ready});
+  const clearBtn=document.querySelector('button[onclick="clearFleet()"]');
+  if(clearBtn){clearBtn.disabled=!ready;clearBtn.title=ready?"":flowBlockMsg()}
+  if(!ready) window._clearKiezen=true;
+  if(typeof renderKiezen==="function" && document.getElementById("kiezen")) renderKiezen();
 }
 function doLock(lockId,msgId,missFn,applyFn,saveFn){
   const lock=document.getElementById(lockId);
@@ -836,10 +847,12 @@ function renderKiezen(){
   TYPE_ORDER.forEach(t=>{const el=document.getElementById("use_"+t);if(el)prev[t]=el.checked});
   const clear=!!window._clearKiezen;window._clearKiezen=false;
   syncRetFromDom();
+  const ready=flowReady();
   document.getElementById("kiezen").innerHTML=TYPE_ORDER.map(t=>{
     const far=tooFar(t);
-    const on=far?false:(clear?false:(prev[t]===undefined?false:!!prev[t]));
-    return "<label class='"+(far?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(far?"disabled":(on?"checked":""))+"> "+t+(far?" · te ver":"")+"</label>";
+    const on=far||!ready?false:(clear?false:(prev[t]===undefined?false:!!prev[t]));
+    const dis=far||!ready;
+    return "<label class='"+(dis?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(dis?"disabled":"")+(on?" checked":"")+"> "+t+(far?" · te ver":"")+"</label>";
   }).join("");
   document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{calc()}));
   renderRetourTypes();
@@ -1036,15 +1049,16 @@ function renderRooster(){
 function pill(label,val,kind){const st=kind==="left"?"tekort":(kind==="over"?"teveel":"ok");return "<div class='pill "+kind+"'><span class='pill-lab'>"+label+"</span><span class='pill-st'>"+st+"</span><b>"+val+"</b></div>"}
 function softRefreshKiezen(){
   let need=false;
+  const ready=flowReady();
   TYPE_ORDER.forEach(t=>{
     const el=document.getElementById("use_"+t);if(!el){need=true;return}
     const far=tooFar(t);
-    if(far && !el.disabled) need=true;
-    if(!far && el.disabled) need=true;
+    const shouldDis=far||!ready;
+    if(shouldDis!==el.disabled) need=true;
     const lab=el.closest("label");
     if(lab){
       const has=lab.classList.contains("off");
-      if(far!==has) need=true;
+      if(shouldDis!==has) need=true;
       const txt=lab.textContent||"";
       if(far && txt.indexOf("te ver")<0) need=true;
       if(!far && txt.indexOf("te ver")>=0) need=true;
@@ -1101,9 +1115,10 @@ try{if(!localStorage.getItem("am_types_lock_once_v1")){const el=document.getElem
 renderTypes();
 bindNums();
 try{const ah=document.getElementById("autosaveHint");if(ah)setTimeout(()=>{ah.style.opacity="0";ah.style.transition="opacity .6s";setTimeout(()=>ah.remove(),700)},8000)}catch(e){}
-["fromA","toA"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>{el.value=el.value.toUpperCase();applyIata(true)})});
-document.getElementById("km").addEventListener("input",calc);
-document.getElementById("route").addEventListener("input",()=>{calc();if(currentId)saveRoute(false)});
+["fromA","toA"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>{el.value=el.value.toUpperCase();clearLockMsg("lockRouteMsg");applyIata(true)})});
+document.getElementById("km").addEventListener("input",()=>{clearLockMsg("lockRouteMsg");calc()});
+document.getElementById("route").addEventListener("input",()=>{clearLockMsg("lockRouteMsg");calc();if(currentId)saveRoute(false)});
+["qY","qJ","qF","qC"].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener("input",()=>clearLockMsg("lockAskMsg"))});
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
 document.getElementById("lockRoute").addEventListener("change",()=>{tryLock("lockRoute","lockRouteMsg",routeLockMissing,applyRouteLock,()=>saveRoute());updateLockCtas()});
 document.getElementById("lockAsk").addEventListener("change",()=>{tryLock("lockAsk","lockAskMsg",askLockMissing,applyAskLock,()=>saveRoute());updateLockCtas()});
@@ -1125,6 +1140,7 @@ const typesSumEdit=document.getElementById("typesSumEdit");
 if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;clearLockMsg("lockTypesMsg");typeEditOpen={};nieuwTypeOpen=!TYPE_ORDER.length;applyTypesLock();saveTypes()});
 const linkTypes=document.getElementById("linkTypes");
 if(linkTypes) linkTypes.addEventListener("click",e=>{e.preventDefault();openTypesPanel()});
+clearLockMsg("lockRouteMsg");clearLockMsg("lockAskMsg");clearLockMsg("lockTypesMsg");
 applyRouteLock();applyAskLock();applyTypesLock();
 (function boot(){
   const list=loadList();
