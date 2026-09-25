@@ -95,6 +95,8 @@ button.danger:hover{border-color:var(--bad);background:#fee2e2}
 button:disabled{opacity:.5}
 .tiny{font-size:11px;color:var(--muted);margin-top:6px}
 .autosave{font-size:11px;color:var(--muted);margin:6px 0 0;font-weight:600}
+a.types-jump{display:inline-flex;align-items:center;gap:5px;color:var(--navy);font-weight:700;text-decoration:none;border-bottom:1.5px solid var(--gold);padding-bottom:1px}
+a.types-jump:hover{opacity:.85}
 .warn{color:var(--bad);font-weight:700;font-size:12px;margin-top:8px;padding:8px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px}
 .warn::before{content:"Let op · ";font-weight:800}
 .past.ok{color:var(--ok);font-weight:700}.past.bad{color:var(--bad);font-weight:700}
@@ -195,8 +197,8 @@ details{margin-top:6px}
 <label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
 <p class="warn" id="lockRouteMsg" style="display:none"></p>
 <div class="grid2">
-<div><label>Heen</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
-<div><label>Terug</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
+<div><label>Van</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
+<div><label>Naar</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
 </div>
 <p class="tiny" id="iataHint"></p>
 <div class="grid2" style="margin-top:8px">
@@ -228,7 +230,7 @@ details{margin-top:6px}
 </section>
 <section>
 <h2>Vlootinzet</h2>
-<p class="tiny"><a href="#secTypes" id="linkTypes" style="color:var(--navy);font-weight:650">Toestel toevoegen of specs</a></p>
+<p class="tiny"><a href="#secTypes" id="linkTypes" class="types-jump">↑ Mijn toestellen</a></p>
 <div class="chk" id="kiezen"></div>
 <div class="ret-block" id="retourBlock" hidden>
 <h3>Retourvlucht</h3>
@@ -236,13 +238,13 @@ details{margin-top:6px}
 <div id="retourTypes"></div>
 </div>
 <button type="button" onclick="suggest(false)">Stel vlootmix voor</button>
-<button type="button" class="ghost" onclick="suggest(true)">Alleen de rest bijvullen</button>
+<button type="button" class="ghost" onclick="suggest(true)">Houd huidige · vul rest aan</button>
 <button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
 </section>
 <section>
 <h2>Vloot</h2>
 <div id="vloot"></div>
-<button type="button" class="ghost" onclick="addKist()">+ lege retourvlucht</button>
+<button type="button" class="ghost" onclick="addKist()">+ retourvlucht zelf (al in game)</button>
 </section>
 <section class="roost">
 <h2>Rooster</h2>
@@ -291,8 +293,8 @@ function showLockMsg(id,txt){const el=document.getElementById(id);if(!el)return;
 function clearLockMsg(id){showLockMsg(id,"")}
 function routeLockMissing(){
   const m=[];
-  if(emptyField(document.getElementById("fromA"))) m.push("Heen");
-  if(emptyField(document.getElementById("toA"))) m.push("Terug");
+  if(emptyField(document.getElementById("fromA"))) m.push("Van");
+  if(emptyField(document.getElementById("toA"))) m.push("Naar");
   if(emptyField(document.getElementById("route"))) m.push("Route");
   if(emptyField(document.getElementById("km"))) m.push("Afstand km");
   return m;
@@ -627,7 +629,7 @@ function deleteRoute(){
   applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
   writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc()}
+function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();window._clearKiezen=true;calc()}
 function renameTypeSilent(oldN,newN){
   if(!oldN||!newN||oldN===newN) return;
   if(!(oldN in TYPE_DEFAULTS)) return;
@@ -657,8 +659,6 @@ function renameType(oldN,newN){
   saveTypes();renderTypes();renderKiezen();if(currentId)saveRoute(true);calc();
 }
 function openTypesPanel(){
-  const lock=document.getElementById("lockTypes");
-  if(lock&&lock.checked){lock.checked=false;applyTypesLock();saveTypes()}
   const sec=document.getElementById("secTypes");
   if(sec) sec.scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -674,10 +674,11 @@ bindNums();
 function renderKiezen(){
   const prev={};
   TYPE_ORDER.forEach(t=>{const el=document.getElementById("use_"+t);if(el)prev[t]=el.checked});
+  const clear=!!window._clearKiezen;window._clearKiezen=false;
   syncRetFromDom();
   document.getElementById("kiezen").innerHTML=TYPE_ORDER.map(t=>{
     const far=tooFar(t);
-    const on=far?false:(prev[t]===undefined?true:!!prev[t]);
+    const on=far?false:(clear?false:(prev[t]===undefined?false:!!prev[t]));
     return "<label class='"+(far?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(far?"disabled":(on?"checked":""))+"> "+t+(far?" · te ver":"")+"</label>";
   }).join("");
   document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{calc()}));
