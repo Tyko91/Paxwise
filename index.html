@@ -237,8 +237,9 @@ details{margin-top:6px}
 <p class="hint" id="retourHint">Neem de retourtijd over uit het routescherm. Klopt deze retourtijd?</p>
 <div id="retourTypes"></div>
 </div>
-<button type="button" onclick="suggest(false)">Stel vlootmix voor</button>
-<button type="button" class="ghost" onclick="suggest(true)">Houd huidige · vul rest aan</button>
+<button type="button" onclick="suggest(false)">Nieuwe mix (vervangt vloot)</button>
+<button type="button" class="ghost" onclick="suggest(true)">Vul tekort aan (houd vloot)</button>
+<p class="tiny" style="margin:6px 0 0">Tekort: zet eerst je al ingeplande game-retourvluchten in de vloot, daarna deze knop.</p>
 <button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
 </section>
 <section>
@@ -277,7 +278,15 @@ function num(id){return parseFloat(document.getElementById(id).value)||0}
 function nval(el){return parseFloat(el&&el.value)||0}
 function sid(t,k){return k+"_"+t.replace(/[^A-Za-z0-9]/g,"")}
 function code(id){return (document.getElementById(id).value||"").trim().toUpperCase()}
-function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");if(s&&s.order&&s.defs){TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs;const el=document.getElementById("lockTypes");if(el&&typeof s.lock!=="undefined")el.checked=!!s.lock}}catch(e){}
+function loadTypes(){
+  const el=document.getElementById("lockTypes");
+  try{
+    const s=JSON.parse(localStorage.getItem(TKEY)||"null");
+    if(s&&s.order&&s.defs){
+      TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs;
+      if(el) el.checked=(typeof s.lock==="undefined")?true:!!s.lock;
+    }else if(el){el.checked=true}
+  }catch(e){if(el)el.checked=true}
   if(TYPE_DEFAULTS["A350-1000LR"]&&!TYPE_DEFAULTS["X350-1000LR"]) renameTypeSilent("A350-1000LR","X350-1000LR");
 }
 function saveTypes(){try{const lock=document.getElementById("lockTypes");localStorage.setItem(TKEY,JSON.stringify({order:TYPE_ORDER,defs:TYPE_DEFAULTS,lock:lock?!!lock.checked:false}))}catch(e){}}
@@ -629,7 +638,7 @@ function deleteRoute(){
   applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
   writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();window._clearKiezen=true;calc()}
+function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()}lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();window._clearKiezen=true;calc()}
 function renameTypeSilent(oldN,newN){
   if(!oldN||!newN||oldN===newN) return;
   if(!(oldN in TYPE_DEFAULTS)) return;
@@ -927,6 +936,7 @@ function calc(){
 }
 try{
 loadTypes();
+try{if(!localStorage.getItem("am_types_lock_once_v1")){const el=document.getElementById("lockTypes");if(el){el.checked=true;saveTypes()}localStorage.setItem("am_types_lock_once_v1","1")}}catch(e){}
 renderTypes();
 bindNums();
 try{const ah=document.getElementById("autosaveHint");if(ah)setTimeout(()=>{ah.style.opacity="0";ah.style.transition="opacity .6s";setTimeout(()=>ah.remove(),700)},8000)}catch(e){}
