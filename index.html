@@ -71,8 +71,10 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .sec-fold:not(.collapsed) .sec-sum{display:none}
 .sec-sum{display:flex;align-items:center;gap:8px;margin-top:4px}
 .sec-sum .ks-txt{flex:1;font-size:13px;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sec-sum:has(.ask-sum-wrap){align-items:flex-start}
-.sec-sum .ask-sum-wrap{flex:1;min-width:0;overflow:visible;white-space:normal;text-overflow:unset}
+.sec-sum:has(.ask-sum-wrap){align-items:center}
+.sec-sum .ask-sum-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:0;overflow:visible;white-space:normal;text-overflow:unset}
+.sec-sum .ask-sum-wrap .ask-sum{flex:1;min-width:0}
+.sec-sum .ask-sum-wrap.locked-ok::after{content:"✓";flex:0 0 auto;align-self:center;line-height:1;padding-left:2px}
 .sec-sum:has(.vloot-in-stack){align-items:flex-start}
 .vloot-in-stack{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;overflow:visible;white-space:normal;text-overflow:unset}
 .vloot-in-stack .vil{display:flex;gap:8px;align-items:baseline;font-size:13px}
