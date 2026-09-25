@@ -73,6 +73,12 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .sec-sum .ks-txt{flex:1;font-size:13px;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sec-sum:has(.ask-sum-wrap){align-items:flex-start}
 .sec-sum .ask-sum-wrap{flex:1;min-width:0;overflow:visible;white-space:normal;text-overflow:unset}
+.sec-sum:has(.vloot-in-stack){align-items:flex-start}
+.vloot-in-stack{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;overflow:visible;white-space:normal;text-overflow:unset}
+.vloot-in-stack .vil{display:flex;gap:8px;align-items:baseline;font-size:13px}
+.vloot-in-stack .vil .tn{flex:1;font-weight:650;color:var(--navy);min-width:0}
+.vloot-in-stack .vil .tv{font-variant-numeric:tabular-nums;font-weight:750;color:var(--navy)}
+
 .ask-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%}
 .ask-sum-cell{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0}
 .ask-sum-cell b{font-size:15px;font-weight:750;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
@@ -239,7 +245,7 @@ details{margin-top:6px}
 </section>
 <section class="sec-fold" id="secVlootinzet" hidden>
 <h2>Vlootinzet</h2>
-<div class="sec-sum" id="vlootInSum"><span class="ks-txt" id="vlootInSumTxt"></span><button type="button" class="ghost" id="vlootInSumEdit">Wijzig</button></div>
+<div class="sec-sum" id="vlootInSum"><div class="ks-txt vloot-in-stack" id="vlootInSumTxt"></div><button type="button" class="ghost" id="vlootInSumEdit">Wijzig</button></div>
 <div class="sec-body" id="vlootInBody">
 <button type="button" class="ghost" id="vlootInFoldBtn" hidden style="width:auto;margin:0 0 10px;padding:6px 12px;font-size:12px">Inklappen</button>
 <p class="warn" id="flowGateMsg" style="display:none"></p>
@@ -585,12 +591,12 @@ function syncKiezenLead(){
   const lead=document.getElementById("kiezenLead");
   if(lead) lead.textContent='Vink aan welke toestellen je wil inzetten op de route "'+routeLabel()+'"';
 }
-function vlootInSumLine(types){
+function vlootInSumHtml(types){
   if(!types.length) return "—";
   return types.map(t=>{
-    const v=(routeRet[t]&&parseHM(routeRet[t]))?routeRet[t]:"";
-    return v?(t+" "+v):t;
-  }).join(" · ");
+    const v=(routeRet[t]&&parseHM(routeRet[t]))?routeRet[t]:"—";
+    return "<div class='vil'><span class='tn'>"+t+"</span><span class='tv'>"+v+"</span></div>";
+  }).join("");
 }
 function applyVlootInFold(){
   const sec=document.getElementById("secVlootinzet");
@@ -599,7 +605,7 @@ function applyVlootInFold(){
   const ready=flowReady();
   const ok=ready && types.length>0 && retourAllConfirmed(types);
   const txt=document.getElementById("vlootInSumTxt");
-  if(txt){txt.textContent=vlootInSumLine(types);txt.classList.toggle("locked-ok",ok)}
+  if(txt){txt.innerHTML=vlootInSumHtml(types);txt.classList.toggle("locked-ok",ok)}
   // Dichtklappen zodra retourtijden rond zijn (door naar Inplannen)
   if(ok && !sec.classList.contains("vloot-force-open")) sec.classList.add("collapsed");
   if(!ok){sec.classList.remove("collapsed");sec.classList.remove("vloot-force-open")}
