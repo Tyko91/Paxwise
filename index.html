@@ -449,6 +449,25 @@ function showFlowGateOnce(){
   gate.style.display="block";
   gate.textContent=flowBlockMsg();
 }
+function restOver(){
+  const fac=num("factor")||2;
+  let weg={Y:0,J:0,F:0,C:0};
+  const root=document.getElementById("vloot")||document;
+  root.querySelectorAll(".kist").forEach(k=>{
+    if(!countsDemand(statusOf(k))) return;
+    const type=k.querySelector(".type").value;
+    if(!type) return;
+    const y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
+    const flEl=k.querySelector(".fl");
+    let fl=nval(flEl)||1;
+    weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
+  });
+  return {Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
+}
+function hasTekort(){
+  const o=restOver();
+  return o.Y>0.5||o.J>0.5||o.F>0.5||o.C>0.5;
+}
 function updateLockCtas(){
   [
     ["lockRoute","lockRouteCta"],
@@ -474,12 +493,16 @@ function updateLockCtas(){
   const btnKeep=document.getElementById("btnPlanKeep");
   const btnNeu=document.getElementById("btnPlanNew");
   [btnKeep,btnNeu].forEach(b=>{if(!b)return;b.disabled=!afterRet;b.title=afterRet?"":(!ready?flowBlockMsg():retMsg)});
+  const tekort=hasTekort();
   if(addBtn){
-    if(!afterRet){addBtn.disabled=true;addBtn.title=!ready?flowBlockMsg():retMsg}
-    else{addBtn.disabled=false;addBtn.title=""}
+    if(!afterRet){addBtn.disabled=true;addBtn.title=!ready?flowBlockMsg():retMsg;addBtn.hidden=planPath!=="keep"}
+    else if(!tekort){addBtn.disabled=true;addBtn.title="Geen tekort meer — vraag is gevuld";addBtn.hidden=false}
+    else{addBtn.disabled=false;addBtn.title="";addBtn.hidden=false}
   }
   if(btnRest){
+    // zichtbaarheid blijft via syncPlanUi (alleen keep-pad); hier alleen enable
     if(!afterRet){btnRest.disabled=true;btnRest.title=!ready?flowBlockMsg():retMsg}
+    else if(!tekort){btnRest.disabled=true;btnRest.title="Geen tekort meer — vraag is gevuld"}
     else if(!hasKeep){btnRest.disabled=true;btnRest.title="Zet eerst game-retourvluchten in de vloot"}
     else{btnRest.disabled=false;btnRest.title=""}
   }
@@ -543,6 +566,7 @@ function suggestFromUi(onlyRest){
   }
   const retOk=retourTypesSelected().length>0 && retourAllConfirmed(retourTypesSelected());
   if(!retOk){alert("Zet eerst de retourtijden per toestel vast.");return}
+  if(onlyRest && !hasTekort()){alert("Geen tekort meer — de vraag is al gevuld.");return}
   suggest(!!onlyRest);
 }
 function tryLock(lockId,msgId,missingFn,applyFn,saveFn){
@@ -954,6 +978,7 @@ function addKist(){
     showFlowGateOnce();
     return;
   }
+  if(!hasTekort()){alert("Geen tekort meer — de vraag is al gevuld.");return}
   writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"on"}]));
 }
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
