@@ -639,7 +639,7 @@ function deleteRoute(){
   applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
   writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()}lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();window._clearKiezen=true;calc()}
+function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();const lt=document.getElementById("lockTypes");if(lt){lt.checked=true;clearLockMsg("lockTypesMsg");applyTypesLock();saveTypes()}lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);window._clearKiezen=true;calc();saveRoute(false)}
 function renameTypeSilent(oldN,newN){
   if(!oldN||!newN||oldN===newN) return;
   if(!(oldN in TYPE_DEFAULTS)) return;
