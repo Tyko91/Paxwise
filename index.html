@@ -284,7 +284,6 @@ details{margin-top:6px}
 </div>
 <button type="button" class="ghost" id="btnMoreType" hidden>+ Voeg nog een toestel toe</button>
 <div id="types"></div>
-<button type="button" class="lock-cta" id="lockTypesCta">Zet deze gegevens vast om door te gaan</button>
 </div>
 </section>
 </main>
@@ -413,8 +412,7 @@ function showFlowGateOnce(){
 function updateLockCtas(){
   [
     ["lockRoute","lockRouteCta"],
-    ["lockAsk","lockAskCta"],
-    ["lockTypes","lockTypesCta"]
+    ["lockAsk","lockAskCta"]
   ].forEach(([lockId,ctaId])=>{
     const lock=document.getElementById(lockId), cta=document.getElementById(ctaId);
     if(!lock||!cta) return;
@@ -514,6 +512,17 @@ function typesSumLine(){return TYPE_ORDER.length?TYPE_ORDER.join(" · "):"—"}
 function typeSumLine(t){
   const d=typeSpec(t);
   return t+" · "+d.pax+" pax · "+d.payload+" t · "+d.speed+" km/h · "+d.range+" km";
+}
+
+function autoLockTypesIfReady(){
+  const lock=document.getElementById("lockTypes");
+  if(!lock||lock.checked) return;
+  syncTypeDefsFromDom();
+  if(typesLockMissing().length) return;
+  lock.checked=true;
+  clearLockMsg("lockTypesMsg");
+  applyTypesLock();
+  saveTypes();
 }
 function applyTypesLock(){
   const locked=!!document.getElementById("lockTypes").checked;
@@ -870,9 +879,9 @@ function renderTypes(){
     typeEditOpen[btn.getAttribute("data-t")]=true;renderTypes();
   }));
   document.querySelectorAll(".type-fold").forEach(btn=>btn.addEventListener("click",()=>{
-    const t=btn.getAttribute("data-t");syncTypeDefsFromDom();delete typeEditOpen[t];saveTypes();renderTypes();calc();
+    const t=btn.getAttribute("data-t");syncTypeDefsFromDom();delete typeEditOpen[t];saveTypes();autoLockTypesIfReady();renderTypes();calc();
   }));
-  document.querySelectorAll("#types input").forEach(el=>el.addEventListener("change",()=>{syncTypeDefsFromDom();saveTypes();updateLockCtas()}));
+  document.querySelectorAll("#types input").forEach(el=>el.addEventListener("change",()=>{syncTypeDefsFromDom();saveTypes();autoLockTypesIfReady();updateLockCtas()}));
   applyTypesLock();
   renderKiezen();
   bindNums();
@@ -946,7 +955,7 @@ function addCustomType(){
   TYPE_ORDER.push(n);
   ["nName","nPax","nPay","nSpd","nRng"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
   nieuwTypeOpen=false;
-  saveTypes();renderTypes();calc();
+  saveTypes();autoLockTypesIfReady();renderTypes();calc();
 }
 function openNieuwTypeForm(){
   nieuwTypeOpen=true;
@@ -1165,8 +1174,6 @@ const lockRouteCta=document.getElementById("lockRouteCta");
 if(lockRouteCta) lockRouteCta.addEventListener("click",()=>doLock("lockRoute","lockRouteMsg",routeLockMissing,applyRouteLock,()=>saveRoute()));
 const lockAskCta=document.getElementById("lockAskCta");
 if(lockAskCta) lockAskCta.addEventListener("click",()=>doLock("lockAsk","lockAskMsg",askLockMissing,applyAskLock,()=>saveRoute()));
-const lockTypesCta=document.getElementById("lockTypesCta");
-if(lockTypesCta) lockTypesCta.addEventListener("click",()=>{syncTypeDefsFromDom();doLock("lockTypes","lockTypesMsg",typesLockMissing,applyTypesLock,()=>saveTypes())});
 const btnMoreType=document.getElementById("btnMoreType");
 if(btnMoreType) btnMoreType.addEventListener("click",openNieuwTypeForm);
 document.querySelectorAll('input[name="mixMode"]').forEach(el=>el.addEventListener("change",updateLockCtas));
