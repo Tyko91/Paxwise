@@ -140,9 +140,12 @@ button.ks-ack{margin:10px 0 8px}
 .ret-sum .tn{flex:1;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ret-sum .tv{font-variant-numeric:tabular-nums;font-weight:750;color:var(--navy)}
 .ret-sum button,.ret-edit button{width:auto;margin:0;padding:4px 10px;font-size:12px;box-shadow:none}
-.ret-edit{display:grid;grid-template-columns:1fr 88px auto;gap:6px;align-items:end;padding:6px 0;border-bottom:1px solid var(--line)}
+.ret-edit{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
 .ret-edit:last-child{border-bottom:0}
-.ret-edit label{font-size:11px}
+.ret-edit label{font-size:12px;font-weight:700;color:var(--navy)}
+.ret-edit .ret-row{display:grid;grid-template-columns:1fr;gap:6px}
+.ret-edit button.ret-ok{width:100%;margin:0}
+.ret-push{margin:0 0 10px;padding:8px 10px;background:#fff7ed;border:1px solid #fdba74;border-radius:10px;color:#c2410c;font-size:12px;font-weight:700}
 details{margin-top:6px}
 
 .roost{margin-top:0}
@@ -230,10 +233,10 @@ details{margin-top:6px}
 <div class="chk" id="kiezen"></div>
 </section>
 <section class="sec-fold" id="secRetour" hidden>
-<h2>Retourtijd per type</h2>
+<h2>Retourtijd per toestel</h2>
 <div class="sec-sum" id="retourSum"><span class="ks-txt" id="retourSumTxt"></span><button type="button" class="ghost" id="retourSumEdit">Wijzig</button></div>
 <div class="sec-body" id="retourBody">
-<p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Pas de retourtijd aan vanuit het routescherm in-game.</p>
+<p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Per aangevinkt toestel: zet de retourtijd uit het routescherm in-game. Daarna klapt dit dicht.</p>
 <div id="retourTypes"></div>
 </div>
 </section>
@@ -405,12 +408,11 @@ function syncWizard(){
     secAsk.hidden=!routeLocked;
     if(routeLocked&&!askLocked) secAsk.classList.remove("collapsed");
   }
-  ["secVlootinzet","secInplannen","secVloot","secRest","secRooster","secWhy"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.hidden=!ready;
-  });
+  const secVlootIn=document.getElementById("secVlootinzet");
+  if(secVlootIn) secVlootIn.hidden=!ready;
   const secRetour=document.getElementById("secRetour");
   if(secRetour&&!ready) secRetour.hidden=true;
+  // Inplannen/vloot/rest/rooster: updateLockCtas zet zichtbaarheid na retour-check
 }
 function showFlowGateOnce(){
   const gate=document.getElementById("flowGateMsg");
@@ -438,12 +440,27 @@ function updateLockCtas(){
   syncWizard();
   if(tip) tip.style.display=(rest&&rest.checked)?"":"none";
   if(gate&&ready){gate.style.display="none";gate.textContent=""}
+  const retOk=retourTypesSelected().length>0 && retourAllConfirmed(retourTypesSelected());
+  const retMsg="Zet eerst de retourtijden per toestel vast.";
   if(btn){
     if(!ready){btn.disabled=true;btn.title=flowBlockMsg()}
+    else if(!retOk){btn.disabled=true;btn.title=retMsg}
     else if(rest&&rest.checked&&!hasKeep){btn.disabled=true;btn.title="Zet eerst game-retourvluchten in de vloot"}
     else{btn.disabled=false;btn.title=""}
   }
-  if(addBtn){addBtn.disabled=!ready;addBtn.title=ready?"":flowBlockMsg()}
+  if(addBtn){
+    if(!ready){addBtn.disabled=true;addBtn.title=flowBlockMsg()}
+    else if(!retOk){addBtn.disabled=true;addBtn.title=retMsg}
+    else{addBtn.disabled=false;addBtn.title=""}
+  }
+  const secIn=document.getElementById("secInplannen");
+  const secVl=document.getElementById("secVloot");
+  const secRs=document.getElementById("secRest");
+  const secRo=document.getElementById("secRooster");
+  const secWh=document.getElementById("secWhy");
+  // Toon inplannen e.d. pas als retour rond is (of geen types — dan blijft retOk false tot er types zijn)
+  const afterRet=ready && retOk;
+  [secIn,secVl,secRs,secRo,secWh].forEach(el=>{if(el) el.hidden=!afterRet});
   const kh=document.getElementById("kiezenHint");
   const lead=document.getElementById("kiezenLead");
   if(lead) lead.style.opacity="1";
@@ -1020,7 +1037,18 @@ function renderKiezen(){
     const dis=far||!ready;
     return "<label class='"+(dis?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(dis?"disabled":"")+(on?" checked":"")+"> "+t+(far?" · te ver":"")+"</label>";
   }).join("");
-  document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{calc()}));
+  document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{
+    const t=el.id.replace(/^use_/,"");
+    if(el.checked){
+      retEditOpen[t]=true;
+      const sec=document.getElementById("secRetour");
+      if(sec){sec.hidden=false;sec.classList.remove("collapsed");}
+      setTimeout(()=>{const s2=document.getElementById("secRetour");if(s2)s2.scrollIntoView({behavior:"smooth",block:"start"})},50);
+    }else{
+      delete retEditOpen[t];
+    }
+    calc();
+  }));
   renderRetourTypes();
 }
 function retourTypesSelected(){
@@ -1065,14 +1093,16 @@ function renderRetourTypes(seed,force){
   if(!force && !seed && box.dataset.types===key && box.childNodes.length){block.hidden=false;applyRetourFold();return}
   block.hidden=false;
   box.dataset.types=key;
-  box.innerHTML=types.map(t=>{
+  const pending=types.filter(t=>!!retEditOpen[t] || !routeRet[t] || !parseHM(routeRet[t]));
+  const push=pending.length?("<p class='ret-push'>Nog "+pending.length+" retourtijd"+(pending.length===1?"":"en")+" vastzetten uit het game-routescherm.</p>"):"";
+  box.innerHTML=push+types.map(t=>{
     const id=sid(t,"ret");
     let v=routeRet[t]||"";
     if(!v||!parseHM(v)) v=defaultRet(t);
     else v=fmtHM(parseHM(v));
     const open=!!retEditOpen[t] || !routeRet[t] || !parseHM(routeRet[t]);
     if(open){
-      return "<div class='ret-edit' data-type='"+t+"'><div><label>"+t+"</label><input class='yellow ret-type' id='"+id+"' type='text' placeholder='17:45' value='"+v+"'></div><button type='button' class='sec' data-ok='"+t+"'>Klopt</button></div>";
+      return "<div class='ret-edit' data-type='"+t+"'><label>"+t+"</label><div class='ret-row'><input class='yellow ret-type' id='"+id+"' type='text' placeholder='17:45' value='"+v+"'><button type='button' class='lock-cta show ret-ok' data-ok='"+t+"'>Zet retourtijd vast</button></div></div>";
     }
     return "<div class='ret-sum'><span class='tn'>"+t+"</span><span class='tv'>"+v+"</span><button type='button' class='ghost' data-edit='"+t+"'>Wijzig</button></div>";
   }).join("");
