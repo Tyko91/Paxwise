@@ -237,8 +237,10 @@ details{margin-top:6px}
 <button type="button" class="lock-cta" id="lockAskCta">Zet deze gegevens vast om door te gaan</button>
 </div>
 </section>
-<section id="secVlootinzet" hidden>
+<section class="sec-fold" id="secVlootinzet" hidden>
 <h2>Vlootinzet</h2>
+<div class="sec-sum" id="vlootInSum"><span class="ks-txt" id="vlootInSumTxt"></span><button type="button" class="ghost" id="vlootInSumEdit">Wijzig</button></div>
+<div class="sec-body" id="vlootInBody">
 <p class="warn" id="flowGateMsg" style="display:none"></p>
 <p id="kiezenLead" style="margin:8px 0 10px;font-weight:600;font-size:.92rem">Vink aan welke toestellen je wil inzetten op de route</p>
 <p class="tiny" id="kiezenHint" hidden></p>
@@ -250,6 +252,7 @@ details{margin-top:6px}
 <div class="sec-body" id="retourBody">
 <p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Per aangevinkt toestel: zet de retourtijd uit het routescherm in-game.</p>
 <div id="retourTypes"></div>
+</div>
 </div>
 </div>
 </section>
@@ -489,6 +492,7 @@ function updateLockCtas(){
   if(lead) lead.style.opacity="1";
   if(!ready) window._clearKiezen=true;
   if(typeof renderKiezen==="function" && document.getElementById("kiezen")) renderKiezen();
+  applyVlootInFold();
 }
 function syncPlanUi(){
   const ask=document.getElementById("planAsk");
@@ -579,6 +583,25 @@ function routeLabel(){
 function syncKiezenLead(){
   const lead=document.getElementById("kiezenLead");
   if(lead) lead.textContent='Vink aan welke toestellen je wil inzetten op de route "'+routeLabel()+'"';
+}
+function vlootInSumLine(types){
+  if(!types.length) return "—";
+  return types.map(t=>{
+    const v=(routeRet[t]&&parseHM(routeRet[t]))?routeRet[t]:"";
+    return v?(t+" "+v):t;
+  }).join(" · ");
+}
+function applyVlootInFold(){
+  const sec=document.getElementById("secVlootinzet");
+  if(!sec||sec.hidden) return;
+  const types=retourTypesSelected();
+  const ready=flowReady();
+  const ok=ready && types.length>0 && retourAllConfirmed(types);
+  const txt=document.getElementById("vlootInSumTxt");
+  if(txt){txt.textContent=vlootInSumLine(types);txt.classList.toggle("locked-ok",ok)}
+  // Dichtklappen zodra retourtijden rond zijn (door naar Inplannen)
+  if(ok && !sec.classList.contains("vloot-force-open")) sec.classList.add("collapsed");
+  if(!ok){sec.classList.remove("collapsed");sec.classList.remove("vloot-force-open")}
 }
 function applyRouteLock(){
   const locked=!!document.getElementById("lockRoute").checked;
@@ -919,7 +942,16 @@ function addKist(){
   writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"on"}]));
 }
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
-function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([])}
+function clearFleet(){
+  if(!confirm("Hele vloot wissen?"))return;
+  lastWhy=["Vloot gewist."];
+  planPath=null;
+  const box=document.getElementById("vloot");
+  if(box) box.innerHTML="";
+  syncPlanUi();
+  calc();
+  if(currentId) saveRoute(true);
+}
 function suggest(onlyRest){
   refreshKiezen();
   const types=selectedTypes();if(!types.length){lastWhy=["Geen type dat deze afstand aankan."];calc();return}
@@ -1149,8 +1181,9 @@ function applyRetourFold(){
   if(sum) sum.style.display="none";
   if(body) body.style.display="";
   sec.classList.remove("collapsed");
-  if(!ready||!types.length){sec.hidden=true;return}
+  if(!ready||!types.length){sec.hidden=true;applyVlootInFold();return}
   sec.hidden=false;
+  applyVlootInFold();
 }
 function renderRetourTypes(seed,force){
   const box=document.getElementById("retourTypes");
@@ -1374,7 +1407,8 @@ function calc(){
   softRefreshKiezen();
   TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour "+fmtHM(typeUren(t))+" · "+planVl(t)+"×/dag"))});
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let weg={Y:0,J:0,F:0,C:0};
-  document.querySelectorAll(".kist").forEach((k,idx)=>{
+  const kistRoot=document.getElementById("vloot")||document;
+  kistRoot.querySelectorAll(".kist").forEach((k,idx)=>{
     const type=k.querySelector(".type").value,y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
     const flEl=k.querySelector(".fl");
     let fl=nval(flEl);
@@ -1454,6 +1488,11 @@ const typesSumEdit=document.getElementById("typesSumEdit");
 if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;clearLockMsg("lockTypesMsg");typeEditOpen={};nieuwTypeOpen=!TYPE_ORDER.length;applyTypesLock();saveTypes()});
 const linkTypes=document.getElementById("linkTypes");
 if(linkTypes) linkTypes.addEventListener("click",e=>{e.preventDefault();openTypesPanel()});
+const vlootInSumEdit=document.getElementById("vlootInSumEdit");
+if(vlootInSumEdit) vlootInSumEdit.addEventListener("click",()=>{
+  const sec=document.getElementById("secVlootinzet");
+  if(sec){sec.classList.add("vloot-force-open");sec.classList.remove("collapsed");}
+});
 clearLockMsgs();
 applyRouteLock();applyAskLock();applyTypesLock();
 syncWizard();
