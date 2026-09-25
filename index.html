@@ -95,9 +95,15 @@ button:disabled{opacity:.5}
 .chip.on{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:inset 0 -2px 0 var(--gold)}
 .plan{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;margin:0 0 10px;font-size:14px;font-weight:750;width:100%;border:0;text-align:left}
 .plan.on{background:#ecfdf3;color:var(--ok);border:1px solid #bbf7d0}
+.plan.draft{background:#fff7ed;color:#c2410c;border:1px solid #fdba74}
 .plan.off{background:#fef2f2;color:var(--bad);border:1px solid #fecaca}
 .dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex:0 0 10px}
-.plan .flybox{width:20px;height:20px}
+.plan .status{flex:1;border:0;background:transparent;color:inherit;font:inherit;font-weight:750;padding:0;margin:0;box-shadow:none;width:auto;min-width:0;cursor:pointer}
+.ret-block{margin-top:12px}
+.ret-block h3{font-size:13px;margin:0 0 4px;color:var(--navy)}
+.ret-block .hint{margin:0 0 8px;color:var(--muted);font-size:12px;line-height:1.35}
+.ret-row{display:grid;grid-template-columns:1fr 100px;gap:8px;align-items:end;margin-bottom:8px}
+.ret-row label{font-size:12px}
 details{margin-top:6px}
 
 .roost{margin-top:0}
@@ -193,6 +199,11 @@ details{margin-top:6px}
 <section>
 <h2>Vlootinzet</h2>
 <div class="chk" id="kiezen"></div>
+<div class="ret-block" id="retourBlock" hidden>
+<h3>Retourvlucht</h3>
+<p class="hint">Neem de retourtijd voor dit type over uit het routescherm.</p>
+<div id="retourTypes"></div>
+</div>
 <button type="button" onclick="suggest(false)">Stel vlootmix voor</button>
 <button type="button" class="ghost" onclick="suggest(true)">Alleen de rest bijvullen</button>
 <button type="button" class="danger" onclick="clearFleet()">Wis vloot</button>
@@ -242,10 +253,22 @@ function applyTypesLock(){
   ["nName","nPax","nPay","nSpd","nRng"].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=locked});
   const btn=document.getElementById("btnAddType");if(btn)btn.disabled=locked;
 }
+function rowStatus(r){
+  if(r&&r.status) return r.status;
+  if(r&&r.on===false) return "off";
+  if(r&&r.on===true) return "on";
+  return "draft";
+}
+function statusOf(k){
+  const el=k&&k.querySelector(".status");
+  if(el&&el.value) return el.value;
+  return "draft";
+}
+function countsDemand(st){return st==="on"||st==="draft"}
 function applyKistLock(d){
-  const on=d.querySelector(".flybox")?d.querySelector(".flybox").checked:true;
-  d.querySelectorAll("input.y,input.j,input.f,input.c,input.ret").forEach(el=>{el.disabled=on;el.classList.toggle("yellow",!on)});
-  const sel=d.querySelector("select.type");if(sel)sel.disabled=on;
+  const locked=statusOf(d)==="on";
+  d.querySelectorAll("input.y,input.j,input.f,input.c").forEach(el=>{el.disabled=locked;el.classList.toggle("yellow",!locked)});
+  const sel=d.querySelector("select.type");if(sel)sel.disabled=locked;
 }
 function gcdKm(a,b){const R=6371,to=d=>d*Math.PI/180,dlat=to(b[0]-a[0]),dlon=to(b[1]-a[1]),x=Math.sin(dlat/2)**2+Math.cos(to(a[0]))*Math.cos(to(b[0]))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(x)))}
 function applyIata(fillKm){
@@ -265,6 +288,9 @@ function parseHM(s){
   s=String(s||"").trim();
   const m=s.match(/^(\d{1,2}):(\d{2})$/);
   if(m){const h=+m[1],mi=+m[2];if(mi>59)return 0;return h+mi/60}
+  const d=s.replace(/\D/g,"");
+  if(d.length===3||d.length===4){const h=+d.slice(0,-2),mi=+d.slice(-2);if(mi<=59)return h+mi/60}
+  if(d.length===1||d.length===2){const h=+d;return h>0?h:0}
   return 0;
 }
 function fmtHM(u){
@@ -274,13 +300,18 @@ function fmtHM(u){
   return h+":"+String(mi).padStart(2,"0");
 }
 function defaultRet(t){return canFly(t)?fmtHM(urenPerRetour(t)):""}
-function kistUren(k){
-  const el=k&&k.querySelector(".ret");
+function typeUren(t){
+  if(!t)return 0;
+  const el=document.getElementById(sid(t,"ret"));
   if(el&&String(el.value||"").trim()){const u=parseHM(el.value);if(u>0)return u}
-  const type=k&&k.querySelector(".type")?k.querySelector(".type").value:"";
-  return type?urenPerRetour(type):0;
+  return urenPerRetour(t);
 }
-function planVl(t){if(!canFly(t))return 0;const u=urenPerRetour(t);if(u>0){const n=Math.floor(24/u+1e-9);return n>=1?n:(24/u>=0.45?1:0)}const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
+function readRetByType(){
+  const o={};
+  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"ret"));if(el&&String(el.value||"").trim()){const u=parseHM(el.value);if(u>0)o[t]=fmtHM(u)}});
+  return o;
+}
+function planVl(t){if(!canFly(t))return 0;const u=typeUren(t);if(u>0){const n=Math.floor(24/u+1e-9);return n>=1?n:(24/u>=0.45?1:0)}const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
 function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
 function packOne(need,typeName,jkost,fkost){
@@ -299,7 +330,7 @@ function packOne(need,typeName,jkost,fkost){
   const f=Math.min(Math.max(0,Math.ceil(need.F/fl-1e-9)),Math.floor(space/fkost));
   const c=Math.min(Math.max(0,Math.ceil(need.C/fl-1e-9)),Math.floor(t.payload));
   if(y+j+f+c<=0)return null;
-  return{type:typeName,fl:String(fl),y:String(y),j:String(j),f:String(f),c:String(c),ret:defaultRet(typeName),on:true};
+  return{type:typeName,fl:String(fl),y:String(y),j:String(j),f:String(f),c:String(c),status:"draft"};
 }
 function plek(need,jk,fk){return Math.max(0,need.Y)+Math.max(0,need.J)*jk+Math.max(0,need.F)*fk}
 function fillOf(p,jk,fk){const t=typeSpec(p.type);if(!t.pax)return 0;return ((+p.y)+(+p.j)*jk+(+p.f)*fk)/t.pax}
@@ -355,33 +386,27 @@ function packNeed(need,types,jkost,fkost,already){
   }
   return{planes,why};
 }
-function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,ret:k.querySelector(".ret")?k.querySelector(".ret").value:"",on:k.querySelector(".flybox")?k.querySelector(".flybox").checked:true,warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
+function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,status:statusOf(k),warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
 function writeRows(rows){const box=document.getElementById("vloot");box.innerHTML="";rows.forEach((r,i)=>box.appendChild(kistEl(i+1,r)));calc()}
 function kistColor(i){return TYPE_COLORS[(Math.max(1,i)-1)%TYPE_COLORS.length]}
 function kistEl(i,r){
   const d=document.createElement("div");d.className="kist";
   d.style.setProperty("--kist-color",kistColor(i));
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
-  const on=r.on!==false;
+  const st=rowStatus(r);
   const fl=(r.fl!==undefined&&r.fl!==null&&String(r.fl)!=="")?String(r.fl):(r.type&&canFly(r.type)?String(planVl(r.type)):"1");
-  let ret=(r.ret!==undefined&&r.ret!==null&&String(r.ret).trim()!=="")?String(r.ret).trim():(r.type?defaultRet(r.type):"");
-  if(ret&&!parseHM(ret)&&r.type) ret=defaultRet(r.type);
-  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+(on?"on":"off")+"'><input class='flybox' type='checkbox' "+(on?"checked":"")+"><span class='dot'></span><span class='planlab'>"+(on?"Ingepland in game":"Niet ingepland")+"</span></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div class='grid2' style='margin-top:4px'><div><label>Type</label><select class='type'>"+opts+"</select></div><div><label>Retour</label><input class='ret yellow' type='text' inputmode='numeric' placeholder='17:45' value='"+ret+"'></div></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
-  const box=d.querySelector(".plan"), lab=d.querySelector(".planlab"), cb=d.querySelector(".flybox");
-  function paint(){const v=cb.checked;box.className="plan "+(v?"on":"off");lab.textContent=v?"Ingepland in game":"Niet ingepland";applyKistLock(d);calc()}
-  cb.addEventListener("change",paint);
+  const stOpts=[["off","Niet ingepland"],["draft","Voorstel"],["on","Ingepland in game"]].map(([v,l])=>"<option value='"+v+"'"+(st===v?" selected":"")+">"+l+"</option>").join("");
+  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+st+"'><span class='dot'></span><select class='status'>"+stOpts+"</select></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
+  const box=d.querySelector(".plan"), stEl=d.querySelector(".status");
+  function paint(){const v=stEl.value;box.className="plan "+v;applyKistLock(d);calc()}
+  stEl.addEventListener("change",paint);
   applyKistLock(d);
   function onSeat(ch){return()=>{clampKist(d,ch);calc()}}
   d.querySelector("input.y").addEventListener("input",onSeat("y"));
   d.querySelector("input.j").addEventListener("input",onSeat("j"));
   d.querySelector("input.f").addEventListener("input",onSeat("f"));
   d.querySelector("input.c").addEventListener("input",onSeat("c"));
-  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp)){d.querySelector(".fl").value=planVl(tp);d.querySelector(".ret").value=defaultRet(tp)}else if(d.querySelector(".ret"))d.querySelector(".ret").value="";clampKist(d,"type");calc()});
-  const retEl=d.querySelector(".ret");
-  if(retEl){
-    retEl.addEventListener("input",()=>{retEl.value=retEl.value.replace(/[^\d:]/g,"");calc()});
-    retEl.addEventListener("change",()=>{const u=parseHM(retEl.value);if(u>0)retEl.value=fmtHM(u);calc()});
-  }
+  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);clampKist(d,"type");calc()});
   bindNums(d);
   return d;
 }
@@ -416,25 +441,25 @@ function clampKist(k,changed){
   fEl.max=String(Math.max(0,Math.floor(t.pax/fk)));
   cEl.max=String(Math.max(0,+t.payload||0));
 }
-function addKist(){writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]))}
-function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows.length?rows:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}])}
-function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}])}
+function addKist(){writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]))}
+function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows.length?rows:[{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}])}
+function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}])}
 function suggest(onlyRest){
   refreshKiezen();
   const types=selectedTypes();if(!types.length){lastWhy=["Geen type dat deze afstand aankan."];calc();return}
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;
   let need={Y:num("qY")/fac,J:num("qJ")/fac,F:num("qF")/fac,C:num("qC")/fac},keep=[];
-  if(onlyRest){keep=currentRows().filter(r=>r.type&&r.on!==false);keep.forEach(r=>{const fl=parseFloat(r.fl)||1;need.Y-=(parseFloat(r.y)||0)*fl;need.J-=(parseFloat(r.j)||0)*fl;need.F-=(parseFloat(r.f)||0)*fl;need.C-=(parseFloat(r.c)||0)*fl})}
+  if(onlyRest){keep=currentRows().filter(r=>r.type&&countsDemand(rowStatus(r)));keep.forEach(r=>{const fl=parseFloat(r.fl)||1;need.Y-=(parseFloat(r.y)||0)*fl;need.J-=(parseFloat(r.j)||0)*fl;need.F-=(parseFloat(r.f)||0)*fl;need.C-=(parseFloat(r.c)||0)*fl})}
   const packed=packNeed(need,types,jkost,fkost,keep.length);
   lastWhy=[document.getElementById("route").value+" · "+num("km")+" km · mix "+types.join(" + ")].concat(packed.why);
   writeRows(keep.concat(packed.planes));saveRoute();
 }
-function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,fleet:currentRows()}}
+function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,retByType:readRetByType(),fleet:currentRows()}}
 function loadList(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
 function storeList(list){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+(r.route||r.id)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
 function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!currentId)return;const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);if(!quiet)renderChips()}
-function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);applyIata(false);renderChips()}
+function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();window._pendingRetByType=r.retByType||{};writeRows(r.fleet&&r.fleet.length?r.fleet:[{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);applyIata(false);renderChips()}
 function deleteRoute(){
   if(!currentId){lastWhy=["Geen route om te verwijderen."];calc();return}
   if(!confirm("Deze route verwijderen?"))return
@@ -445,9 +470,9 @@ function deleteRoute(){
   ["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;
   applyRouteLock();applyAskLock();lastWhy=["Route verwijderd."];
-  writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips();calc();
+  writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc();
 }
-function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",on:true}]);renderChips();calc()}
+function newRoute(){saveRoute();currentId="r"+Date.now();["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc()}
 function renderTypes(){
   document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><h3>"+t+"</h3><div class='grid4'><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
   applyTypesLock();
@@ -457,12 +482,45 @@ bindNums();
 function renderKiezen(){
   const prev={};
   TYPE_ORDER.forEach(t=>{const el=document.getElementById("use_"+t);if(el)prev[t]=el.checked});
+  const prevRet=readRetByType();
+  if(window._pendingRetByType){Object.assign(prevRet,window._pendingRetByType);window._pendingRetByType=null}
   document.getElementById("kiezen").innerHTML=TYPE_ORDER.map(t=>{
     const far=tooFar(t);
     const on=far?false:(prev[t]===undefined?true:!!prev[t]);
     return "<label class='"+(far?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(far?"disabled":(on?"checked":""))+"> "+t+(far?" · te ver":"")+"</label>";
   }).join("");
+  document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{renderRetourTypes();calc()}));
+  renderRetourTypes(prevRet);
 }
+function renderRetourTypes(seed){
+  const box=document.getElementById("retourTypes");
+  const block=document.getElementById("retourBlock");
+  if(!box||!block) return;
+  const keep=seed||readRetByType();
+  const types=TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)});
+  if(!types.length){block.hidden=true;box.innerHTML="";box.dataset.types="";return}
+  const key=types.join("|");
+  if(!seed && box.dataset.types===key && box.querySelector("input.ret-type")){
+    block.hidden=false;
+    types.forEach(t=>{const el=document.getElementById(sid(t,"ret"));if(el&&!String(el.value||"").trim())el.value=defaultRet(t)});
+    return;
+  }
+  block.hidden=false;
+  box.dataset.types=key;
+  box.innerHTML=types.map(t=>{
+    const id=sid(t,"ret");
+    let v=keep[t]||"";
+    if(!v||!parseHM(v)) v=defaultRet(t);
+    else v=fmtHM(parseHM(v));
+    return "<div class='ret-row'><div><label>"+t+"</label></div><div><label>Retour</label><input class='yellow ret-type' id='"+id+"' type='text' placeholder='17:45' value='"+v+"'></div></div>";
+  }).join("");
+  box.querySelectorAll("input.ret-type").forEach(el=>{
+    el.addEventListener("input",()=>{el.value=el.value.replace(/[^\d:]/g,"")});
+    el.addEventListener("change",()=>{const u=parseHM(el.value);if(u>0)el.value=fmtHM(u);calc()});
+    el.addEventListener("blur",()=>{const u=parseHM(el.value);if(u>0){el.value=fmtHM(u);calc()}});
+  });
+}
+
 function refreshKiezen(){renderKiezen()}
 function addCustomType(){
   const n=(document.getElementById("nName").value||"").trim();
@@ -509,11 +567,11 @@ function urenPerRetour(type){
 function plannedFleet(){
   const out=[];
   document.querySelectorAll(".kist").forEach((k,i)=>{
-    const on=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
+    const st=statusOf(k);
     const type=k.querySelector(".type").value;
-    if(!on||!type) return;
+    if(st!=="on"||!type) return;
     let fl=Math.max(0,Math.floor(nval(k.querySelector(".fl"))||0));
-    const u=kistUren(k);
+    const u=typeUren(type);
     if(!fl){
       if(u>0) fl=Math.max(1,Math.floor(24/u));
       else fl=planVl(type)||0;
@@ -600,19 +658,35 @@ function renderRooster(){
   }
 }
 function pill(label,val,kind){const st=kind==="left"?"tekort":(kind==="over"?"teveel":"ok");return "<div class='pill "+kind+"'><span class='pill-lab'>"+label+"</span><span class='pill-st'>"+st+"</span><b>"+val+"</b></div>"}
+function softRefreshKiezen(){
+  let need=false;
+  TYPE_ORDER.forEach(t=>{
+    const el=document.getElementById("use_"+t);if(!el){need=true;return}
+    const far=tooFar(t);
+    if(far && !el.disabled) need=true;
+    if(!far && el.disabled) need=true;
+    const lab=el.closest("label");
+    if(lab){
+      const has=lab.classList.contains("off");
+      if(far!==has) need=true;
+      const txt=lab.textContent||"";
+      if(far && txt.indexOf("te ver")<0) need=true;
+      if(!far && txt.indexOf("te ver")>=0) need=true;
+    }
+  });
+  if(need || !document.getElementById("kiezen").children.length) renderKiezen();
+  else renderRetourTypes();
+}
 function calc(){
-  refreshKiezen();
-  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour ~"+fmtHM(urenPerRetour(t))+" · "+planVl(t)+"×/dag"))});
+  softRefreshKiezen();
+  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour "+fmtHM(typeUren(t))+" · "+planVl(t)+"×/dag"))});
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let weg={Y:0,J:0,F:0,C:0};
   document.querySelectorAll(".kist").forEach((k,idx)=>{
     const type=k.querySelector(".type").value,y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
     const flEl=k.querySelector(".fl");
     let fl=nval(flEl);
-    const retEl=k.querySelector(".ret");
     if(type&&canFly(type)){
-      if(retEl&&!String(retEl.value||"").trim()) retEl.value=defaultRet(type);
-      const u=kistUren(k);
-      const auto=u>0?(Math.floor(24/u+1e-9)>=1?Math.floor(24/u+1e-9):(24/u>=0.45?1:0)):planVl(type);
+      const auto=planVl(type);
       // Ritjes: bewaar lagere waarde op de kist; nooit omhoog forceren naar plafond
       if(!flEl||flEl.value===""||flEl.value==null){fl=auto;if(flEl)flEl.value=String(auto)}
       else{fl=Math.min(nval(flEl)||auto,auto||nval(flEl)||1);if(flEl)flEl.value=String(fl)}
@@ -620,7 +694,7 @@ function calc(){
     const info=k.querySelector("#info"+(idx+1));
     const warnEl=k.querySelector("#warn"+(idx+1));
     const wb=k.querySelector(".warnbox");
-    const vliegt=k.querySelector(".flybox")?k.querySelector(".flybox").checked:true;
+    const vliegt=countsDemand(statusOf(k));
     if(!type){if(info){info.textContent="";info.className="tiny"};if(warnEl){warnEl.style.display="none";warnEl.textContent=""};return}
     const t=typeSpec(type),ruimte=y+j*jkost+f*fkost;
     if(info){info.className="tiny info-ok";info.textContent="Bezetting (pax) "+fmtBezet(ruimte)+"/"+t.pax}
@@ -655,7 +729,7 @@ document.getElementById("lockRoute").addEventListener("change",()=>{applyRouteLo
 document.getElementById("lockAsk").addEventListener("change",()=>{applyAskLock();saveRoute()});
 document.getElementById("lockTypes").addEventListener("change",()=>{applyTypesLock();saveTypes()});
 applyRouteLock();applyAskLock();applyTypesLock();
-writeRows([{type:"A350-1000LR",fl:"1",y:"480",j:"0",f:"0",c:"0",on:true}]);
+writeRows([{type:"A350-1000LR",fl:"1",y:"480",j:"0",f:"0",c:"0",status:"draft"}]);
 currentId="r-vie-gru";
 try{saveRoute()}catch(e){}
 applyIata(false);
