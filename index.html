@@ -223,10 +223,17 @@ details{margin-top:6px}
 <p class="tiny" id="kiezenHint" style="margin:0 0 10px;color:#6b7280">Vink aan wat meedoet aan de mix.</p>
 <div class="chk" id="kiezen"></div>
 </section>
-<section id="secRetour" hidden>
+<section class="sec-fold" id="secRetour" hidden>
 <h2>Retourtijd per type</h2>
+<div class="sec-sum" id="retourSum"><span class="ks-txt" id="retourSumTxt"></span><button type="button" class="ghost" id="retourSumEdit">Wijzig</button></div>
+<div class="sec-body" id="retourBody">
 <p class="tiny" id="retourHint" style="margin:0 0 10px;color:#6b7280">Pas de retourtijd aan vanuit het routescherm in-game.</p>
 <div id="retourTypes"></div>
+</div>
+</section>
+<section id="secRest" hidden>
+<h2>Resterende vraag (pax)</h2>
+<div class="rest" id="rest"></div>
 </section>
 <section id="secInplannen" hidden>
 <h2>Inplannen</h2>
@@ -242,10 +249,6 @@ details{margin-top:6px}
 <h2>Vloot</h2>
 <button type="button" class="ghost" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
 <div id="vloot"></div>
-</section>
-<section id="secRest" hidden>
-<h2>Resterende vraag (pax)</h2>
-<div class="rest" id="rest"></div>
 </section>
 <section class="roost" id="secRooster" hidden>
 <h2>Rooster</h2>
@@ -623,9 +626,9 @@ function readRetByType(){
 }
 function setRetConfirmed(t,val){
   const u=parseHM(val);if(!(u>0))return;
-  routeRet[t]=fmtHM(u);retEditOpen[t]=false;renderRetourTypes();calc();
+  routeRet[t]=fmtHM(u);retEditOpen[t]=false;renderRetourTypes(null,true);calc();
 }
-function editRet(t){retEditOpen[t]=true;renderRetourTypes(null,true)}
+function editRet(t){retEditOpen[t]=true;const sec=document.getElementById("secRetour");if(sec)sec.classList.remove("collapsed");renderRetourTypes(null,true)}
 function planVl(t){if(!canFly(t))return 0;const u=typeUren(t);if(u>0){const n=Math.floor(24/u+1e-9);return n>=1?n:(24/u>=0.45?1:0)}const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
 function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
@@ -901,6 +904,34 @@ function renderKiezen(){
   document.querySelectorAll("#kiezen input[type=checkbox]").forEach(el=>el.addEventListener("change",()=>{calc()}));
   renderRetourTypes();
 }
+function retourTypesSelected(){
+  return TYPE_ORDER.filter(t=>{
+    const el=document.getElementById("use_"+t);
+    return !!(el&&el.checked&&!el.disabled&&canFly(t));
+  });
+}
+function retourAllConfirmed(types){
+  return types.length>0 && types.every(t=>routeRet[t]&&parseHM(routeRet[t])&&!retEditOpen[t]);
+}
+function retourSumLine(types){
+  if(!types.length) return "—";
+  return types.map(t=>{
+    const v=(routeRet[t]&&parseHM(routeRet[t]))?routeRet[t]:defaultRet(t);
+    return t+" "+v;
+  }).join(" · ");
+}
+function applyRetourFold(){
+  const sec=document.getElementById("secRetour");
+  if(!sec) return;
+  const types=retourTypesSelected();
+  const ready=flowReady();
+  const txt=document.getElementById("retourSumTxt");
+  if(txt){txt.textContent=retourSumLine(types);txt.classList.toggle("locked-ok",retourAllConfirmed(types))}
+  if(!ready||!types.length){sec.hidden=true;sec.classList.remove("collapsed");return}
+  sec.hidden=false;
+  const collapse=retourAllConfirmed(types);
+  sec.classList.toggle("collapsed", collapse);
+}
 function renderRetourTypes(seed,force){
   const box=document.getElementById("retourTypes");
   const block=document.getElementById("secRetour");
@@ -909,16 +940,12 @@ function renderRetourTypes(seed,force){
   if(seed) Object.assign(routeRet, seed);
   syncRetFromDom();
   const ready=flowReady();
-  const types=TYPE_ORDER.filter(t=>{
-    const el=document.getElementById("use_"+t);
-    return !!(el&&el.checked&&!el.disabled&&canFly(t));
-  });
-  if(!ready||!types.length){block.hidden=true;box.innerHTML="";box.dataset.types="";return}
+  const types=retourTypesSelected();
+  if(!ready||!types.length){block.hidden=true;box.innerHTML="";box.dataset.types="";applyRetourFold();return}
   const key=types.join("|")+"|"+types.map(t=>(retEditOpen[t]?"1":"0")+(routeRet[t]||"")).join(",");
-  if(!force && !seed && box.dataset.types===key && box.childNodes.length){block.hidden=false;return}
+  if(!force && !seed && box.dataset.types===key && box.childNodes.length){block.hidden=false;applyRetourFold();return}
   block.hidden=false;
   box.dataset.types=key;
-  let anyOpen=false;
   box.innerHTML=types.map(t=>{
     const id=sid(t,"ret");
     let v=routeRet[t]||"";
@@ -926,7 +953,6 @@ function renderRetourTypes(seed,force){
     else v=fmtHM(parseHM(v));
     const open=!!retEditOpen[t] || !routeRet[t] || !parseHM(routeRet[t]);
     if(open){
-      anyOpen=true;
       return "<div class='ret-edit' data-type='"+t+"'><div><label>"+t+"</label><input class='yellow ret-type' id='"+id+"' type='text' placeholder='17:45' value='"+v+"'></div><button type='button' class='sec' data-ok='"+t+"'>Klopt</button></div>";
     }
     return "<div class='ret-sum'><span class='tn'>"+t+"</span><span class='tv'>"+v+"</span><button type='button' class='ghost' data-edit='"+t+"'>Wijzig</button></div>";
@@ -944,6 +970,7 @@ function renderRetourTypes(seed,force){
   box.querySelectorAll("[data-edit]").forEach(btn=>btn.addEventListener("click",()=>{
     editRet(btn.getAttribute("data-edit"));
   }));
+  applyRetourFold();
 }
 function refreshKiezen(){renderKiezen()}
 function addCustomType(){
@@ -1182,6 +1209,14 @@ if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementB
 const askSumEdit=document.getElementById("askSumEdit");
 if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;clearLockMsgs();applyAskLock();saveRoute()});
 document.getElementById("lockTypes").addEventListener("change",()=>{tryLock("lockTypes","lockTypesMsg",typesLockMissing,applyTypesLock,()=>saveTypes());updateLockCtas()});
+const retourSumEdit=document.getElementById("retourSumEdit");
+if(retourSumEdit) retourSumEdit.addEventListener("click",()=>{
+  const types=retourTypesSelected();
+  types.forEach(t=>{retEditOpen[t]=true});
+  const sec=document.getElementById("secRetour");
+  if(sec) sec.classList.remove("collapsed");
+  renderRetourTypes(null,true);
+});
 const typesSumEdit=document.getElementById("typesSumEdit");
 if(typesSumEdit) typesSumEdit.addEventListener("click",()=>{document.getElementById("lockTypes").checked=false;clearLockMsg("lockTypesMsg");typeEditOpen={};nieuwTypeOpen=!TYPE_ORDER.length;applyTypesLock();saveTypes()});
 const linkTypes=document.getElementById("linkTypes");
