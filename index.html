@@ -520,7 +520,6 @@ function updateLockCtas(){
   syncKiezenLead();
   const lead=document.getElementById("kiezenLead");
   if(lead) lead.style.opacity="1";
-  if(!ready) window._clearKiezen=true;
   if(typeof renderKiezen==="function" && document.getElementById("kiezen")) renderKiezen();
   applyVlootInFold();
 }
@@ -542,6 +541,7 @@ function setPlanPath(path,opts){
   planPath=path||null;
   syncPlanUi();
   updateLockCtas();
+  if(currentId) saveRoute(true);
   if(opts&&opts.add && path==="keep") addKist();
 }
 function doLock(lockId,msgId,missFn,applyFn,saveFn){
@@ -636,11 +636,9 @@ function applyVlootInFold(){
   if(!ok){sec.classList.remove("collapsed");sec.classList.remove("vloot-force-open")}
   const foldBtn=document.getElementById("vlootInFoldBtn");
   if(foldBtn) foldBtn.hidden=!(ok && !sec.classList.contains("collapsed"));
-  // Inklappen verwijdert focus/knoppen → browser springt raar; focus weg + rustig naar Inplannen
+  // Inklappen: alleen blur (geen scrollIntoView — dat versprong bij accorderen)
   if(ok && !wasCollapsed && sec.classList.contains("collapsed")){
     try{if(document.activeElement&&document.activeElement.blur) document.activeElement.blur()}catch(e){}
-    const next=document.getElementById("secInplannen")||document.getElementById("secRest")||sec;
-    requestAnimationFrame(()=>{try{next.scrollIntoView({behavior:"auto",block:"start"})}catch(e){}});
   }
 }
 function collapseVlootIn(){
@@ -1010,14 +1008,16 @@ function suggest(onlyRest){
   lastWhy=[document.getElementById("route").value+" · "+num("km")+" km · mix "+types.join(" + ")].concat(packed.why);
   writeRows(keep.concat(packed.planes));saveRoute();
 }
-function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,retByType:readRetByType(),fleet:currentRows()}}
+function readUseTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return !!(el&&el.checked)})}
+function deriveUseTypes(r){const set={};(r.fleet||[]).forEach(x=>{if(x&&x.type)set[x.type]=1});Object.keys(r.retByType||{}).forEach(t=>{set[t]=1});return Object.keys(set)}
+function snapshot(){return{id:currentId||("r"+Date.now()),route:document.getElementById("route").value,from:code("fromA"),to:code("toA"),km:num("km"),qY:num("qY"),qJ:num("qJ"),qF:num("qF"),qC:num("qC"),lockRoute:!!document.getElementById("lockRoute").checked,lockAsk:!!document.getElementById("lockAsk").checked,retByType:readRetByType(),useTypes:readUseTypes(),planPath:planPath||null,fleet:currentRows()}}
 function loadList(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){return[]}}
 function storeList(list){try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}}
 function rememberRoute(id){if(!id)return;try{localStorage.setItem(LAST,id)}catch(e){}}
 function chipLabel(r){const n=(r.route||"").trim();if(n)return n;const a=(r.from||"").trim(),b=(r.to||"").trim();if(a&&b)return a+"–"+b;return "Nieuwe route"}
 function renderChips(){const list=loadList();document.getElementById("chips").innerHTML=list.length?list.map(r=>"<button type='button' class='chip "+(r.id===currentId?"on":"")+"' onclick=\"openRoute('"+r.id+"')\">"+chipLabel(r)+"</button>").join(""):"<span class='tiny'>Nog geen opgeslagen routes.</span>"}
 function saveRoute(quiet){if(!currentId&&!quiet)currentId="r"+Date.now();if(!currentId)return;const s=snapshot();currentId=s.id;const list=loadList();const i=list.findIndex(r=>r.id===s.id);if(i>=0)list[i]=s;else list.push(s);storeList(list);rememberRoute(currentId);if(!quiet)renderChips()}
-function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;rememberRoute(currentId);document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();routeRet=Object.assign({},r.retByType||{});retEditOpen={};const fl=cleanFleet(r.fleet);planPath=fl.length?"keep":null;writeRows(fl);applyIata(false);renderChips();syncPlanUi()}
+function openRoute(id){const r=loadList().find(x=>x.id===id);if(!r)return;currentId=r.id;rememberRoute(currentId);document.getElementById("fromA").value=r.from||"";document.getElementById("toA").value=r.to||"";document.getElementById("route").value=r.route||"";document.getElementById("km").value=r.km||"";document.getElementById("qY").value=r.qY??"";document.getElementById("qJ").value=r.qJ??"";document.getElementById("qF").value=r.qF??"";document.getElementById("qC").value=r.qC??"";document.getElementById("lockRoute").checked=!!r.lockRoute;document.getElementById("lockAsk").checked=!!r.lockAsk;applyRouteLock();applyAskLock();routeRet=Object.assign({},r.retByType||{});retEditOpen={};const fl=cleanFleet(r.fleet);const savedPath=(r.planPath==="keep"||r.planPath==="new")?r.planPath:null;planPath=savedPath!=null?savedPath:(fl.length?"keep":null);const ut=Array.isArray(r.useTypes)&&r.useTypes.length?r.useTypes.slice():deriveUseTypes(r);window._restoreKiezen=ut;writeRows(fl);applyIata(false);renderChips();syncPlanUi()}
 function cleanFleet(list){
   return (list||[]).filter(k=>k&&(k.type||String(k.y??"").trim()!==""||String(k.j??"").trim()!==""||String(k.f??"").trim()!==""||String(k.c??"").trim()!==""||k.status==="on"));
 }
@@ -1180,12 +1180,18 @@ function renderKiezen(){
   const prev={};
   TYPE_ORDER.forEach(t=>{const el=document.getElementById("use_"+t);if(el)prev[t]=el.checked});
   const clear=!!window._clearKiezen;window._clearKiezen=false;
+  const restore=Array.isArray(window._restoreKiezen)?window._restoreKiezen:null;window._restoreKiezen=null;
   syncRetFromDom();
   const ready=flowReady();
   document.getElementById("kiezen").innerHTML=kiezenOrder().map(t=>{
     const far=tooFar(t);
     const pax=typeSpec(t).pax||0;
-    const on=far||!ready?false:(clear?false:(prev[t]===undefined?false:!!prev[t]));
+    let on=false;
+    if(!far){
+      if(clear) on=false;
+      else if(restore) on=restore.indexOf(t)>=0;
+      else if(prev[t]!==undefined) on=!!prev[t];
+    }
     const dis=far||!ready;
     return "<label class='"+(dis?"off":"")+"'><input type='checkbox' id='use_"+t+"' "+(dis?"disabled":"")+(on?" checked":"")+"> "+t+" <span class='chk-pax'>("+pax+" pax)</span>"+(far?" · te ver":"")+"</label>";
   }).join("");
