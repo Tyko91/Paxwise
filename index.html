@@ -46,6 +46,14 @@ input:disabled,select:disabled{background:#f8fafc;opacity:1;color:var(--ink);bor
 .kist,.typekaart{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;background:linear-gradient(180deg,#fff,#f8fafc)}
 .kist{position:relative;padding-left:16px}
 .kist::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:5px;border-radius:4px;background:var(--kist-color,var(--gold))}
+.kist.collapsed{padding-top:10px;padding-bottom:10px}
+.kist.collapsed::before{top:8px;bottom:8px}
+.kist.collapsed .kist-body{display:none}
+.kist:not(.collapsed) .kist-sum{display:none}
+.kist-sum{display:flex;align-items:center;gap:8px;width:100%}
+.kist-sum .ks-n{font-size:11px;font-weight:800;color:var(--muted);flex:0 0 auto}
+.kist-sum .ks-txt{flex:1;font-size:13px;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kist-sum button{width:auto;margin:0;padding:4px 10px;font-size:12px;box-shadow:none;flex:0 0 auto}
 .kist h3,.typekaart h3{margin:0 0 8px;font-size:15px;color:var(--navy);font-weight:750}
 .roost-legend .hrs{opacity:.75;font-weight:600;margin-left:2px}
 .roost-empty-tip{font-size:12px;color:rgba(247,231,181,.9);padding:8px 4px 10px;line-height:1.45;font-weight:650}
@@ -374,8 +382,8 @@ function pickType(need,types,jk,fk){
 }
 function restBits(need){
   const bits=[];
-  if(need.Y>0.5) bits.push(Math.ceil(need.Y)+"Y");
-  if(need.J>0.5) bits.push(Math.ceil(need.J)+"J");
+  if(need.Y>0.5) bits.push(Math.ceil(need.Y)+"E");
+  if(need.J>0.5) bits.push(Math.ceil(need.J)+"B");
   if(need.F>0.5) bits.push(Math.ceil(need.F)+"F");
   if(need.C>0.5) bits.push(Math.ceil(need.C)+"t cargo");
   return bits.join(" / ");
@@ -394,7 +402,7 @@ function packNeed(need,types,jkost,fkost,already){
     p.warn=prior>0 && (thin || fill<0.5);
     const fl=+p.fl;
     planes.push(p);need.Y-=+p.y*fl;need.J-=+p.j*fl;need.F-=+p.f*fl;need.C-=+p.c*fl;
-    let line=planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"Y / "+p.j+"J / "+p.f+"F / "+p.c+"t · "+pct+"% vol";
+    let line=planes.length+". "+p.type+" · "+p.fl+"×/dag · "+p.y+"E / "+p.j+"B / "+p.f+"F / "+p.c+"t · "+pct+"% vol";
     if(p.warn) line+=" — let op: door deze retourvlucht is de bezetting maar "+pct+"% (te leeg)";
     why.push(line);
     if(p.warn) break;
@@ -408,24 +416,52 @@ function packNeed(need,types,jkost,fkost,already){
 function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,status:statusOf(k),warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
 function writeRows(rows){const box=document.getElementById("vloot");box.innerHTML="";rows.forEach((r,i)=>box.appendChild(kistEl(i+1,r)));calc()}
 function kistColor(i){return TYPE_COLORS[(Math.max(1,i)-1)%TYPE_COLORS.length]}
+function kistSumLine(type,y,j,f,c){
+  const tn=shortType(type||"—");
+  return tn+" · "+(y||"0")+"E / "+(j||"0")+"B / "+(f||"0")+"F · "+(c||"0")+"t";
+}
 function kistEl(i,r){
   const d=document.createElement("div");d.className="kist";
   d.style.setProperty("--kist-color",kistColor(i));
+  d.dataset.idx=String(i);
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   const st=rowStatus(r);
   const fl=(r.fl!==undefined&&r.fl!==null&&String(r.fl)!=="")?String(r.fl):(r.type&&canFly(r.type)?String(planVl(r.type)):"1");
   const stOpts=[["off","Niet ingepland"],["draft","Voorstel"],["on","Ingepland in game"]].map(([v,l])=>"<option value='"+v+"'"+(st===v?" selected":"")+">"+l+"</option>").join("");
-  d.innerHTML="<h3>Retourvlucht "+i+"</h3><label class='plan "+st+"'><span class='dot'></span><select class='status'>"+stOpts+"</select></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button>";
+  const sum=kistSumLine(r.type,r.y,r.j,r.f,r.c);
+  d.innerHTML="<div class='kist-sum'><span class='ks-n'>#"+i+"</span><span class='ks-txt'>"+sum+"</span><button type='button' class='ghost ks-edit'>Wijzig</button></div><div class='kist-body'><h3>Retourvlucht "+i+"</h3><label class='plan "+st+"'><span class='dot'></span><select class='status'>"+stOpts+"</select></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost ks-fold' style='display:none'>Inklappen</button><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button></div>";
   const box=d.querySelector(".plan"), stEl=d.querySelector(".status");
-  function paint(){const v=stEl.value;box.className="plan "+v;applyKistLock(d);calc()}
+  const sumTxt=d.querySelector(".ks-txt"), foldBtn=d.querySelector(".ks-fold");
+  let forceOpen=false;
+  function refreshSum(){
+    sumTxt.textContent=kistSumLine(d.querySelector(".type").value,d.querySelector(".y").value,d.querySelector(".j").value,d.querySelector(".f").value,d.querySelector(".c").value);
+  }
+  function applyCollapse(){
+    const v=stEl.value;
+    const collapsed=(v==="on" && !forceOpen);
+    d.classList.toggle("collapsed", collapsed);
+    if(foldBtn) foldBtn.style.display=(v==="on" && forceOpen)?"":"none";
+  }
+  function paint(){
+    const v=stEl.value;
+    box.className="plan "+v;
+    if(v==="on") forceOpen=false;
+    applyKistLock(d);
+    applyCollapse();
+    refreshSum();
+    calc();
+  }
   stEl.addEventListener("change",paint);
+  d.querySelector(".ks-edit").addEventListener("click",()=>{forceOpen=true;applyCollapse()});
+  if(foldBtn) foldBtn.addEventListener("click",()=>{forceOpen=false;applyCollapse()});
   applyKistLock(d);
-  function onSeat(ch){return()=>{clampKist(d,ch);calc()}}
+  applyCollapse();
+  function onSeat(ch){return()=>{clampKist(d,ch);refreshSum();calc()}}
   d.querySelector("input.y").addEventListener("input",onSeat("y"));
   d.querySelector("input.j").addEventListener("input",onSeat("j"));
   d.querySelector("input.f").addEventListener("input",onSeat("f"));
   d.querySelector("input.c").addEventListener("input",onSeat("c"));
-  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);clampKist(d,"type");calc()});
+  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);clampKist(d,"type");refreshSum();calc()});
   bindNums(d);
   return d;
 }
