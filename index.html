@@ -130,6 +130,8 @@ a.types-jump:hover{opacity:.85}
 .plan .status.status-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);padding:0;border:0}
 .plan{position:relative}
 button.ks-ack{margin:10px 0 8px}
+.type-body .type-save{margin-top:10px}
+.type-body .type-wipe{margin-top:8px}
 .ret-block{margin-top:10px}
 .ret-block h3{font-size:13px;margin:0 0 2px;color:var(--navy)}
 .ret-block .hint{margin:0 0 6px;color:var(--muted);font-size:11px;line-height:1.35}
@@ -906,6 +908,67 @@ function openTypesPanel(){
   // Alleen scrollen; lockTypes blijft zoals die is (geen unlock).
   sec.scrollIntoView({behavior:"smooth",block:"start"});
 }
+function typeCardMissing(t){
+  const m=[];
+  const nameEl=[...document.querySelectorAll("input.type-name")].find(el=>el.dataset.old===t);
+  const name=nameEl?String(nameEl.value||"").trim():t;
+  if(!name) m.push("Naam");
+  [["pax","Max pax"],["payload","Payload t"],["speed","km/h"],["range","Max km"]].forEach(([k,lab])=>{
+    const el=document.getElementById(sid(t,k));
+    if(!el||String(el.value||"").trim()==="") m.push(lab);
+  });
+  return m;
+}
+function saveTypeCard(t){
+  const msg=document.getElementById(sid(t,"msg"));
+  const miss=typeCardMissing(t);
+  if(miss.length){
+    if(msg){msg.style.display="block";msg.textContent=lockNeedMsg(miss)}
+    return;
+  }
+  if(msg){msg.style.display="none";msg.textContent=""}
+  syncTypeDefsFromDom();
+  const nameEl=[...document.querySelectorAll("input.type-name")].find(el=>el.dataset.old===t);
+  const nn=nameEl?String(nameEl.value||"").trim():t;
+  delete typeEditOpen[t];
+  if(nn&&nn!==t){
+    renameType(t,nn);
+    delete typeEditOpen[nn];
+  }else{
+    saveTypes();
+    autoLockTypesIfReady();
+    renderTypes();
+    calc();
+  }
+}
+function wipeType(t){
+  const ok=confirm("«"+t+"» uit de hangar zetten?\n\nDit wist het toestel uit je catalogus én uit álle routes — selectie, retourtijden en vlootkaarten. Terugdraaien kan niet.");
+  if(!ok) return;
+  TYPE_ORDER=TYPE_ORDER.filter(x=>x!==t);
+  delete TYPE_DEFAULTS[t];
+  delete typeEditOpen[t];
+  delete routeRet[t];
+  delete retEditOpen[t];
+  try{
+    const list=loadList().map(r=>{
+      if(r.retByType&&r.retByType[t]) delete r.retByType[t];
+      if(r.fleet) r.fleet=(r.fleet||[]).filter(k=>!(k&&k.type===t));
+      return r;
+    });
+    storeList(list);
+  }catch(e){}
+  document.querySelectorAll(".kist").forEach(k=>{
+    const sel=k.querySelector("select.type");
+    if(sel&&sel.value===t){sel.value="";}
+  });
+  // scrub current fleet rows of this type
+  writeRows(currentRows().filter(r=>r.type!==t));
+  saveTypes();
+  autoLockTypesIfReady();
+  renderTypes();
+  calc();
+  if(currentId) saveRoute(true);
+}
 function renderTypes(){
   document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{
     const d=TYPE_DEFAULTS[t];
@@ -915,18 +978,32 @@ function renderTypes(){
       "<div class='type-body'><div class='grid2'><div><label>Naam</label><input class='yellow type-name' data-old='"+t+"' value='"+t+"'></div><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div></div>"+
       "<div class='grid4' style='margin-top:8px'><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div>"+
       "<p class='tiny' id='"+sid(t,"stat")+"'></p>"+
-      "<button type='button' class='ghost type-fold' data-t='"+t+"'>Inklappen</button></div></div>";
+      "<p class='warn' id='"+sid(t,"msg")+"' style='display:none'></p>"+
+      "<button type='button' class='lock-cta show type-save' data-t='"+t+"'>Zet deze gegevens vast</button>"+
+      "<button type='button' class='danger type-wipe' data-t='"+t+"'>Wis dit toestel</button></div></div>";
   }).join("");
   document.querySelectorAll("input.type-name").forEach(el=>{
-    el.addEventListener("change",()=>renameType(el.dataset.old,el.value));
+    el.addEventListener("change",()=>{/* rename only on vastzetten */});
   });
   document.querySelectorAll(".type-edit").forEach(btn=>btn.addEventListener("click",()=>{
+    const lock=document.getElementById("lockTypes");
+    if(lock&&lock.checked){lock.checked=false;applyTypesLock();saveTypes()}
     typeEditOpen[btn.getAttribute("data-t")]=true;renderTypes();
   }));
-  document.querySelectorAll(".type-fold").forEach(btn=>btn.addEventListener("click",()=>{
-    const t=btn.getAttribute("data-t");syncTypeDefsFromDom();delete typeEditOpen[t];saveTypes();autoLockTypesIfReady();renderTypes();calc();
+  document.querySelectorAll(".type-save").forEach(btn=>btn.addEventListener("click",()=>{
+    saveTypeCard(btn.getAttribute("data-t"));
   }));
-  document.querySelectorAll("#types input").forEach(el=>el.addEventListener("change",()=>{syncTypeDefsFromDom();saveTypes();autoLockTypesIfReady();updateLockCtas()}));
+  document.querySelectorAll(".type-wipe").forEach(btn=>btn.addEventListener("click",()=>{
+    wipeType(btn.getAttribute("data-t"));
+  }));
+  document.querySelectorAll("#types input").forEach(el=>el.addEventListener("input",()=>{
+    const kaart=el.closest(".typekaart");
+    const t=kaart&&kaart.dataset.type;
+    if(!t) return;
+    const msg=document.getElementById(sid(t,"msg"));
+    if(msg){msg.style.display="none";msg.textContent=""}
+  }));
+  document.querySelectorAll("#types input").forEach(el=>el.addEventListener("change",()=>{syncTypeDefsFromDom();saveTypes();updateLockCtas()}));
   applyTypesLock();
   renderKiezen();
   bindNums();
