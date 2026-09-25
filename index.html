@@ -165,25 +165,10 @@ details{margin-top:6px}
 </div>
 <p class="autosave" id="autosaveHint">Wijzigingen worden automatisch opgeslagen.</p>
 </section>
-<section class="sec-fold" id="secRoute">
-<h2>Route</h2>
-<div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
-<div class="sec-body">
-<label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
-<div class="grid2">
-<div><label>Heen</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
-<div><label>Terug</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
-</div>
-<p class="tiny" id="iataHint"></p>
-<div class="grid2" style="margin-top:8px">
-<div><label>Route</label><input class="yellow" id="route" value="VIE–GRU"></div>
-<div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
-</div>
-</div>
-</section>
-<section>
-<details>
+<section id="secTypes">
+<details id="typesDetails">
 <summary class="h">Mijn toestellen</summary>
+<p class="tiny" style="margin:0 0 8px">Geldt voor alle routes.</p>
 <label class="lock"><input type="checkbox" id="lockTypes"> Vastzetten</label>
 <div id="types"></div>
 <div class="typekaart" id="nieuwType">
@@ -200,6 +185,22 @@ details{margin-top:6px}
 <button type="button" class="sec" id="btnAddType" onclick="addCustomType()">Voeg toestel toe</button>
 </div>
 </details>
+</section>
+<section class="sec-fold" id="secRoute">
+<h2>Route</h2>
+<div class="sec-sum" id="routeSum"><span class="ks-txt" id="routeSumTxt"></span><button type="button" class="ghost" id="routeSumEdit">Wijzig</button></div>
+<div class="sec-body">
+<label class="lock"><input type="checkbox" id="lockRoute"> Vastzetten</label>
+<div class="grid2">
+<div><label>Heen</label><input class="yellow" id="fromA" maxlength="3" value="VIE" autocapitalize="characters"></div>
+<div><label>Terug</label><input class="yellow" id="toA" maxlength="3" value="GRU" autocapitalize="characters"></div>
+</div>
+<p class="tiny" id="iataHint"></p>
+<div class="grid2" style="margin-top:8px">
+<div><label>Route</label><input class="yellow" id="route" value="VIE–GRU"></div>
+<div><label>Afstand km (spel)</label><input class="yellow" id="km" type="number" value="10621"></div>
+</div>
+</div>
 </section>
 <section class="sec-fold" id="secAsk">
 <h2>Vraag per dag (pax)</h2>
@@ -223,6 +224,7 @@ details{margin-top:6px}
 </section>
 <section>
 <h2>Vlootinzet</h2>
+<p class="tiny"><a href="#secTypes" id="linkTypes" style="color:var(--navy);font-weight:650">Toestel toevoegen of specs</a></p>
 <div class="chk" id="kiezen"></div>
 <div class="ret-block" id="retourBlock" hidden>
 <h3>Retourvlucht</h3>
@@ -258,9 +260,9 @@ details{margin-top:6px}
 const HUBS={VIE:[48.1103,16.5697],GRU:[-23.4319,-46.4678],GIG:[-22.8099,-43.2506],BSB:[-15.8711,-47.9186],AMS:[52.3086,4.7639],FRA:[50.0333,8.5706],MUC:[48.3538,11.7861],DUS:[51.2895,6.7668],HAM:[53.6304,9.9882],BER:[52.3667,13.5033],LHR:[51.47,-0.4543],LGW:[51.1537,-0.1821],MAN:[53.3537,-2.275],CDG:[49.0097,2.5478],ORY:[48.7233,2.3794],MAD:[40.4983,-3.5676],BCN:[41.2971,2.0785],FCO:[41.8003,12.2389],MXP:[45.6306,8.7281],ZRH:[47.4581,8.5481],GVA:[46.2381,6.1089],BRU:[50.9014,4.4844],DUB:[53.4213,-6.2701],CPH:[55.618,12.656],ARN:[59.6519,17.9186],OSL:[60.1939,11.1004],HEL:[60.3172,24.9633],WAW:[52.1658,20.9671],PRG:[50.1008,14.26],BUD:[47.4298,19.2611],ATH:[37.9364,23.9445],IST:[41.2753,28.7519],LIS:[38.7742,-9.1342],DXB:[25.2532,55.3657],DOH:[25.2731,51.6081],AUH:[24.433,54.6511],CAI:[30.1219,31.4056],JNB:[-26.1392,28.246],CPT:[-33.9648,18.6017],JFK:[40.6398,-73.7789],EWR:[40.6925,-74.1687],ORD:[41.9786,-87.9048],ATL:[33.6367,-84.4281],MIA:[25.7959,-80.287],DFW:[32.8968,-97.038],LAX:[33.9425,-118.408],SFO:[37.6189,-122.375],YYZ:[43.6772,-79.6306],MEX:[19.4363,-99.0721],EZE:[-34.8222,-58.5358],SCL:[-33.393,-70.7858],BOG:[4.7016,-74.1469],LIM:[-12.0219,-77.1143],NRT:[35.7647,140.386],HND:[35.5523,139.78],ICN:[37.4691,126.451],PEK:[40.0801,116.585],PVG:[31.1434,121.805],HKG:[22.308,113.919],SIN:[1.3502,103.994],BKK:[13.6811,100.747],DEL:[28.5562,77.1],BOM:[19.0887,72.8679],SYD:[-33.9461,151.177],MEL:[-37.6733,144.843],AKL:[-37.0082,174.792]};
 
 const KEY="am_routes_v1", TKEY="am_types_v1", LAST="am_last_route_v1";
-let TYPE_ORDER=["A350-1000LR","A330-300","A320neo"];
+let TYPE_ORDER=["X350-1000LR","A330-300","A320neo"];
 let TYPE_DEFAULTS={
-"A350-1000LR":{pax:480,payload:55,speed:950,range:18000},
+"X350-1000LR":{pax:480,payload:55,speed:950,range:18000},
 "A330-300":{pax:440,payload:46,speed:871,range:11750},
 "A320neo":{pax:195,payload:20,speed:893,range:6482}
 };
@@ -269,7 +271,9 @@ function num(id){return parseFloat(document.getElementById(id).value)||0}
 function nval(el){return parseFloat(el&&el.value)||0}
 function sid(t,k){return k+"_"+t.replace(/[^A-Za-z0-9]/g,"")}
 function code(id){return (document.getElementById(id).value||"").trim().toUpperCase()}
-function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");if(s&&s.order&&s.defs){TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs;const el=document.getElementById("lockTypes");if(el&&typeof s.lock!=="undefined")el.checked=!!s.lock}}catch(e){}}
+function loadTypes(){try{const s=JSON.parse(localStorage.getItem(TKEY)||"null");if(s&&s.order&&s.defs){TYPE_ORDER=s.order;TYPE_DEFAULTS=s.defs;const el=document.getElementById("lockTypes");if(el&&typeof s.lock!=="undefined")el.checked=!!s.lock}}catch(e){}
+  if(TYPE_DEFAULTS["A350-1000LR"]&&!TYPE_DEFAULTS["X350-1000LR"]) renameTypeSilent("A350-1000LR","X350-1000LR");
+}
 function saveTypes(){try{const lock=document.getElementById("lockTypes");localStorage.setItem(TKEY,JSON.stringify({order:TYPE_ORDER,defs:TYPE_DEFAULTS,lock:lock?!!lock.checked:false}))}catch(e){}}
 function setLocked(els,locked){els.forEach(el=>{if(!el)return;el.disabled=!!locked;if(el.tagName==="INPUT"&&el.type!=="checkbox"&&el.type!=="hidden"){el.classList.toggle("yellow",!locked)}})}
 function routeSumLine(){
@@ -299,6 +303,7 @@ function applyTypesLock(){
   TYPE_ORDER.forEach(t=>["pax","payload","speed","range"].forEach(k=>{const el=document.getElementById(sid(t,k));if(el){el.disabled=locked;el.classList.toggle("yellow",!locked)}}));
   ["nName","nPax","nPay","nSpd","nRng"].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=locked});
   const btn=document.getElementById("btnAddType");if(btn)btn.disabled=locked;
+  document.querySelectorAll("input.type-name").forEach(el=>{el.disabled=false;el.classList.add("yellow")});
 }
 function rowStatus(r){
   if(r&&r.status) return r.status;
@@ -562,8 +567,45 @@ function deleteRoute(){
   writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc();
 }
 function newRoute(){saveRoute();currentId="r"+Date.now();routeRet={};retEditOpen={};["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");document.getElementById("lockRoute").checked=false;document.getElementById("lockAsk").checked=false;applyRouteLock();applyAskLock();lastWhy=[];writeRows([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]);renderChips();calc()}
+function renameTypeSilent(oldN,newN){
+  if(!oldN||!newN||oldN===newN) return;
+  if(!(oldN in TYPE_DEFAULTS)) return;
+  if(newN in TYPE_DEFAULTS && newN!==oldN) return;
+  TYPE_DEFAULTS[newN]=TYPE_DEFAULTS[oldN];
+  delete TYPE_DEFAULTS[oldN];
+  TYPE_ORDER=TYPE_ORDER.map(t=>t===oldN?newN:t);
+  if(routeRet[oldN]){routeRet[newN]=routeRet[oldN];delete routeRet[oldN]}
+  try{
+    const list=loadList().map(r=>{
+      if(r.retByType&&r.retByType[oldN]){r.retByType[newN]=r.retByType[oldN];delete r.retByType[oldN]}
+      if(r.fleet) r.fleet=r.fleet.map(k=>k&&k.type===oldN?Object.assign({},k,{type:newN}):k);
+      return r;
+    });
+    storeList(list);
+  }catch(e){}
+  document.querySelectorAll(".kist select.type").forEach(sel=>{
+    [...sel.options].forEach(o=>{if(o.value===oldN||o.textContent===oldN){o.value=newN;o.textContent=newN}});
+    if(sel.value===oldN) sel.value=newN;
+  });
+}
+function renameType(oldN,newN){
+  newN=(newN||"").trim();
+  if(!newN||newN===oldN) return;
+  if(TYPE_ORDER.includes(newN)){alert("Die naam bestaat al.");renderTypes();calc();return}
+  renameTypeSilent(oldN,newN);
+  saveTypes();renderTypes();renderKiezen();if(currentId)saveRoute(true);calc();
+}
+function openTypesPanel(){
+  const d=document.getElementById("typesDetails");
+  if(d) d.open=true;
+  const sec=document.getElementById("secTypes");
+  if(sec) sec.scrollIntoView({behavior:"smooth",block:"start"});
+}
 function renderTypes(){
-  document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><h3>"+t+"</h3><div class='grid4'><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
+  document.getElementById("types").innerHTML=TYPE_ORDER.map(t=>{const d=TYPE_DEFAULTS[t];return "<div class='typekaart'><div class='grid2'><div><label>Naam</label><input class='yellow type-name' data-old='"+t+"' value='"+t+"'></div><div><label>Max pax</label><input class='yellow' id='"+sid(t,"pax")+"' type='number' value='"+d.pax+"'></div></div><div class='grid4' style='margin-top:8px'><div><label>Payload t</label><input class='yellow' id='"+sid(t,"payload")+"' type='number' value='"+d.payload+"'></div><div><label>km/h</label><input class='yellow' id='"+sid(t,"speed")+"' type='number' value='"+d.speed+"'></div><div><label>Max km</label><input class='yellow' id='"+sid(t,"range")+"' type='number' value='"+d.range+"'></div></div><p class='tiny' id='"+sid(t,"stat")+"'></p></div>"}).join("");
+  document.querySelectorAll("input.type-name").forEach(el=>{
+    el.addEventListener("change",()=>renameType(el.dataset.old,el.value));
+  });
   applyTypesLock();
   renderKiezen();
 bindNums();
@@ -686,7 +728,7 @@ function plannedFleet(){
 function shortType(t){
   const x=String(t);
   if(x.indexOf("A320")>=0) return "A320";
-  if(x.indexOf("A350")>=0) return "A350";
+  if(x.indexOf("X350")>=0||x.indexOf("A350")>=0) return "X350";
   if(x.indexOf("A330")>=0) return "A330";
   return x.slice(0,8);
 }
@@ -837,6 +879,8 @@ if(routeSumEdit) routeSumEdit.addEventListener("click",()=>{document.getElementB
 const askSumEdit=document.getElementById("askSumEdit");
 if(askSumEdit) askSumEdit.addEventListener("click",()=>{document.getElementById("lockAsk").checked=false;applyAskLock();saveRoute()});
 document.getElementById("lockTypes").addEventListener("change",()=>{applyTypesLock();saveTypes()});
+const linkTypes=document.getElementById("linkTypes");
+if(linkTypes) linkTypes.addEventListener("click",e=>{e.preventDefault();openTypesPanel()});
 applyRouteLock();applyAskLock();applyTypesLock();
 (function boot(){
   const list=loadList();
