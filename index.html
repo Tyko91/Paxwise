@@ -126,6 +126,10 @@ a.types-jump:hover{opacity:.85}
 .plan.off{background:#fef2f2;color:var(--bad);border:1px solid #fecaca}
 .dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex:0 0 10px}
 .plan .status{flex:1;border:0;background:transparent;color:inherit;font:inherit;font-weight:750;padding:0;margin:0;box-shadow:none;width:auto;min-width:0;cursor:pointer}
+.plan .plan-lab{flex:1;font:inherit;font-weight:750}
+.plan .status.status-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);padding:0;border:0}
+.plan{position:relative}
+button.ks-ack{margin:10px 0 8px}
 .ret-block{margin-top:10px}
 .ret-block h3{font-size:13px;margin:0 0 2px;color:var(--navy)}
 .ret-block .hint{margin:0 0 6px;color:var(--muted);font-size:11px;line-height:1.35}
@@ -719,23 +723,48 @@ function kistEl(i,r){
   const st=rowStatus(r);
   const fl=(r.fl!==undefined&&r.fl!==null&&String(r.fl)!=="")?String(r.fl):(r.type&&canFly(r.type)?String(planVl(r.type)):"1");
   const stOpts=[["off","Niet ingepland"],["draft","Voorstel"],["on","Ingepland in game"]].map(([v,l])=>"<option value='"+v+"'"+(st===v?" selected":"")+">"+l+"</option>").join("");
+  const stLab={off:"Niet ingepland",draft:"Voorstel",on:"Ingepland in game"}[st]||"Voorstel";
   const sum=kistSumLine(r.type,r.y,r.j,r.f,r.c);
-  d.innerHTML="<div class='kist-sum'><span class='ks-n'>#"+i+"</span><span class='ks-txt'>"+sum+"</span><button type='button' class='ghost ks-edit'>Wijzig</button></div><div class='kist-body'><h3>Retourvlucht "+i+"</h3><label class='plan "+st+"'><span class='dot'></span><select class='status'>"+stOpts+"</select></label><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost ks-fold' style='display:none'>Inklappen</button><button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button></div>";
-  const box=d.querySelector(".plan"), stEl=d.querySelector(".status");
-  const sumTxt=d.querySelector(".ks-txt"), foldBtn=d.querySelector(".ks-fold");
+  const ackBtn=(st==="draft")?"<button type='button' class='ok ks-ack'>Akkoord — zet in rooster</button>":"";
+  d.innerHTML="<div class='kist-sum'><span class='ks-n'>#"+i+"</span><span class='ks-txt'>"+sum+"</span><button type='button' class='ghost ks-edit'>Wijzig</button></div><div class='kist-body'><h3>Retourvlucht "+i+"</h3><div class='plan "+st+"'><span class='dot'></span><span class='plan-lab'>"+stLab+"</span><select class='status' aria-label='Status'>"+stOpts+"</select></div><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost ks-fold' style='display:none'>Inklappen</button>"+ackBtn+"<button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button></div>";
+  const box=d.querySelector(".plan"), stEl=d.querySelector(".status"), lab=d.querySelector(".plan-lab");
+  const sumTxt=d.querySelector(".ks-txt"), foldBtn=d.querySelector(".ks-fold"), ack=d.querySelector(".ks-ack");
   let forceOpen=false;
   function refreshSum(){
     sumTxt.textContent=kistSumLine(d.querySelector(".type").value,d.querySelector(".y").value,d.querySelector(".j").value,d.querySelector(".f").value,d.querySelector(".c").value);
+  }
+  function syncPlanChrome(){
+    const v=stEl.value;
+    const labels={off:"Niet ingepland",draft:"Voorstel",on:"Ingepland in game"};
+    if(lab) lab.textContent=labels[v]||v;
+    box.className="plan "+v;
+    const showBadge=(v==="draft" && !forceOpen);
+    stEl.classList.toggle("status-hidden", showBadge);
+    if(lab) lab.style.display=showBadge?"":"none";
+    let a=d.querySelector(".ks-ack");
+    if(v==="draft"){
+      if(!a){
+        a=document.createElement("button");
+        a.type="button";a.className="ok ks-ack";a.textContent="Akkoord — zet in rooster";
+        const danger=d.querySelector("button.danger");
+        if(danger) d.querySelector(".kist-body").insertBefore(a, danger);
+        else d.querySelector(".kist-body").appendChild(a);
+        a.addEventListener("click",()=>{stEl.value="on";forceOpen=false;paint()});
+      }
+      a.style.display="";
+    }else if(a){
+      a.style.display="none";
+    }
   }
   function applyCollapse(){
     const v=stEl.value;
     const collapsed=(v==="on" && !forceOpen);
     d.classList.toggle("collapsed", collapsed);
     if(foldBtn) foldBtn.style.display=(v==="on" && forceOpen)?"":"none";
+    syncPlanChrome();
   }
   function paint(){
     const v=stEl.value;
-    box.className="plan "+v;
     if(v==="on") forceOpen=false;
     applyKistLock(d);
     applyCollapse();
@@ -745,6 +774,7 @@ function kistEl(i,r){
   stEl.addEventListener("change",paint);
   d.querySelector(".ks-edit").addEventListener("click",()=>{forceOpen=true;applyCollapse()});
   if(foldBtn) foldBtn.addEventListener("click",()=>{forceOpen=false;applyCollapse()});
+  if(ack) ack.addEventListener("click",()=>{stEl.value="on";forceOpen=false;paint()});
   applyKistLock(d);
   applyCollapse();
   function onSeat(ch){return()=>{clampKist(d,ch);refreshSum();calc()}}
@@ -792,7 +822,7 @@ function addKist(){
     showFlowGateOnce();
     return;
   }
-  writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]));
+  writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"on"}]));
 }
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
 function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([])}
