@@ -246,6 +246,7 @@ details{margin-top:6px}
 </section>
 <section>
 <h2>Vlootinzet</h2>
+<p class="warn" id="flowGateMsg" style="display:none"></p>
 <p class="tiny"><a href="#secTypes" id="linkTypes" class="types-jump">↑ Mijn toestellen</a></p>
 <div class="chk" id="kiezen"></div>
 <div class="ret-block" id="retourBlock" hidden>
@@ -362,34 +363,65 @@ function syncTypeDefsFromDom(){
     });
   });
 }
+function flowReady(){
+  const r=document.getElementById("lockRoute"), a=document.getElementById("lockAsk");
+  return !!(r&&r.checked&&a&&a.checked);
+}
+function flowBlockMsg(){
+  const miss=[];
+  if(!document.getElementById("lockRoute").checked) miss.push("Route");
+  if(!document.getElementById("lockAsk").checked) miss.push("Vraag");
+  if(miss.length===1) return "Zet eerst "+miss[0]+" vast om door te gaan.";
+  return "Zet eerst Route en Vraag vast om door te gaan.";
+}
 function updateLockCtas(){
   [
-    ["lockRoute","lockRouteCta",routeLockMissing],
-    ["lockAsk","lockAskCta",askLockMissing],
-    ["lockTypes","lockTypesCta",typesLockMissing]
-  ].forEach(([lockId,ctaId,missFn])=>{
+    ["lockRoute","lockRouteCta"],
+    ["lockAsk","lockAskCta"],
+    ["lockTypes","lockTypesCta"]
+  ].forEach(([lockId,ctaId])=>{
     const lock=document.getElementById(lockId), cta=document.getElementById(ctaId);
     if(!lock||!cta) return;
-    const show=!lock.checked && missFn().length===0;
-    cta.classList.toggle("show", show);
-    cta.disabled=!show;
+    cta.classList.toggle("show", !lock.checked);
+    cta.disabled=false;
   });
   const tip=document.getElementById("mixRestTip");
   const rest=document.querySelector('input[name="mixMode"][value="rest"]');
   const btn=document.getElementById("btnSuggest");
+  const addBtn=document.querySelector('button[onclick="addKist()"]');
+  const gate=document.getElementById("flowGateMsg");
+  const ready=flowReady();
   const hasKeep=currentRows().some(r=>r.type&&countsDemand(rowStatus(r)));
   if(tip) tip.style.display=(rest&&rest.checked)?"":"none";
-  if(btn&&rest&&rest.checked){btn.disabled=!hasKeep;btn.title=hasKeep?"":"Zet eerst game-retourvluchten in de vloot"}
-  else if(btn){btn.disabled=false;btn.title=""}
+  if(gate){gate.style.display=ready?"none":"block";gate.textContent=ready?"":flowBlockMsg()}
+  if(btn){
+    if(!ready){btn.disabled=true;btn.title=flowBlockMsg()}
+    else if(rest&&rest.checked&&!hasKeep){btn.disabled=true;btn.title="Zet eerst game-retourvluchten in de vloot"}
+    else{btn.disabled=false;btn.title=""}
+  }
+  if(addBtn){addBtn.disabled=!ready;addBtn.title=ready?"":flowBlockMsg()}
 }
 function doLock(lockId,msgId,missFn,applyFn,saveFn){
   const lock=document.getElementById(lockId);
   if(!lock) return;
+  const miss=missFn();
+  if(miss.length){
+    lock.checked=false;
+    showLockMsg(msgId, lockNeedMsg(miss));
+    applyFn();
+    updateLockCtas();
+    return;
+  }
   lock.checked=true;
   tryLock(lockId,msgId,missFn,applyFn,saveFn);
   updateLockCtas();
 }
 function suggestFromUi(){
+  if(!flowReady()){
+    const gate=document.getElementById("flowGateMsg");
+    if(gate){gate.style.display="block";gate.textContent=flowBlockMsg()}
+    return;
+  }
   const rest=document.querySelector('input[name="mixMode"][value="rest"]');
   suggest(!!(rest&&rest.checked));
 }
@@ -698,7 +730,14 @@ function clampKist(k,changed){
   fEl.max=String(Math.max(0,Math.floor(t.pax/fk)));
   cEl.max=String(Math.max(0,+t.payload||0));
 }
-function addKist(){writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]))}
+function addKist(){
+  if(!flowReady()){
+    const gate=document.getElementById("flowGateMsg");
+    if(gate){gate.style.display="block";gate.textContent=flowBlockMsg()}
+    return;
+  }
+  writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"draft"}]));
+}
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
 function clearFleet(){if(!confirm("Hele vloot wissen?"))return;lastWhy=["Vloot gewist."];writeRows([])}
 function suggest(onlyRest){
