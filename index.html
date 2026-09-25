@@ -720,41 +720,45 @@ function kistEl(i,r){
   d.style.setProperty("--kist-color",kistColor(i));
   d.dataset.idx=String(i);
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
-  const st=rowStatus(r);
+  let st=rowStatus(r);
+  if(st!=="on"&&st!=="off"&&st!=="draft") st="draft";
   const fl=(r.fl!==undefined&&r.fl!==null&&String(r.fl)!=="")?String(r.fl):(r.type&&canFly(r.type)?String(planVl(r.type)):"1");
   const stOpts=[["off","Niet ingepland"],["draft","Voorstel"],["on","Ingepland in game"]].map(([v,l])=>"<option value='"+v+"'"+(st===v?" selected":"")+">"+l+"</option>").join("");
-  const stLab={off:"Niet ingepland",draft:"Voorstel",on:"Ingepland in game"}[st]||"Voorstel";
+  const labels={off:"Niet ingepland",draft:"Voorstel",on:"Ingepland in game"};
   const sum=kistSumLine(r.type,r.y,r.j,r.f,r.c);
-  const ackBtn=(st==="draft")?"<button type='button' class='ok ks-ack'>Akkoord — zet in rooster</button>":"";
-  d.innerHTML="<div class='kist-sum'><span class='ks-n'>#"+i+"</span><span class='ks-txt'>"+sum+"</span><button type='button' class='ghost ks-edit'>Wijzig</button></div><div class='kist-body'><h3>Retourvlucht "+i+"</h3><div class='plan "+st+"'><span class='dot'></span><span class='plan-lab'>"+stLab+"</span><select class='status' aria-label='Status'>"+stOpts+"</select></div><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost ks-fold' style='display:none'>Inklappen</button>"+ackBtn+"<button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button></div>";
+  const needsAck=(st==="draft"||st==="off");
+  const ackBtn=needsAck?"<button type='button' class='ok ks-ack'>Akkoord — zet in rooster</button>":"";
+  d.innerHTML="<div class='kist-sum'><span class='ks-n'>#"+i+"</span><span class='ks-txt'>"+sum+"</span><button type='button' class='ghost ks-edit'>Wijzig</button></div><div class='kist-body'><h3>Retourvlucht "+i+"</h3><div class='plan "+st+"'><span class='dot'></span><span class='plan-lab'>"+labels[st]+"</span><select class='status status-hidden' tabindex='-1' aria-hidden='true'>"+stOpts+"</select></div><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost ks-fold' style='display:none'>Inklappen</button>"+ackBtn+"<button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button></div>";
   const box=d.querySelector(".plan"), stEl=d.querySelector(".status"), lab=d.querySelector(".plan-lab");
-  const sumTxt=d.querySelector(".ks-txt"), foldBtn=d.querySelector(".ks-fold"), ack=d.querySelector(".ks-ack");
+  const sumTxt=d.querySelector(".ks-txt"), foldBtn=d.querySelector(".ks-fold");
   let forceOpen=false;
   function refreshSum(){
     sumTxt.textContent=kistSumLine(d.querySelector(".type").value,d.querySelector(".y").value,d.querySelector(".j").value,d.querySelector(".f").value,d.querySelector(".c").value);
   }
-  function syncPlanChrome(){
-    const v=stEl.value;
-    const labels={off:"Niet ingepland",draft:"Voorstel",on:"Ingepland in game"};
-    if(lab) lab.textContent=labels[v]||v;
-    box.className="plan "+v;
-    const showBadge=(v==="draft" && !forceOpen);
-    stEl.classList.toggle("status-hidden", showBadge);
-    if(lab) lab.style.display=showBadge?"":"none";
+  function ensureAck(){
     let a=d.querySelector(".ks-ack");
-    if(v==="draft"){
+    const v=stEl.value;
+    const show=(v==="draft"||v==="off");
+    if(show){
       if(!a){
         a=document.createElement("button");
         a.type="button";a.className="ok ks-ack";a.textContent="Akkoord — zet in rooster";
         const danger=d.querySelector("button.danger");
         if(danger) d.querySelector(".kist-body").insertBefore(a, danger);
         else d.querySelector(".kist-body").appendChild(a);
-        a.addEventListener("click",()=>{stEl.value="on";forceOpen=false;paint()});
+        a.addEventListener("click",doAck);
       }
       a.style.display="";
     }else if(a){
       a.style.display="none";
     }
+  }
+  function syncPlanChrome(){
+    const v=stEl.value;
+    if(lab) lab.textContent=labels[v]||v;
+    box.className="plan "+v;
+    stEl.classList.add("status-hidden");
+    ensureAck();
   }
   function applyCollapse(){
     const v=stEl.value;
@@ -764,17 +768,25 @@ function kistEl(i,r){
     syncPlanChrome();
   }
   function paint(){
-    const v=stEl.value;
-    if(v==="on") forceOpen=false;
     applyKistLock(d);
     applyCollapse();
     refreshSum();
     calc();
   }
-  stEl.addEventListener("change",paint);
-  d.querySelector(".ks-edit").addEventListener("click",()=>{forceOpen=true;applyCollapse()});
+  function doAck(){
+    stEl.value="on";
+    forceOpen=false;
+    paint();
+  }
+  d.querySelector(".ks-edit").addEventListener("click",()=>{
+    // Terug naar bewerkbaar: Niet ingepland + Akkoord
+    stEl.value="off";
+    forceOpen=true;
+    paint();
+  });
   if(foldBtn) foldBtn.addEventListener("click",()=>{forceOpen=false;applyCollapse()});
-  if(ack) ack.addEventListener("click",()=>{stEl.value="on";forceOpen=false;paint()});
+  const ack0=d.querySelector(".ks-ack");
+  if(ack0) ack0.addEventListener("click",doAck);
   applyKistLock(d);
   applyCollapse();
   function onSeat(ch){return()=>{clampKist(d,ch);refreshSum();calc()}}
