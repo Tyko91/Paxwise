@@ -493,10 +493,9 @@ function updateLockCtas(){
     else{addBtn.disabled=false;addBtn.title="";addBtn.hidden=false}
   }
   if(btnRest){
-    // zichtbaarheid blijft via syncPlanUi (alleen keep-pad); hier alleen enable
     if(!afterRet){btnRest.disabled=true;btnRest.title=!ready?flowBlockMsg():retMsg}
     else if(!tekort){btnRest.disabled=true;btnRest.title="Geen tekort meer — vraag is gevuld"}
-    else if(!hasKeep){btnRest.disabled=true;btnRest.title="Zet eerst game-retourvluchten in de vloot"}
+    else if(planPath==="keep" && !hasKeep){btnRest.disabled=true;btnRest.title="Zet eerst game-retourvluchten in de vloot"}
     else{btnRest.disabled=false;btnRest.title=""}
   }
   if(btnNew){
@@ -527,7 +526,7 @@ function syncPlanUi(){
   if(neu) neu.hidden=planPath!=="new";
   if(back) back.hidden=!planPath;
   if(vloot) vloot.style.display=planPath?"":"none";
-  if(btnRest) btnRest.hidden=planPath!=="keep";
+  if(btnRest) btnRest.hidden=!planPath;
 }
 function setPlanPath(path,opts){
   planPath=path||null;
