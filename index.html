@@ -171,12 +171,17 @@ details{margin-top:6px}
 .roost-legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;padding:0 2px}
 .roost-legend span{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:650;color:var(--gold-soft)}
 .roost-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
-.roost-axis{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:end;margin-bottom:4px;min-width:320px}
+.roost-axis{display:grid;grid-template-columns:44px 1fr;gap:6px;align-items:end;margin-bottom:4px;min-width:320px}
 .roost-axis .pad{font-size:9px;opacity:0}
 .roost-hours{display:flex;justify-content:space-between;font-size:8px;font-weight:600;color:rgba(247,231,181,.75);font-variant-numeric:tabular-nums;padding:0 1px;letter-spacing:-.02em}
 .roost-grid{display:flex;flex-direction:column;gap:5px;min-width:320px}
-.roost-row{display:grid;grid-template-columns:28px 1fr;gap:6px;align-items:start}
-.roost-row .dn{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-soft);text-align:center;padding-top:6px}
+.roost-row{display:grid;grid-template-columns:44px 1fr;gap:6px;align-items:start}
+.roost-row .dn{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--gold-soft);text-align:center;padding-top:2px;line-height:1.15;display:flex;flex-direction:column;align-items:center;gap:1px}
+.roost-row .dn .dc{font-size:8px;font-weight:700;opacity:.85;letter-spacing:0;text-transform:none}
+.roost-row .dn.leeg{color:#fdba74}
+.roost-row .dn.leeg .dc{color:#fecaca;opacity:1}
+.kist .start-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.kist .start-hm{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .roost-daystack{display:flex;flex-direction:column;gap:3px}
 .roost-track{position:relative;height:22px;border-radius:4px;background:rgba(0,0,0,.35);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
 .roost-track::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background-image:repeating-linear-gradient(to right,transparent 0,transparent calc(100% / 24 - 1px),rgba(255,255,255,.28) calc(100% / 24 - 1px),rgba(255,255,255,.28) calc(100% / 24))}
@@ -265,6 +270,7 @@ details{margin-top:6px}
 <section id="secRest" hidden>
 <h2>Resterende vraag (pax)</h2>
 <div class="rest" id="rest"></div>
+<p class="tiny" id="restNote" style="margin:8px 0 0;color:#6b7280">gemiddeld per dag (weekbasis)</p>
 </section>
 <section id="secInplannen" hidden>
 <h2>Inplannen</h2>
@@ -444,18 +450,18 @@ function showFlowGateOnce(){
 }
 function restOver(){
   const fac=num("factor")||2;
-  let weg={Y:0,J:0,F:0,C:0};
+  let wegW={Y:0,J:0,F:0,C:0};
   const root=document.getElementById("vloot")||document;
   root.querySelectorAll(".kist").forEach(k=>{
     if(!countsDemand(statusOf(k))) return;
     const type=k.querySelector(".type").value;
     if(!type) return;
     const y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
-    const flEl=k.querySelector(".fl");
-    let fl=nval(flEl)||1;
-    weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
+    const m=migrateWk({type,wk:k.querySelector(".wk")&&k.querySelector(".wk").value,fl:k.querySelector(".fl")&&k.querySelector(".fl").value,start:k.querySelector(".start")&&k.querySelector(".start").value});
+    const wk=m.wk||1;
+    wegW.Y+=y*wk*fac;wegW.J+=j*wk*fac;wegW.F+=f*wk*fac;wegW.C+=c*wk*fac;
   });
-  return {Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
+  return {Y:num("qY")-wegW.Y/7,J:num("qJ")-wegW.J/7,F:num("qF")-wegW.F/7,C:num("qC")-wegW.C/7};
 }
 function hasTekort(){
   const o=restOver();
@@ -784,25 +790,199 @@ function setRetConfirmed(t,val){
 }
 function editRet(t){retEditOpen[t]=true;const sec=document.getElementById("secRetour");if(sec)sec.hidden=false;renderRetourTypes(null,true)}
 function planVl(t){if(!canFly(t))return 0;const u=typeUren(t);if(u>0){const n=Math.floor(24/u+1e-9);return n>=1?n:(24/u>=0.45?1:0)}const raw=rawVl(t);if(raw<0.45)return 0;if(raw<1)return 1;return Math.floor(raw)}
+const WEEK_H=168;
+function planWk(t){
+  if(!canFly(t))return 0;
+  const u=typeUren(t);
+  if(u>0) return Math.max(0,Math.floor(WEEK_H/u+1e-9));
+  const d=planVl(t);return d>0?d*7:0;
+}
 function blokU(t){const km=num("km"),s=typeSpec(t).speed;return(!km||!s)?0:km/s}
-function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planVl(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
+function selectedTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return el&&el.checked&&!el.disabled&&canFly(t)&&planWk(t)>0}).sort((a,b)=>typeSpec(b).pax-typeSpec(a).pax)}
+function weekSlots(kist){
+  const u=+kist.uren||0,n=Math.max(0,kist.wk|0),t0=+kist.startH||0,out=[];
+  if(!(u>0)||!n) return out;
+  for(let r=0;r<n;r++) out.push({startH:t0+r*u,endH:t0+(r+1)*u,idx:r});
+  return out;
+}
+function depDaysOf(startH,uren,wk){
+  const days=new Set();
+  weekSlots({startH,uren,wk}).forEach(sl=>{
+    if(sl.startH<WEEK_H) days.add(Math.floor(sl.startH/24)%7);
+  });
+  return days;
+}
+function daysCovered(rows){
+  const days=new Set();
+  (rows||[]).forEach(r=>{
+    if(!r||!r.type) return;
+    const u=typeUren(r.type),wk=Math.max(0,Math.floor(+r.wk||0));
+    if(!(u>0)||!wk) return;
+    depDaysOf(+r.start||0,u,wk).forEach(d=>days.add(d));
+  });
+  return days;
+}
+function pickStartOffset(uren,wk,occupied,ideal){
+  let best=(ideal!=null?ideal:0),bestScore=-1e99;
+  const lim=WEEK_H;
+  for(let s=0;s<lim;s++){
+    const days=depDaysOf(s,uren,wk);
+    let fresh=0;
+    days.forEach(d=>{if(!occupied.has(d)) fresh++});
+    let dist=0;
+    if(ideal!=null){
+      dist=Math.abs(s-ideal);
+      dist=Math.min(dist,WEEK_H-dist);
+    }
+    // Eerst ontbrekende dagen, daarna gelijke spreiding over de week
+    const score=fresh*1000 - dist + days.size;
+    if(score>bestScore){bestScore=score;best=s}
+  }
+  return best;
+}
+function assignStarts(rows,preserve){
+  const out=(rows||[]).map(r=>Object.assign({},r));
+  const locked=[], free=[];
+  out.forEach(r=>{
+    if(!r||!r.type) return;
+    if(preserve&&(r._keepStart||r._lockedSeats)){r._lockedSeats=true;locked.push(r)}
+    else free.push(r);
+  });
+  const occupied=new Set();
+  locked.forEach(r=>{
+    delete r._keepStart;
+    const u=typeUren(r.type),wk=Math.max(0,Math.floor(+r.wk||0));
+    if(u>0&&wk) depDaysOf(+r.start||0,u,wk).forEach(d=>occupied.add(d));
+  });
+  const n=free.length;
+  free.forEach((r,i)=>{
+    const u=typeUren(r.type),wk=Math.max(0,Math.floor(+r.wk||planWk(r.type)||0));
+    if(!(u>0)||!wk){r.start="0";delete r._keepStart;return}
+    const ideal=n>0?(i*WEEK_H/n):0;
+    const s=pickStartOffset(u,wk,occupied,ideal);
+    r.start=String(s);
+    depDaysOf(s,u,wk).forEach(d=>occupied.add(d));
+    delete r._keepStart;
+  });
+  return out;
+}
+function seatsForFixedWk(need,typeName,wk,jkost,fkost){
+  const t=typeSpec(typeName);if(!(wk>=1)||!t.pax) return null;
+  let space=t.pax;
+  const y=Math.min(Math.max(0,Math.ceil(need.Y/wk-1e-9)),space);space-=y;
+  const j=Math.min(Math.max(0,Math.ceil(need.J/wk-1e-9)),Math.floor(space/jkost));space-=j*jkost;
+  const f=Math.min(Math.max(0,Math.ceil(need.F/wk-1e-9)),Math.floor(space/fkost));
+  const c=Math.min(Math.max(0,Math.ceil(need.C/wk-1e-9)),Math.floor(t.payload));
+  if(y+j+f+c<=0) return {y:0,j:0,f:0,c:0};
+  return{y:y,j:j,f:f,c:c};
+}
+function rebalanceWeekSeats(rows,jkost,fkost){
+  const fac=num("factor")||2;
+  let need={Y:num("qY")*7/fac,J:num("qJ")*7/fac,F:num("qF")*7/fac,C:num("qC")*7/fac};
+  (rows||[]).forEach(r=>{
+    if(!r||!r.type||!r._lockedSeats) return;
+    const wk=Math.max(1,Math.floor(+r.wk||1));
+    need.Y-=(+r.y||0)*wk;need.J-=(+r.j||0)*wk;need.F-=(+r.f||0)*wk;need.C-=(+r.c||0)*wk;
+  });
+  return (rows||[]).map(r=>{
+    if(!r||!r.type) return r;
+    if(r._lockedSeats){const o=Object.assign({},r);delete o._keepStart;return o}
+    const maxWk=planWk(r.type)||1;
+    let wk=Math.max(1,Math.min(maxWk,Math.floor(+r.wk||maxWk)));
+    const seats=seatsForFixedWk(need,r.type,wk,jkost,fkost)||{y:0,j:0,f:0,c:0};
+    need.Y-=seats.y*wk;need.J-=seats.j*wk;need.F-=seats.f*wk;need.C-=seats.c*wk;
+    const p=Object.assign({},r,{wk:String(wk),y:String(seats.y),j:String(seats.j),f:String(seats.f),c:String(seats.c)});
+    const fill=fillOf(p,jkost,fkost);
+    p.warn=!!(r.warn) || (fill>0&&fill<0.5);
+    delete p._keepStart;
+    return p;
+  });
+}
+function staggerForCoverage(rows,jkost,fkost){
+  jkost=jkost||num("jkost")||1.8;fkost=fkost||num("fkost")||4.2;
+  let cur=(rows||[]).map(r=>Object.assign({},r));
+  let guard=0;
+  while(guard++<12){
+    const hasLocked=cur.some(r=>r&&r._lockedSeats);
+    cur=assignStarts(cur,hasLocked);
+    const active=cur.filter(r=>r&&r.type&&countsDemand(rowStatus(r)));
+    const covered=daysCovered(active);
+    if(covered.size>=7) break;
+    const types=selectedTypes();
+    if(!types.length) break;
+    const missing=[];
+    for(let d=0;d<7;d++) if(!covered.has(d)) missing.push(d);
+    const usedTypes=active.map(r=>r.type).filter(Boolean);
+    const chosen=(usedTypes.find(t=>types.includes(t)))||types[types.length-1]||types[0];
+    const maxWk=planWk(chosen);if(!maxWk) break;
+    const u=typeUren(chosen);
+    // Even stagger target: place next start to hit missing days
+    let bestStart=0,bestHit=-1;
+    const lim=Math.max(24,Math.min(WEEK_H,Math.ceil(u)||24));
+    for(let s=0;s<lim;s++){
+      const days=depDaysOf(s,u,maxWk);
+      let hit=0;missing.forEach(d=>{if(days.has(d)) hit++});
+      if(hit>bestHit){bestHit=hit;bestStart=s}
+    }
+    if(bestHit<=0) bestStart=missing[0]*24+6;
+    // Extra kist only if after rebalance it won't be mostly empty, OR it's required for day-gap and we accept warn
+    const trial=cur.concat([{type:chosen,wk:String(maxWk),start:String(bestStart),y:"0",j:"0",f:"0",c:"0",status:"draft"}]);
+    const bal=rebalanceWeekSeats(trial,jkost,fkost);
+    const added=bal[bal.length-1];
+    const fill=fillOf(added,jkost,fkost);
+    const prior=active.length;
+    const thin=prior>0 && fill<0.5 && !worthExtraPlane({Y:num("qY")*7/(num("factor")||2),J:num("qJ")*7/(num("factor")||2),F:num("qF")*7/(num("factor")||2),C:num("qC")*7/(num("factor")||2)},types,jkost,fkost);
+    // Always allow one coverage add when days missing; mark warn if thin
+    added.warn=thin||fill<0.5;
+    added.start=String(bestStart);
+    cur=bal;
+    cur=assignStarts(cur,cur.some(r=>r&&r._lockedSeats));
+    // stop if this add didn't improve coverage
+    const after=daysCovered(cur.filter(r=>r&&r.type&&countsDemand(rowStatus(r))));
+    if(after.size<=covered.size) break;
+  }
+  return cur;
+}
+function fmtStartH(h){
+  h=((+h||0)%WEEK_H+WEEK_H)%WEEK_H;
+  const d=Math.floor(h/24),hh=Math.floor(h%24+1e-9),mi=Math.round((h%24-hh)*60);
+  const mi2=mi===60?0:mi;const hh2=mi===60?hh+1:hh;
+  return{dag:d,hm:String(hh2%24).padStart(2,"0")+":"+String(mi2).padStart(2,"0")};
+}
+function parseStartParts(dag,hm){
+  const d=Math.max(0,Math.min(6,+dag||0));
+  const u=parseHM(hm);const hh=u>0?u:0;
+  return d*24+hh;
+}
+function migrateWk(r){
+  const type=r&&r.type;
+  const max=type&&canFly(type)?planWk(type):0;
+  let wk;
+  if(r&&r.wk!==undefined&&r.wk!==null&&String(r.wk)!=="") wk=Math.max(0,Math.floor(+r.wk||0));
+  else if(r&&r.fl!==undefined&&r.fl!==null&&String(r.fl)!==""){
+    const fl=+r.fl||1;wk=Math.min(fl*7,max||fl*7);
+  }else wk=max||1;
+  if(max>0) wk=Math.min(wk,max);
+  const start=(r&&r.start!==undefined&&r.start!==null&&String(r.start)!=="")?(+r.start||0):0;
+  return{wk,start};
+}
 function packOne(need,typeName,jkost,fkost){
-  const t=typeSpec(typeName),maxFl=planVl(typeName);if(!maxFl)return null;
+  const t=typeSpec(typeName),maxWk=planWk(typeName);if(!maxWk)return null;
   const pNeed=plek(need,jkost,fkost);
-  const flPax=pNeed>0.5?Math.ceil(pNeed/t.pax-1e-9):0;
-  const flC=(need.C>0.5&&t.payload>0)?Math.ceil(need.C/t.payload-1e-9):0;
-  let fl=Math.min(maxFl,Math.max(flPax,flC));
-  if(fl<1){
-    if(need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.5) fl=1;
+  const wkPax=pNeed>0.5?Math.ceil(pNeed/t.pax-1e-9):0;
+  const wkC=(need.C>0.5&&t.payload>0)?Math.ceil(need.C/t.payload-1e-9):0;
+  let wk=Math.min(maxWk,Math.max(wkPax,wkC));
+  if(wk<1){
+    if(need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.5) wk=1;
     else return null;
   }
   let space=t.pax;
-  const y=Math.min(Math.max(0,Math.ceil(need.Y/fl-1e-9)),space);space-=y;
-  const j=Math.min(Math.max(0,Math.ceil(need.J/fl-1e-9)),Math.floor(space/jkost));space-=j*jkost;
-  const f=Math.min(Math.max(0,Math.ceil(need.F/fl-1e-9)),Math.floor(space/fkost));
-  const c=Math.min(Math.max(0,Math.ceil(need.C/fl-1e-9)),Math.floor(t.payload));
+  const y=Math.min(Math.max(0,Math.ceil(need.Y/wk-1e-9)),space);space-=y;
+  const j=Math.min(Math.max(0,Math.ceil(need.J/wk-1e-9)),Math.floor(space/jkost));space-=j*jkost;
+  const f=Math.min(Math.max(0,Math.ceil(need.F/wk-1e-9)),Math.floor(space/fkost));
+  const c=Math.min(Math.max(0,Math.ceil(need.C/wk-1e-9)),Math.floor(t.payload));
   if(y+j+f+c<=0)return null;
-  return{type:typeName,fl:String(fl),y:String(y),j:String(j),f:String(f),c:String(c),status:"draft"};
+  return{type:typeName,wk:String(wk),start:"0",y:String(y),j:String(j),f:String(f),c:String(c),status:"draft"};
 }
 function plek(need,jk,fk){return Math.max(0,need.Y)+Math.max(0,need.J)*jk+Math.max(0,need.F)*fk}
 function fillOf(p,jk,fk){const t=typeSpec(p.type);if(!t.pax)return 0;return ((+p.y)+(+p.j)*jk+(+p.f)*fk)/t.pax}
@@ -828,25 +1008,36 @@ function pickType(need,types,jk,fk){
 function packNeed(need,types,jkost,fkost,already){
   already=already||0;
   const planes=[];need={...need};let guard=0;
-  while((need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.5)&&guard++<16){
+  while((need.Y>0.5||need.J>0.5||need.F>0.5||need.C>0.5)&&guard++<32){
     const prior=already+planes.length;
     const thin=prior>0 && !worthExtraPlane(need,types,jkost,fkost);
     const chosen=pickType(need,types,jkost,fkost);
     const p=packOne(need,chosen,jkost,fkost);if(!p)break;
     const fill=fillOf(p,jkost,fkost);
     p.warn=prior>0 && (thin || fill<0.5);
-    const fl=+p.fl;
-    planes.push(p);need.Y-=+p.y*fl;need.J-=+p.j*fl;need.F-=+p.f*fl;need.C-=+p.c*fl;
+    const wk=+p.wk;
+    planes.push(p);need.Y-=+p.y*wk;need.J-=+p.j*wk;need.F-=+p.f*wk;need.C-=+p.c*wk;
     if(p.warn) break;
   }
   return{planes};
 }
-function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>({type:k.querySelector(".type").value,fl:k.querySelector(".fl").value,y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,status:statusOf(k),warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")}))}
+function currentRows(){return [...document.querySelectorAll(".kist")].map(k=>{
+  const type=k.querySelector(".type").value;
+  const wkEl=k.querySelector(".wk");
+  const startEl=k.querySelector(".start");
+  const dagEl=k.querySelector(".startDag");
+  const hmEl=k.querySelector(".startHM");
+  let start=startEl?startEl.value:"";
+  if(dagEl&&hmEl) start=String(parseStartParts(dagEl.value,hmEl.value));
+  const m=migrateWk({type,wk:wkEl?wkEl.value:"",fl:k.querySelector(".fl")?k.querySelector(".fl").value:"",start});
+  return{type:type,wk:String(m.wk),start:String(m.start),y:k.querySelector(".y").value,j:k.querySelector(".j").value,f:k.querySelector(".f").value,c:k.querySelector(".c").value,status:statusOf(k),warn:!!(k.querySelector(".warnbox")&&k.querySelector(".warnbox").dataset.on==="1")};
+})}
 function writeRows(rows){const box=document.getElementById("vloot");if(!box)return;box.innerHTML="";rows.forEach((r,i)=>box.appendChild(kistEl(i+1,r)));calc()}
 function kistColor(i){return TYPE_COLORS[(Math.max(1,i)-1)%TYPE_COLORS.length]}
-function kistSumLine(type,y,j,f,c){
+function kistSumLine(type,y,j,f,c,wk){
   const tn=shortType(type||"—");
-  return tn+" · "+(y||"0")+"E / "+(j||"0")+"B / "+(f||"0")+"F · "+(c||"0")+"t";
+  const w=(wk!==undefined&&wk!==null&&String(wk)!=="")?String(wk):"?";
+  return tn+" · "+(y||"0")+"E / "+(j||"0")+"B / "+(f||"0")+"F · "+(c||"0")+"t · "+w+"×/wk";
 }
 function kistEl(i,r){
   const d=document.createElement("div");d.className="kist";
@@ -855,18 +1046,26 @@ function kistEl(i,r){
   const opts=["<option value=''>— leeg —</option>"].concat(TYPE_ORDER.map(tn=>"<option "+(tn===r.type?"selected":"")+">"+tn+"</option>")).join("");
   let st=rowStatus(r);
   if(st!=="on"&&st!=="off"&&st!=="draft") st="draft";
-  const fl=(r.fl!==undefined&&r.fl!==null&&String(r.fl)!=="")?String(r.fl):(r.type&&canFly(r.type)?String(planVl(r.type)):"1");
+  const mig=migrateWk(r);
+  const wk=String(mig.wk);
+  const startH=mig.start;
+  const sp=fmtStartH(startH);
+  const dagOpts=DAGEN.map((nm,di)=>"<option value='"+di+"'"+(di===sp.dag?" selected":"")+">"+nm+"</option>").join("");
   const stOpts=[["off","Niet ingepland"],["draft","Voorstel"],["on","Ingepland in game"]].map(([v,l])=>"<option value='"+v+"'"+(st===v?" selected":"")+">"+l+"</option>").join("");
   const labels={off:"Niet ingepland",draft:"Voorstel",on:"Ingepland in game"};
-  const sum=kistSumLine(r.type,r.y,r.j,r.f,r.c);
+  const sum=kistSumLine(r.type,r.y,r.j,r.f,r.c,wk);
   const needsAck=(st==="draft"||st==="off");
   const ackBtn=needsAck?"<button type='button' class='ok ks-ack'>Akkoord — zet in rooster</button>":"";
-  d.innerHTML="<div class='kist-sum'><span class='ks-n'>#"+i+"</span><span class='ks-txt'>"+sum+"</span><button type='button' class='ghost ks-edit'>Wijzig</button></div><div class='kist-body'><h3>Retourvlucht "+i+"</h3><div class='plan "+st+"'><span class='dot'></span><span class='plan-lab'>"+labels[st]+"</span><select class='status status-hidden' tabindex='-1' aria-hidden='true'>"+stOpts+"</select></div><input class='fl' type='hidden' value='"+fl+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost ks-fold' style='display:none'>Inklappen</button>"+ackBtn+"<button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button></div>";
+  d.innerHTML="<div class='kist-sum'><span class='ks-n'>#"+i+"</span><span class='ks-txt'>"+sum+"</span><button type='button' class='ghost ks-edit'>Wijzig</button></div><div class='kist-body'><h3>Retourvlucht "+i+"</h3><div class='plan "+st+"'><span class='dot'></span><span class='plan-lab'>"+labels[st]+"</span><select class='status status-hidden' tabindex='-1' aria-hidden='true'>"+stOpts+"</select></div><input class='fl' type='hidden' value=''><input class='start' type='hidden' value='"+startH+"'><input class='warnbox' type='hidden' data-on='"+(r.warn?"1":"0")+"'><div><label>Type</label><select class='type'>"+opts+"</select></div><div class='grid4' style='margin-top:8px'><div><label>Economy</label><input class='y yellow' type='number' value='"+(r.y||"")+"'></div><div><label>Business</label><input class='j yellow' type='number' value='"+(r.j||"")+"'></div><div><label>First</label><input class='f yellow' type='number' value='"+(r.f||"")+"'></div><div><label>Cargo</label><div class='withunit'><input class='c yellow' type='number' step='1' value='"+(r.c||"")+"'><span class='unit'>t</span></div></div></div><div class='start-row'><div><label>Retouren/wk</label><input class='wk yellow' type='number' min='1' value='"+wk+"'></div><div><label>Start</label><div class='start-hm'><select class='startDag'>"+dagOpts+"</select><input class='startHM yellow' type='text' placeholder='06:00' value='"+sp.hm+"'></div></div></div><p class='tiny' id='info"+i+"'></p><p class='warn' id='warn"+i+"' style='display:none'></p><button type='button' class='ghost ks-fold' style='display:none'>Inklappen</button>"+ackBtn+"<button type='button' class='danger' onclick='dropKist("+i+")'>Verwijder uit vloot</button></div>";
   const box=d.querySelector(".plan"), stEl=d.querySelector(".status"), lab=d.querySelector(".plan-lab");
   const sumTxt=d.querySelector(".ks-txt"), foldBtn=d.querySelector(".ks-fold");
   let forceOpen=false;
+  function syncStartHidden(){
+    const dag=d.querySelector(".startDag"), hm=d.querySelector(".startHM"), hid=d.querySelector(".start");
+    if(hid) hid.value=String(parseStartParts(dag&&dag.value,hm&&hm.value));
+  }
   function refreshSum(){
-    sumTxt.textContent=kistSumLine(d.querySelector(".type").value,d.querySelector(".y").value,d.querySelector(".j").value,d.querySelector(".f").value,d.querySelector(".c").value);
+    sumTxt.textContent=kistSumLine(d.querySelector(".type").value,d.querySelector(".y").value,d.querySelector(".j").value,d.querySelector(".f").value,d.querySelector(".c").value,d.querySelector(".wk").value);
   }
   function ensureAck(){
     let a=d.querySelector(".ks-ack");
@@ -912,7 +1111,6 @@ function kistEl(i,r){
     paint();
   }
   d.querySelector(".ks-edit").addEventListener("click",()=>{
-    // Terug naar bewerkbaar: Niet ingepland + Akkoord
     stEl.value="off";
     forceOpen=true;
     paint();
@@ -927,7 +1125,24 @@ function kistEl(i,r){
   d.querySelector("input.j").addEventListener("input",onSeat("j"));
   d.querySelector("input.f").addEventListener("input",onSeat("f"));
   d.querySelector("input.c").addEventListener("input",onSeat("c"));
-  d.querySelector(".type").addEventListener("change",()=>{const tp=d.querySelector(".type").value;if(tp&&canFly(tp))d.querySelector(".fl").value=planVl(tp);clampKist(d,"type");refreshSum();calc()});
+  d.querySelector(".wk").addEventListener("input",()=>{
+    const tp=d.querySelector(".type").value;
+    const max=tp&&canFly(tp)?planWk(tp):0;
+    let v=Math.max(0,Math.floor(nval(d.querySelector(".wk"))||0));
+    if(max>0&&v>max) v=max;
+    if(v<1&&max>0) v=1;
+    d.querySelector(".wk").value=String(v||(max||1));
+    refreshSum();calc();
+  });
+  function onStart(){syncStartHidden();calc()}
+  d.querySelector(".startDag").addEventListener("change",onStart);
+  d.querySelector(".startHM").addEventListener("change",onStart);
+  d.querySelector(".startHM").addEventListener("input",()=>{/* live parse on blur via change */});
+  d.querySelector(".type").addEventListener("change",()=>{
+    const tp=d.querySelector(".type").value;
+    if(tp&&canFly(tp)) d.querySelector(".wk").value=String(planWk(tp));
+    clampKist(d,"type");refreshSum();calc();
+  });
   bindNums(d);
   return d;
 }
@@ -968,7 +1183,7 @@ function addKist(){
     return;
   }
   if(!hasTekort()){alert("Geen tekort meer — de vraag is al gevuld.");return}
-  writeRows(currentRows().concat([{type:"",fl:"1",y:"",j:"",f:"",c:"",status:"on"}]));
+  writeRows(currentRows().concat([{type:"",wk:"1",start:"0",y:"",j:"",f:"",c:"",status:"on"}]));
 }
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
 function clearFleet(){
@@ -984,10 +1199,22 @@ function suggest(onlyRest){
   refreshKiezen();
   const types=selectedTypes();if(!types.length){alert("Geen type dat deze afstand aankan.");return}
   const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;
-  let need={Y:num("qY")/fac,J:num("qJ")/fac,F:num("qF")/fac,C:num("qC")/fac},keep=[];
-  if(onlyRest){keep=currentRows().filter(r=>r.type&&countsDemand(rowStatus(r)));keep.forEach(r=>{const fl=parseFloat(r.fl)||1;need.Y-=(parseFloat(r.y)||0)*fl;need.J-=(parseFloat(r.j)||0)*fl;need.F-=(parseFloat(r.f)||0)*fl;need.C-=(parseFloat(r.c)||0)*fl})}
+  // Weekvraag (één richting): dagvraag × 7 / factor
+  let need={Y:num("qY")*7/fac,J:num("qJ")*7/fac,F:num("qF")*7/fac,C:num("qC")*7/fac},keep=[];
+  if(onlyRest){
+    keep=currentRows().filter(r=>r.type&&countsDemand(rowStatus(r))).map(r=>{
+      const m=migrateWk(r);return Object.assign({},r,{wk:String(m.wk),start:String(m.start),_keepStart:true});
+    });
+    keep.forEach(r=>{
+      const wk=parseFloat(r.wk)||1;
+      need.Y-=(parseFloat(r.y)||0)*wk;need.J-=(parseFloat(r.j)||0)*wk;need.F-=(parseFloat(r.f)||0)*wk;need.C-=(parseFloat(r.c)||0)*wk;
+    });
+  }
   const packed=packNeed(need,types,jkost,fkost,keep.length);
-  writeRows(keep.concat(packed.planes));saveRoute();
+  let rows=keep.concat(packed.planes);
+  rows=assignStarts(rows,!!onlyRest);
+  rows=staggerForCoverage(rows,jkost,fkost);
+  writeRows(rows);saveRoute();
 }
 function readUseTypes(){return TYPE_ORDER.filter(t=>{const el=document.getElementById("use_"+t);return !!(el&&el.checked)})}
 function deriveUseTypes(r){const set={};(r.fleet||[]).forEach(x=>{if(x&&x.type)set[x.type]=1});Object.keys(r.retByType||{}).forEach(t=>{set[t]=1});return Object.keys(set)}
@@ -1321,13 +1548,14 @@ function plannedFleet(){
     const st=statusOf(k);
     const type=k.querySelector(".type").value;
     if(st!=="on"||!type) return;
-    let fl=Math.max(0,Math.floor(nval(k.querySelector(".fl"))||0));
+    const m=migrateWk({type,wk:k.querySelector(".wk")&&k.querySelector(".wk").value,fl:k.querySelector(".fl")&&k.querySelector(".fl").value,start:k.querySelector(".start")&&k.querySelector(".start").value});
     const u=typeUren(type);
-    if(!fl){
-      if(u>0) fl=Math.max(1,Math.floor(24/u));
-      else fl=planVl(type)||0;
+    let wk=m.wk;
+    if(!wk){
+      if(u>0) wk=Math.max(1,Math.floor(WEEK_H/u));
+      else wk=planWk(type)||0;
     }
-    out.push({i:i+1,type,ritjes:fl,uren:u});
+    out.push({i:i+1,type,wk:wk,uren:u,startH:m.start||0});
   });
   return out;
 }
@@ -1338,20 +1566,45 @@ function shortType(t){
   if(x.indexOf("A330")>=0) return "A330";
   return x.slice(0,8);
 }
-function barsForPlane(p,color){
-  const bars=[];
-  let t0=0;
-  const u=p.uren||0,n=Math.max(0,p.ritjes|0);
-  for(let r=0;r<n;r++){
-    const over=u>0&&t0+u>24.01;
-    const lab=(r===0?("#"+p.i):"");
-    bars.push({start:t0,dur:u,over:over,color:color,lab:lab,tip:p.type+" #"+p.i+" · retour "+(r+1)+"/"+n+" · "+fmtU(u)+" u"});
-    t0+=u;
-  }
-  return{bars,used:t0};
-}
 function fmtBezet(n){const x=+n||0;const r=Math.round(x*10)/10;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):r.toFixed(1)}
 function fmtU(u){if(!(u>0))return "?";return fmtHM(u)||"?"}
+function daySegsForPlane(p){
+  // Split weekSlots into per-day segments {day, start, dur, seamAfter, isDep, tip, lab}
+  const slots=weekSlots({startH:p.startH,uren:p.uren,wk:p.wk});
+  const byDay=DAGEN.map(()=>[]);
+  slots.forEach((sl,si)=>{
+    let t=sl.startH, end=sl.endH;
+    let first=true;
+    while(t<end-1e-9){
+      const day=Math.floor(t/24);
+      if(day>6) break;
+      const dayEnd=(day+1)*24;
+      const segEnd=Math.min(end,dayEnd);
+      const startLocal=t-day*24;
+      const dur=segEnd-t;
+      if(dur>1e-9 && day>=0){
+        byDay[day].push({
+          start:startLocal,dur:dur,
+          isDep:first && sl.startH>=day*24 && sl.startH<dayEnd,
+          tip:p.type+" #"+p.i+" · retour "+(si+1)+"/"+p.wk+" · "+fmtU(p.uren)+" u",
+          lab:(first && si===0)?("#"+p.i):"",
+          slotEnd:end,dayEnd:dayEnd,si:si
+        });
+      }
+      first=false;
+      t=segEnd;
+    }
+  });
+  // seams between consecutive retouren on same day
+  byDay.forEach(segs=>{
+    segs.sort((a,b)=>a.start-b.start);
+    for(let i=0;i<segs.length-1;i++){
+      const a=segs[i],b=segs[i+1];
+      if(Math.abs((a.start+a.dur)-b.start)<0.05) a.seam=true;
+    }
+  });
+  return byDay;
+}
 function renderRooster(){
   const grid=document.getElementById("roosterGrid");
   const legend=document.getElementById("roosterLegend");
@@ -1367,44 +1620,52 @@ function renderRooster(){
   const colors=list.map(p=>({p,color:kistColor(p.i)}));
   if(legend){
     legend.innerHTML=colors.map(({p,color})=>{
-      const n=p.ritjes||0,u=p.uren||0;
-      return "<span><i style='background:"+color+"'></i>"+shortType(p.type)+" #"+p.i+"<span class='hrs'>· "+n+"× · "+fmtU(u)+" u/retour</span></span>";
+      const n=p.wk||0,u=p.uren||0;
+      const sp=fmtStartH(p.startH);
+      return "<span><i style='background:"+color+"'></i>"+shortType(p.type)+" #"+p.i+"<span class='hrs'>· "+n+"×/week · "+fmtU(u)+" u/retour · start "+DAGEN[sp.dag]+" "+sp.hm+"</span></span>";
     }).join("");
   }
-  const planeBars=colors.map(({p,color})=>({p,color,...barsForPlane(p,color)}));
-  grid.innerHTML=DAGEN.map(d=>{
-    const stack=planeBars.map(({p,color,bars})=>{
+  const planeDays=colors.map(({p,color})=>({p,color,days:daySegsForPlane(p)}));
+  const depCount=DAGEN.map((_,di)=>{
+    let n=0;
+    planeDays.forEach(({days})=>{days[di].forEach(s=>{if(s.isDep) n++})});
+    return n;
+  });
+  grid.innerHTML=DAGEN.map((d,di)=>{
+    const stack=planeDays.map(({p,color,days})=>{
+      const segs=days[di];
       const parts=[];
-      bars.forEach((b,bi)=>{
+      segs.forEach((b,bi)=>{
         if(b.dur<=0) return;
         const left=(b.start/24)*100;
         const width=(b.dur/24)*100;
         const w=Math.max(0,Math.min(width,100-left));
         if(w<=0&&b.start>=24) return;
         const lab=(w>9&&b.lab)?b.lab:"";
-        const pad=bi<bars.length-1;
-        parts.push("<div class='roost-bar"+(b.over?" over":"")+"' style='left:calc("+left+"% + "+(bi?1:0)+"px);width:calc("+w+"% - "+(pad?1:0)+"px - "+(bi?1:0)+"px);background:"+b.color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>");
-        if(pad){
+        parts.push("<div class='roost-bar' style='left:calc("+left+"% + "+(bi?1:0)+"px);width:calc("+w+"% - "+(b.seam?1:0)+"px - "+(bi?1:0)+"px);background:"+color+"' title='"+b.tip.replace(/'/g,"")+"'>"+lab+"</div>");
+        if(b.seam){
           const x=((b.start+b.dur)/24)*100;
           parts.push("<div class='roost-seam' style='left:"+x+"%'></div>");
         }
       });
-      const html=parts.join("");
-      return "<div class='roost-track' title='"+p.type+" #"+p.i+"'>"+html+"</div>";
+      return "<div class='roost-track' title='"+p.type+" #"+p.i+"'>"+parts.join("")+"</div>";
     }).join("");
-    return "<div class='roost-row'><span class='dn'>"+d+"</span><div class='roost-daystack'>"+stack+"</div></div>";
+    const cnt=depCount[di];
+    const leeg=cnt===0;
+    const dn="<span class='dn"+(leeg?" leeg":"")+"'>"+d+"<span class='dc'>"+(leeg?"geen vlucht":(cnt+" vertrek"+(cnt===1?"":"ken")))+"</span></span>";
+    return "<div class='roost-row'>"+dn+"<div class='roost-daystack'>"+stack+"</div></div>";
   }).join("");
   const nPlane=list.length;
-  const nRet=list.reduce((s,p)=>s+p.ritjes,0);
-  let over=planeBars.filter(x=>x.used>24.01);
-  let msg=nPlane+" kist"+(nPlane===1?"":"en")+" · "+nRet+" retour"+(nRet===1?"":"s");
+  const nRet=list.reduce((s,p)=>s+(p.wk||0),0);
+  const leegDagen=depCount.filter(c=>c===0).length;
+  let msg=nPlane+" kist"+(nPlane===1?"":"en")+" · "+nRet+" retour"+(nRet===1?"":"s")+"/week";
   if(note){
-    if(over.length){
+    if(leegDagen){
       note.className="roost-note warnish";
-      note.textContent="Let op · "+over.map(x=>"#"+x.p.i+" "+fmtU(x.used)+" u past niet in 24 u").join(" · ");
+      note.textContent=msg+" · "+leegDagen+" dag"+(leegDagen===1?"":"en")+" zonder vertrek";
     }else{
       note.className="roost-note";
-      note.textContent=msg;
+      note.textContent=msg+" · alle dagen gedekt";
     }
   }
 }
@@ -1437,26 +1698,29 @@ function softRefreshKiezen(){
 }
 function calc(){
   softRefreshKiezen();
-  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour "+fmtHM(typeUren(t))+" · "+planVl(t)+"×/dag"))});
-  const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let weg={Y:0,J:0,F:0,C:0};
+  TYPE_ORDER.forEach(t=>{const el=document.getElementById(sid(t,"stat"));if(!el)return;const km=num("km");el.textContent=!km?("Max "+typeSpec(t).range+" km"):(tooFar(t)?("Let op · te ver voor "+km+" km"):("Retour "+fmtHM(typeUren(t))+" · "+planWk(t)+"×/wk"))});
+  const fac=num("factor")||2,jkost=num("jkost")||1.8,fkost=num("fkost")||4.2;let wegW={Y:0,J:0,F:0,C:0};
   const kistRoot=document.getElementById("vloot")||document;
   kistRoot.querySelectorAll(".kist").forEach((k,idx)=>{
     const type=k.querySelector(".type").value,y=nval(k.querySelector(".y")),j=nval(k.querySelector(".j")),f=nval(k.querySelector(".f")),c=nval(k.querySelector(".c"));
-    const flEl=k.querySelector(".fl");
-    let fl=nval(flEl);
+    const wkEl=k.querySelector(".wk");
+    let wk=nval(wkEl);
     if(type&&canFly(type)){
-      const auto=planVl(type);
-      // Ritjes: bewaar lagere waarde op de kist; nooit omhoog forceren naar plafond
-      if(!flEl||flEl.value===""||flEl.value==null){fl=auto;if(flEl)flEl.value=String(auto)}
-      else{fl=Math.min(nval(flEl)||auto,auto||nval(flEl)||1);if(flEl)flEl.value=String(fl)}
-    }else{fl=fl||1;if(flEl&&(flEl.value===""||flEl.value==null))flEl.value=String(fl)}
+      const auto=planWk(type);
+      if(!wkEl||wkEl.value===""||wkEl.value==null){wk=auto;if(wkEl)wkEl.value=String(auto)}
+      else{wk=Math.min(nval(wkEl)||auto,auto||nval(wkEl)||1);if(wkEl)wkEl.value=String(wk)}
+    }else{wk=wk||1;if(wkEl&&(wkEl.value===""||wkEl.value==null))wkEl.value=String(wk)}
+    const startEl=k.querySelector(".start");
+    const dagEl=k.querySelector(".startDag");
+    const hmEl=k.querySelector(".startHM");
+    if(startEl&&dagEl&&hmEl) startEl.value=String(parseStartParts(dagEl.value,hmEl.value));
     const info=k.querySelector("#info"+(idx+1));
     const warnEl=k.querySelector("#warn"+(idx+1));
     const wb=k.querySelector(".warnbox");
     const vliegt=countsDemand(statusOf(k));
     if(!type){if(info){info.textContent="";info.className="tiny"};if(warnEl){warnEl.style.display="none";warnEl.textContent=""};return}
     const t=typeSpec(type),ruimte=y+j*jkost+f*fkost;
-    if(info){info.className="tiny info-ok";info.textContent="Bezetting (pax) "+fmtBezet(ruimte)+"/"+t.pax}
+    if(info){info.className="tiny info-ok";info.textContent="Bezetting (pax) "+fmtBezet(ruimte)+"/"+t.pax+" · "+wk+"×/wk"}
     const fill=t.pax?(ruimte/t.pax):0;const pct=Math.round(fill*100);
     const thin=(wb&&wb.dataset.on==="1")||(fill>0&&fill<0.5);
     if(wb) wb.dataset.on=thin?"1":"0";
@@ -1466,9 +1730,9 @@ function calc(){
     else if(thin) warnTxt="Door deze retourvlucht is de bezetting maar "+pct+"% — te leeg.";
     if(warnEl){if(warnTxt){warnEl.style.display="block";warnEl.textContent=warnTxt}else{warnEl.style.display="none";warnEl.textContent=""}}
     if(!vliegt) return;
-    weg.Y+=y*fl*fac;weg.J+=j*fl*fac;weg.F+=f*fl*fac;weg.C+=c*fl*fac;
+    wegW.Y+=y*wk*fac;wegW.J+=j*wk*fac;wegW.F+=f*wk*fac;wegW.C+=c*wk*fac;
   });
-  const over={Y:num("qY")-weg.Y,J:num("qJ")-weg.J,F:num("qF")-weg.F,C:num("qC")-weg.C};
+  const over={Y:num("qY")-wegW.Y/7,J:num("qJ")-wegW.J/7,F:num("qF")-wegW.F/7,C:num("qC")-wegW.C/7};
   const kind=v=>v>0.5?"left":(v<-0.5?"over":"zero");
   document.getElementById("rest").innerHTML=pill("Economy",over.Y.toFixed(0),kind(over.Y))+pill("Business",over.J.toFixed(0),kind(over.J))+pill("First",over.F.toFixed(0),kind(over.F))+pill("Cargo",over.C.toFixed(0)+" t",kind(over.C));
   const rst=document.getElementById("routeSumTxt");if(rst){rst.textContent=routeSumLine();rst.classList.remove("locked-ok")}markHead("secRoute",!!document.getElementById("lockRoute").checked)
