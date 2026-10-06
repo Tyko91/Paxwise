@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paxwise</title>
+<title>Paxwise · Productie</title>
 <style>
 html{overflow-anchor:none}
 :root{
@@ -198,14 +198,34 @@ details{margin-top:6px}
 .grid4 input{padding:8px 6px;font-size:15px}
 }
 
+
+.prod-banner,.env-banner{background:#0B1F3A;color:#F7E7B5;text-align:center;font-weight:800;font-size:12px;letter-spacing:.08em;padding:7px 12px;border-bottom:2px solid #C9A227}
+.test-banner,.env-banner.test{background:#b42318;color:#fff;border-bottom-color:#7a160f}
+.owned-fleet{margin-top:8px}
+.owned-fleet .of-meta{font-size:12px;color:var(--muted);margin:0 0 8px}
+.owned-fleet .of-hub{font-weight:750;color:var(--navy);margin:10px 0 4px;font-size:13px}
+.owned-fleet .of-row{display:flex;gap:8px;align-items:baseline;font-size:13px;padding:3px 0;border-bottom:1px solid var(--line)}
+.owned-fleet .of-row .n{flex:1;font-weight:650;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.owned-fleet .of-row .t{color:var(--muted);font-variant-numeric:tabular-nums}
+.owned-fleet .of-row .h{font-weight:700;color:var(--gold);min-width:2.4em;text-align:right}
+
 .site-foot{text-align:center;padding:8px 12px 24px;font-size:11px}
 .site-foot a{color:var(--muted);text-decoration:none}
 .site-foot a:hover{color:var(--navy);text-decoration:underline}
 </style>
 </head>
 <body>
+<div class="env-banner">PRODUCTIE</div>
 <header><h1>Paxwise</h1></header>
 <main>
+<section class="sec-fold" id="secOwnedFleet">
+<h2>Mijn vloot</h2>
+<div class="sec-sum" id="ownedFleetSum"><span class="ks-txt" id="ownedFleetSumTxt">Laden…</span><button type="button" class="ghost" id="ownedFleetSumEdit">Toon</button></div>
+<div class="sec-body" id="ownedFleetBody" hidden>
+<p class="tiny of-meta" id="ownedFleetMeta"></p>
+<div class="owned-fleet" id="ownedFleetList"></div>
+</div>
+</section>
 <section>
 <h2>Mijn routes</h2>
 <div class="chips" id="chips"></div>
@@ -334,7 +354,7 @@ details{margin-top:6px}
 <script>
 const HUBS={VIE:[48.1103,16.5697],GRU:[-23.4319,-46.4678],GIG:[-22.8099,-43.2506],BSB:[-15.8711,-47.9186],AMS:[52.3086,4.7639],FRA:[50.0333,8.5706],MUC:[48.3538,11.7861],DUS:[51.2895,6.7668],HAM:[53.6304,9.9882],BER:[52.3667,13.5033],LHR:[51.47,-0.4543],LGW:[51.1537,-0.1821],MAN:[53.3537,-2.275],CDG:[49.0097,2.5478],ORY:[48.7233,2.3794],MAD:[40.4983,-3.5676],BCN:[41.2971,2.0785],FCO:[41.8003,12.2389],MXP:[45.6306,8.7281],ZRH:[47.4581,8.5481],GVA:[46.2381,6.1089],BRU:[50.9014,4.4844],DUB:[53.4213,-6.2701],CPH:[55.618,12.656],ARN:[59.6519,17.9186],OSL:[60.1939,11.1004],HEL:[60.3172,24.9633],WAW:[52.1658,20.9671],PRG:[50.1008,14.26],BUD:[47.4298,19.2611],ATH:[37.9364,23.9445],IST:[41.2753,28.7519],LIS:[38.7742,-9.1342],DXB:[25.2532,55.3657],DOH:[25.2731,51.6081],AUH:[24.433,54.6511],CAI:[30.1219,31.4056],JNB:[-26.1392,28.246],CPT:[-33.9648,18.6017],JFK:[40.6398,-73.7789],EWR:[40.6925,-74.1687],ORD:[41.9786,-87.9048],ATL:[33.6367,-84.4281],MIA:[25.7959,-80.287],DFW:[32.8968,-97.038],LAX:[33.9425,-118.408],SFO:[37.6189,-122.375],YYZ:[43.6772,-79.6306],MEX:[19.4363,-99.0721],EZE:[-34.8222,-58.5358],SCL:[-33.393,-70.7858],BOG:[4.7016,-74.1469],LIM:[-12.0219,-77.1143],NRT:[35.7647,140.386],HND:[35.5523,139.78],ICN:[37.4691,126.451],PEK:[40.0801,116.585],PVG:[31.1434,121.805],HKG:[22.308,113.919],SIN:[1.3502,103.994],BKK:[13.6811,100.747],DEL:[28.5562,77.1],BOM:[19.0887,72.8679],SYD:[-33.9461,151.177],MEL:[-37.6733,144.843],AKL:[-37.0082,174.792]};
 
-const KEY="am_routes_v1", TKEY="am_types_v1", LAST="am_last_route_v1";
+const KEY="am_routes_v2", TKEY="am_types_v2", LAST="am_last_route_v2", FKEY="am_fleet_v1", CLEAN_KEY="am_clean_v20261006", FLEET_URL="./data/fleet.json";
 let TYPE_ORDER=["X350-1000LR","A330-300","A320neo"];
 let TYPE_DEFAULTS={
 "X350-1000LR":{pax:480,payload:55,speed:950,range:18000},
@@ -1803,24 +1823,93 @@ if(vlootInSumEdit) vlootInSumEdit.addEventListener("click",()=>{
 });
 const vlootInFoldBtn=document.getElementById("vlootInFoldBtn");
 if(vlootInFoldBtn) vlootInFoldBtn.addEventListener("click",collapseVlootIn);
+
+let OWNED_FLEET=[];
+function cleanSlateOnce(){
+  try{
+    if(localStorage.getItem(CLEAN_KEY)) return;
+        try{localStorage.removeItem("am_routes_v1")}catch(e){}
+    try{localStorage.removeItem("am_types_v1")}catch(e){}
+    try{localStorage.removeItem("am_last_route_v1")}catch(e){}
+    localStorage.setItem(CLEAN_KEY,"1");
+  }catch(e){}
+}
+function saveOwnedFleet(){try{localStorage.setItem(FKEY,JSON.stringify(OWNED_FLEET))}catch(e){}}
+function renderOwnedFleet(){
+  const sum=document.getElementById("ownedFleetSumTxt");
+  const list=document.getElementById("ownedFleetList");
+  const meta=document.getElementById("ownedFleetMeta");
+  const n=OWNED_FLEET.length;
+  const hubs=[...new Set(OWNED_FLEET.map(a=>a.hub).filter(Boolean))].sort();
+  if(sum) sum.textContent=n? (n+" toestellen · hubs "+hubs.join(", ")) : "Nog geen vloot geladen";
+  if(meta) meta.textContent=n? ("Bron: Airlines Manager (GitHub data/fleet.json). "+n+" kisten.") : "Geen vlootdata.";
+  if(!list) return;
+  if(!n){list.innerHTML="<p class='tiny'>Geen toestellen.</p>";return}
+  const by={};
+  OWNED_FLEET.forEach(a=>{(by[a.hub||"?"]=by[a.hub||"?"]||[]).push(a)});
+  list.innerHTML=Object.keys(by).sort().map(h=>{
+    const rows=by[h].slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),"nl")).map(a=>
+      "<div class='of-row'><span class='n'>"+escAttr(a.name||"—")+"</span><span class='t'>"+escAttr(a.type||"")+"</span><span class='h'>"+escAttr(a.hub||"")+"</span></div>"
+    ).join("");
+    return "<div class='of-hub'>"+escAttr(h)+" ("+by[h].length+")</div>"+rows;
+  }).join("");
+}
+async function loadOwnedFleet(){
+  cleanSlateOnce();
+  let fromNet=false;
+  try{
+    const r=await fetch(FLEET_URL,{cache:"no-cache"});
+    if(r.ok){
+      const data=await r.json();
+      const arr=Array.isArray(data)?data:(data.aircraft||[]);
+      if(arr.length){
+        OWNED_FLEET=arr.map(a=>({id:String(a.id||""),name:a.name||"",type:a.type||"",hub:a.hub||""}));
+        saveOwnedFleet();
+        fromNet=true;
+      }
+    }
+  }catch(e){}
+  if(!fromNet){
+    try{OWNED_FLEET=JSON.parse(localStorage.getItem(FKEY)||"[]")||[]}catch(e){OWNED_FLEET=[]}
+  }
+  renderOwnedFleet();
+  const body=document.getElementById("ownedFleetBody");
+  const sec=document.getElementById("secOwnedFleet");
+  if(sec && OWNED_FLEET.length) sec.classList.add("collapsed");
+  if(body) body.hidden=!!(sec && sec.classList.contains("collapsed"));
+}
+
+
+const ownedFleetSumEdit=document.getElementById("ownedFleetSumEdit");
+if(ownedFleetSumEdit) ownedFleetSumEdit.addEventListener("click",()=>{
+  const sec=document.getElementById("secOwnedFleet");
+  const body=document.getElementById("ownedFleetBody");
+  if(!sec||!body) return;
+  const open=!sec.classList.contains("collapsed") && !body.hidden;
+  if(open){sec.classList.add("collapsed");body.hidden=true;ownedFleetSumEdit.textContent="Toon"}
+  else{sec.classList.remove("collapsed");body.hidden=false;ownedFleetSumEdit.textContent="Verberg"}
+});
 clearLockMsgs();
 applyRouteLock();applyAskLock();applyTypesLock();
 syncWizard();
 (function boot(){
-  const list=loadList();
-  let last=null;try{last=localStorage.getItem(LAST)}catch(e){}
-  const pick=(last&&list.find(r=>r.id===last))||(list.length?list[list.length-1]:null);
-  if(pick){openRoute(pick.id);return}
-  ["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
-  document.getElementById("lockRoute").checked=false;
-  document.getElementById("lockAsk").checked=false;
-  applyRouteLock();applyAskLock();
-  writeRows([]);
-  renderChips();
-  calc();
+  loadOwnedFleet().finally(()=>{
+    // Clean slate: negeer oude routes; start leeg tenzij v2 al iets heeft
+    const list=loadList();
+    let last=null;try{last=localStorage.getItem(LAST)}catch(e){}
+    const pick=(last&&list.find(r=>r.id===last))||(list.length?list[list.length-1]:null);
+    if(pick){openRoute(pick.id);return}
+    ["fromA","toA","route","km","qY","qJ","qF","qC"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("lockRoute").checked=false;
+    document.getElementById("lockAsk").checked=false;
+    applyRouteLock();applyAskLock();
+    writeRows([]);
+    renderChips();
+    calc();
+  });
 })();
 }catch(e){console.error(e);alert("Fout: "+e.message)}
 </script>
-<p class="site-foot"><a href="test/">Test</a></p>
+<p class="site-foot">Productie · <a href="test/">Testomgeving</a></p>
 </body>
 </html>

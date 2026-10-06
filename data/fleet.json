@@ -1,0 +1,581 @@
+{
+  "updated": "2026-10-06T15:26:00+02:00",
+  "source": "https://www.airlines-manager.com/aircraft",
+  "count": 95,
+  "hubs": [
+    "GRU",
+    "VIE"
+  ],
+  "aircraft": [
+    {
+      "id": "192409645",
+      "name": "BOOSTER-717-200",
+      "type": "717-200",
+      "hub": "GRU"
+    },
+    {
+      "id": "192409646",
+      "name": "BOOSTER-CN-235",
+      "type": "CN-235",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075203",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075202",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075201",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "GRU"
+    },
+    {
+      "id": "192036370",
+      "name": "CHLENGE-A330-300",
+      "type": "A330-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075634",
+      "name": "CHLENGE-A350-900ULR",
+      "type": "A350-900ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "192043990",
+      "name": "CHLENGE-A380-800",
+      "type": "A380-800",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075641",
+      "name": "CHLENGE-DH COMET 4",
+      "type": "DH Comet 4",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075640",
+      "name": "CHLENGE-DH COMET 4",
+      "type": "DH Comet 4",
+      "hub": "GRU"
+    },
+    {
+      "id": "191951663",
+      "name": "CHLENGE-M-100",
+      "type": "M-100",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075637",
+      "name": "CHLENGE-X-OVERTURE",
+      "type": "X-Overture",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075633",
+      "name": "CHLENGE-X2707",
+      "type": "X2707",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075643",
+      "name": "CHLENGE-X350-1000ULR",
+      "type": "X350-1000ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075642",
+      "name": "CHLENGE-X350-1000ULR",
+      "type": "X350-1000ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075636",
+      "name": "CHLENGE-X350-1000ULR",
+      "type": "X350-1000ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075208",
+      "name": "CHLENGE-X737-MAX10",
+      "type": "X737-MAX10",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075209",
+      "name": "CHLENGE-X777-8",
+      "type": "X777-8",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075639",
+      "name": "DXB",
+      "type": "X380Plus",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075635",
+      "name": "GRU-DUB",
+      "type": "A330-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075204",
+      "name": "GRU-DUB2",
+      "type": "A330-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075210",
+      "name": "GRU-DUB3",
+      "type": "777-300ER",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075212",
+      "name": "GRU-DXB4",
+      "type": "X777-9",
+      "hub": "GRU"
+    },
+    {
+      "id": "191878253",
+      "name": "GRU-LAD",
+      "type": "A330-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "192004822",
+      "name": "GRU-LAD1-REC",
+      "type": "747-8I",
+      "hub": "GRU"
+    },
+    {
+      "id": "192075211",
+      "name": "GRU-LAD2-GIG",
+      "type": "A330-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "192197713",
+      "name": "GRU-LAD3-REC",
+      "type": "DC8-73",
+      "hub": "GRU"
+    },
+    {
+      "id": "192197704",
+      "name": "GRU-REC1",
+      "type": "A220-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "191829440",
+      "name": "MPM",
+      "type": "X350-1000ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "191829441",
+      "name": "MPM2",
+      "type": "X350-1000ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "191829442",
+      "name": "MPM3",
+      "type": "X350-1000ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "191829443",
+      "name": "MPM4",
+      "type": "X350-1000ULR",
+      "hub": "GRU"
+    },
+    {
+      "id": "191951741",
+      "name": "SHOP-747-200B",
+      "type": "747-200B",
+      "hub": "GRU"
+    },
+    {
+      "id": "192197708",
+      "name": "SHOP-A319-100LR",
+      "type": "A319-100LR",
+      "hub": "GRU"
+    },
+    {
+      "id": "192152593",
+      "name": "SHOP-A320NEO",
+      "type": "A320neo",
+      "hub": "GRU"
+    },
+    {
+      "id": "192003170",
+      "name": "SHOP-A330-300",
+      "type": "A330-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "192002699",
+      "name": "SHOP-A330-300",
+      "type": "A330-300",
+      "hub": "GRU"
+    },
+    {
+      "id": "191951799",
+      "name": "SHOP-CRJ-1000",
+      "type": "CRJ-1000",
+      "hub": "GRU"
+    },
+    {
+      "id": "191900836",
+      "name": "SHOP-MD-83",
+      "type": "MD-83",
+      "hub": "GRU"
+    },
+    {
+      "id": "191527246",
+      "name": "BOM 3",
+      "type": "787-8",
+      "hub": "VIE"
+    },
+    {
+      "id": "192131152",
+      "name": "BOOSTER-737-800",
+      "type": "737-800",
+      "hub": "VIE"
+    },
+    {
+      "id": "191719669",
+      "name": "CAB",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191707216",
+      "name": "CAB",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191462417",
+      "name": "CH1 BOM",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191529177",
+      "name": "CH3 - MIS 1",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191446326",
+      "name": "CH4 -MIS2",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191580009",
+      "name": "CH5",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191878254",
+      "name": "CHLENGE-737-MAX9",
+      "type": "737-MAX9",
+      "hub": "VIE"
+    },
+    {
+      "id": "192075206",
+      "name": "CHLENGE-A220-100",
+      "type": "A220-100",
+      "hub": "VIE"
+    },
+    {
+      "id": "192075200",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "192075205",
+      "name": "CHLENGE-A330-300 dxb",
+      "type": "A330-300",
+      "hub": "VIE"
+    },
+    {
+      "id": "191890247",
+      "name": "CMN3",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191541745",
+      "name": "DEL 1",
+      "type": "747-300",
+      "hub": "VIE"
+    },
+    {
+      "id": "191542584",
+      "name": "DEL 2",
+      "type": "787-8",
+      "hub": "VIE"
+    },
+    {
+      "id": "191687950",
+      "name": "LAD",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191527244",
+      "name": "LAX 2",
+      "type": "787-8",
+      "hub": "VIE"
+    },
+    {
+      "id": "191750830",
+      "name": "LPA",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191769468",
+      "name": "LPA2",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191657270",
+      "name": "MED",
+      "type": "A318-100",
+      "hub": "VIE"
+    },
+    {
+      "id": "192032411",
+      "name": "MPI",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191442268",
+      "name": "PSM",
+      "type": "A319-100",
+      "hub": "VIE"
+    },
+    {
+      "id": "192197657",
+      "name": "SHOP-717-200",
+      "type": "717-200",
+      "hub": "VIE"
+    },
+    {
+      "id": "191819419",
+      "name": "SHOP-A318-100",
+      "type": "A318-100",
+      "hub": "VIE"
+    },
+    {
+      "id": "191652592",
+      "name": "SHOP-A318-100",
+      "type": "A318-100",
+      "hub": "VIE"
+    },
+    {
+      "id": "191951731",
+      "name": "SHOP-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191815541",
+      "name": "SHOP-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191667737",
+      "name": "SHOP-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191652597",
+      "name": "SHOP-CONCORDE",
+      "type": "Concorde",
+      "hub": "VIE"
+    },
+    {
+      "id": "191951736",
+      "name": "SHOP-CRJ-1000",
+      "type": "CRJ-1000",
+      "hub": "VIE"
+    },
+    {
+      "id": "192365037",
+      "name": "SHOP-EMB-120",
+      "type": "EMB-120",
+      "hub": "VIE"
+    },
+    {
+      "id": "191652761",
+      "name": "SHOP-X2707",
+      "type": "X2707",
+      "hub": "VIE"
+    },
+    {
+      "id": "191617784",
+      "name": "SID",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191651023",
+      "name": "SID 2",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191651014",
+      "name": "SID 3",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191446269",
+      "name": "TAA",
+      "type": "737-MAX9",
+      "hub": "VIE"
+    },
+    {
+      "id": "191961933",
+      "name": "VIE-ANT1",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191606841",
+      "name": "VIE-CAB",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191462436",
+      "name": "VIE-CAB2",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "192075207",
+      "name": "VIE-CMN",
+      "type": "A330-200",
+      "hub": "VIE"
+    },
+    {
+      "id": "191605487",
+      "name": "VIE-DXB1",
+      "type": "A380-800",
+      "hub": "VIE"
+    },
+    {
+      "id": "191720819",
+      "name": "VIE-GRU1",
+      "type": "X350-1000ULR",
+      "hub": "VIE"
+    },
+    {
+      "id": "191604834",
+      "name": "VIE-GRU2",
+      "type": "X350-1000ULR",
+      "hub": "VIE"
+    },
+    {
+      "id": "191720816",
+      "name": "VIE-GRU3",
+      "type": "X350-1000ULR",
+      "hub": "VIE"
+    },
+    {
+      "id": "191485675",
+      "name": "VIE-LAD1",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191828953",
+      "name": "VIE-LAD2",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191878289",
+      "name": "VIE-LAD3",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "191961396",
+      "name": "VIE-LAD4-9",
+      "type": "787-10",
+      "hub": "VIE"
+    },
+    {
+      "id": "192075638",
+      "name": "VIE-LAX1",
+      "type": "A380-800",
+      "hub": "VIE"
+    },
+    {
+      "id": "191527245",
+      "name": "VIE-LAX2",
+      "type": "787-8",
+      "hub": "VIE"
+    },
+    {
+      "id": "191720818",
+      "name": "VIE-MPM1",
+      "type": "X350-1000ULR",
+      "hub": "VIE"
+    },
+    {
+      "id": "191720817",
+      "name": "VIE-MPM2",
+      "type": "X350-1000ULR",
+      "hub": "VIE"
+    },
+    {
+      "id": "191735097",
+      "name": "VIE-MPM3",
+      "type": "A330-300",
+      "hub": "VIE"
+    },
+    {
+      "id": "191664080",
+      "name": "VIE-MUC-0",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "192022494",
+      "name": "VIE-PMI",
+      "type": "A320neo",
+      "hub": "VIE"
+    },
+    {
+      "id": "192028495",
+      "name": "VIE-PSM1-PMI",
+      "type": "747SP",
+      "hub": "VIE"
+    }
+  ]
+}
