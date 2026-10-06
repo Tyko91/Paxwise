@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Paxwise</title>
+<title>Paxwise (test)</title>
 <style>
 html{overflow-anchor:none}
 :root{
@@ -198,13 +198,12 @@ details{margin-top:6px}
 .grid4 input{padding:8px 6px;font-size:15px}
 }
 
-.site-foot{text-align:center;padding:8px 12px 24px;font-size:11px}
-.site-foot a{color:var(--muted);text-decoration:none}
-.site-foot a:hover{color:var(--navy);text-decoration:underline}
+.test-banner{background:#b42318;color:#fff;text-align:center;font-weight:800;font-size:13px;letter-spacing:.06em;padding:8px 12px;border-bottom:2px solid #7a160f}
 </style>
 </head>
 <body>
-<header><h1>Paxwise</h1></header>
+<div class="test-banner">TEST — niet live</div>
+<header><h1>Paxwise (test)</h1></header>
 <main>
 <section>
 <h2>Mijn routes</h2>
@@ -334,7 +333,7 @@ details{margin-top:6px}
 <script>
 const HUBS={VIE:[48.1103,16.5697],GRU:[-23.4319,-46.4678],GIG:[-22.8099,-43.2506],BSB:[-15.8711,-47.9186],AMS:[52.3086,4.7639],FRA:[50.0333,8.5706],MUC:[48.3538,11.7861],DUS:[51.2895,6.7668],HAM:[53.6304,9.9882],BER:[52.3667,13.5033],LHR:[51.47,-0.4543],LGW:[51.1537,-0.1821],MAN:[53.3537,-2.275],CDG:[49.0097,2.5478],ORY:[48.7233,2.3794],MAD:[40.4983,-3.5676],BCN:[41.2971,2.0785],FCO:[41.8003,12.2389],MXP:[45.6306,8.7281],ZRH:[47.4581,8.5481],GVA:[46.2381,6.1089],BRU:[50.9014,4.4844],DUB:[53.4213,-6.2701],CPH:[55.618,12.656],ARN:[59.6519,17.9186],OSL:[60.1939,11.1004],HEL:[60.3172,24.9633],WAW:[52.1658,20.9671],PRG:[50.1008,14.26],BUD:[47.4298,19.2611],ATH:[37.9364,23.9445],IST:[41.2753,28.7519],LIS:[38.7742,-9.1342],DXB:[25.2532,55.3657],DOH:[25.2731,51.6081],AUH:[24.433,54.6511],CAI:[30.1219,31.4056],JNB:[-26.1392,28.246],CPT:[-33.9648,18.6017],JFK:[40.6398,-73.7789],EWR:[40.6925,-74.1687],ORD:[41.9786,-87.9048],ATL:[33.6367,-84.4281],MIA:[25.7959,-80.287],DFW:[32.8968,-97.038],LAX:[33.9425,-118.408],SFO:[37.6189,-122.375],YYZ:[43.6772,-79.6306],MEX:[19.4363,-99.0721],EZE:[-34.8222,-58.5358],SCL:[-33.393,-70.7858],BOG:[4.7016,-74.1469],LIM:[-12.0219,-77.1143],NRT:[35.7647,140.386],HND:[35.5523,139.78],ICN:[37.4691,126.451],PEK:[40.0801,116.585],PVG:[31.1434,121.805],HKG:[22.308,113.919],SIN:[1.3502,103.994],BKK:[13.6811,100.747],DEL:[28.5562,77.1],BOM:[19.0887,72.8679],SYD:[-33.9461,151.177],MEL:[-37.6733,144.843],AKL:[-37.0082,174.792]};
 
-const KEY="am_routes_v1", TKEY="am_types_v1", LAST="am_last_route_v1";
+const KEY="am_test_routes_v1", TKEY="am_test_types_v1", LAST="am_test_last_route_v1";
 let TYPE_ORDER=["X350-1000LR","A330-300","A320neo"];
 let TYPE_DEFAULTS={
 "X350-1000LR":{pax:480,payload:55,speed:950,range:18000},
@@ -1755,7 +1754,7 @@ function calc(){
 }
 try{
 loadTypes();
-try{if(!localStorage.getItem("am_types_lock_once_v1")){const el=document.getElementById("lockTypes");if(el){el.checked=true;saveTypes()}localStorage.setItem("am_types_lock_once_v1","1")}}catch(e){}
+try{if(!localStorage.getItem("am_test_types_lock_once_v1")){const el=document.getElementById("lockTypes");if(el){el.checked=true;saveTypes()}localStorage.setItem("am_test_types_lock_once_v1","1")}}catch(e){}
 renderTypes();
 bindNums();
 try{const ah=document.getElementById("autosaveHint");if(ah)setTimeout(()=>{ah.style.opacity="0";ah.style.transition="opacity .6s";setTimeout(()=>ah.remove(),700)},8000)}catch(e){}
@@ -1821,6 +1820,5 @@ syncWizard();
 })();
 }catch(e){console.error(e);alert("Fout: "+e.message)}
 </script>
-<p class="site-foot"><a href="test/">Test</a></p>
 </body>
 </html>
