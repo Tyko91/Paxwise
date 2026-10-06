@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-06T15:26:00+02:00",
+  "updated": "2026-10-06T17:57:25+02:00",
   "source": "https://www.airlines-manager.com/aircraft",
   "count": 95,
   "hubs": [
@@ -11,31 +11,51 @@
       "id": "192409645",
       "name": "BOOSTER-717-200",
       "type": "717-200",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 48,
+      "seatsJ": 24,
+      "seatsF": 10,
+      "cargo": 5
     },
     {
       "id": "192409646",
       "name": "BOOSTER-CN-235",
       "type": "CN-235",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 17,
+      "seatsJ": 8,
+      "seatsF": 3,
+      "cargo": 1
     },
     {
       "id": "192075203",
       "name": "CHLENGE-A320NEO",
       "type": "A320neo",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "192075202",
       "name": "CHLENGE-A320NEO",
       "type": "A320neo",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "192075201",
       "name": "CHLENGE-A320NEO",
       "type": "A320neo",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "192036370",
@@ -47,7 +67,11 @@
       "id": "192075634",
       "name": "CHLENGE-A350-900ULR",
       "type": "A350-900ULR",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 151,
+      "seatsJ": 81,
+      "seatsF": 34,
+      "cargo": 13
     },
     {
       "id": "192043990",
@@ -59,13 +83,21 @@
       "id": "192075641",
       "name": "CHLENGE-DH COMET 4",
       "type": "DH Comet 4",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 40,
+      "seatsJ": 21,
+      "seatsF": 9,
+      "cargo": 3
     },
     {
       "id": "192075640",
       "name": "CHLENGE-DH COMET 4",
       "type": "DH Comet 4",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 40,
+      "seatsJ": 21,
+      "seatsF": 9,
+      "cargo": 3
     },
     {
       "id": "191951663",
@@ -77,73 +109,121 @@
       "id": "192075637",
       "name": "CHLENGE-X-OVERTURE",
       "type": "X-Overture",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 29,
+      "seatsJ": 14,
+      "seatsF": 6,
+      "cargo": 4
     },
     {
       "id": "192075633",
       "name": "CHLENGE-X2707",
       "type": "X2707",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 97,
+      "seatsJ": 51,
+      "seatsF": 21,
+      "cargo": 8
     },
     {
       "id": "192075643",
       "name": "CHLENGE-X350-1000ULR",
       "type": "X350-1000ULR",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 161,
+      "seatsJ": 88,
+      "seatsF": 38,
+      "cargo": 35
     },
     {
       "id": "192075642",
       "name": "CHLENGE-X350-1000ULR",
       "type": "X350-1000ULR",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 161,
+      "seatsJ": 88,
+      "seatsF": 38,
+      "cargo": 35
     },
     {
       "id": "192075636",
       "name": "CHLENGE-X350-1000ULR",
       "type": "X350-1000ULR",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 161,
+      "seatsJ": 88,
+      "seatsF": 38,
+      "cargo": 35
     },
     {
       "id": "192075208",
       "name": "CHLENGE-X737-MAX10",
       "type": "X737-MAX10",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 78,
+      "seatsJ": 42,
+      "seatsF": 18,
+      "cargo": 7
     },
     {
       "id": "192075209",
       "name": "CHLENGE-X777-8",
       "type": "X777-8",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 151,
+      "seatsJ": 81,
+      "seatsF": 34,
+      "cargo": 25
     },
     {
       "id": "192075639",
       "name": "DXB",
       "type": "X380Plus",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 933,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0
     },
     {
       "id": "192075635",
       "name": "GRU-DUB",
       "type": "A330-300",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 440,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0
     },
     {
       "id": "192075204",
       "name": "GRU-DUB2",
       "type": "A330-300",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 440,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0
     },
     {
       "id": "192075210",
       "name": "GRU-DUB3",
       "type": "777-300ER",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 152,
+      "seatsJ": 144,
+      "seatsF": 33,
+      "cargo": 13
     },
     {
       "id": "192075212",
       "name": "GRU-DXB4",
       "type": "X777-9",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 158,
+      "seatsJ": 159,
+      "seatsF": 31,
+      "cargo": 14
     },
     {
       "id": "191878253",
@@ -161,19 +241,31 @@
       "id": "192075211",
       "name": "GRU-LAD2-GIG",
       "type": "A330-300",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 440,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 12
     },
     {
       "id": "192197713",
       "name": "GRU-LAD3-REC",
       "type": "DC8-73",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 103,
+      "seatsJ": 70,
+      "seatsF": 7,
+      "cargo": 6
     },
     {
       "id": "192197704",
       "name": "GRU-REC1",
       "type": "A220-300",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 88,
+      "seatsJ": 18,
+      "seatsF": 9,
+      "cargo": 1
     },
     {
       "id": "191829440",
@@ -209,13 +301,21 @@
       "id": "192197708",
       "name": "SHOP-A319-100LR",
       "type": "A319-100LR",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 57,
+      "seatsJ": 29,
+      "seatsF": 12,
+      "cargo": 4
     },
     {
       "id": "192152593",
       "name": "SHOP-A320NEO",
       "type": "A320neo",
-      "hub": "GRU"
+      "hub": "GRU",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "192003170",
@@ -251,7 +351,11 @@
       "id": "192131152",
       "name": "BOOSTER-737-800",
       "type": "737-800",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 63,
+      "seatsJ": 35,
+      "seatsF": 15,
+      "cargo": 8
     },
     {
       "id": "191719669",
@@ -299,19 +403,31 @@
       "id": "192075206",
       "name": "CHLENGE-A220-100",
       "type": "A220-100",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 48,
+      "seatsJ": 25,
+      "seatsF": 10,
+      "cargo": 5
     },
     {
       "id": "192075200",
       "name": "CHLENGE-A320NEO",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "192075205",
       "name": "CHLENGE-A330-300 dxb",
       "type": "A330-300",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 1,
+      "seatsJ": 106,
+      "seatsF": 59,
+      "cargo": 14
     },
     {
       "id": "191890247",
@@ -377,7 +493,11 @@
       "id": "192197657",
       "name": "SHOP-717-200",
       "type": "717-200",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 48,
+      "seatsJ": 24,
+      "seatsF": 10,
+      "cargo": 5
     },
     {
       "id": "191819419",
@@ -395,19 +515,31 @@
       "id": "191951731",
       "name": "SHOP-A320NEO",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "191815541",
       "name": "SHOP-A320NEO",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "191667737",
       "name": "SHOP-A320NEO",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6
     },
     {
       "id": "191652597",
@@ -425,7 +557,11 @@
       "id": "192365037",
       "name": "SHOP-EMB-120",
       "type": "EMB-120",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 12,
+      "seatsJ": 5,
+      "seatsF": 2,
+      "cargo": 1
     },
     {
       "id": "191652761",
@@ -479,7 +615,11 @@
       "id": "192075207",
       "name": "VIE-CMN",
       "type": "A330-200",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 338,
+      "seatsJ": 37,
+      "seatsF": 0,
+      "cargo": 2
     },
     {
       "id": "191605487",
@@ -533,7 +673,11 @@
       "id": "192075638",
       "name": "VIE-LAX1",
       "type": "A380-800",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 265,
+      "seatsJ": 240,
+      "seatsF": 37,
+      "cargo": 14
     },
     {
       "id": "191527245",
@@ -577,5 +721,7 @@
       "type": "747SP",
       "hub": "VIE"
     }
-  ]
+  ],
+  "seats_source": "AM /aircraft list scrape 2026-10-06 page snapshot (exact aircraft name only; later fleet pages not in scrape)",
+  "seats_count": 36
 }

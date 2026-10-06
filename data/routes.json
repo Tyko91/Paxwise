@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-06T17:45:35+02:00",
+  "updated": "2026-10-06T17:57:17+02:00",
   "source": "derived from data/schedules.json (use>0 aircraft flights_today)",
   "account": "Ing21",
   "server_date": "2026-10-06",
@@ -18,7 +18,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A330-300": "47:28"
+      },
       "useTypes": [
         "A330-300"
       ],
@@ -29,10 +31,10 @@
           "type": "A330-300",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "440",
+          "j": "0",
+          "f": "0",
+          "c": "0",
           "status": "on",
           "warn": false
         },
@@ -41,10 +43,10 @@
           "type": "A330-300",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "440",
+          "j": "0",
+          "f": "0",
+          "c": "0",
           "status": "on",
           "warn": false
         }
@@ -62,7 +64,10 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "747-8I": "32:58",
+        "DC8-73": "31:58"
+      },
       "useTypes": [
         "747-8I",
         "DC8-73"
@@ -86,10 +91,10 @@
           "type": "DC8-73",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "103",
+          "j": "70",
+          "f": "7",
+          "c": "6",
           "status": "on",
           "warn": false
         }
@@ -107,7 +112,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "X350-1000ULR": "37:28"
+      },
       "useTypes": [
         "X350-1000ULR"
       ],
@@ -175,7 +182,11 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "747-8I": "13:30",
+        "DC8-73": "13:00",
+        "A220-300": "13:58"
+      },
       "useTypes": [
         "747-8I",
         "DC8-73",
@@ -200,10 +211,10 @@
           "type": "DC8-73",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "103",
+          "j": "70",
+          "f": "7",
+          "c": "6",
           "status": "on",
           "warn": false
         },
@@ -212,10 +223,10 @@
           "type": "A220-300",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "88",
+          "j": "18",
+          "f": "9",
+          "c": "1",
           "status": "on",
           "warn": false
         }
@@ -233,7 +244,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A320neo": "12:28"
+      },
       "useTypes": [
         "A320neo"
       ],
@@ -265,7 +278,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "X2707": "15:00"
+      },
       "useTypes": [
         "X2707"
       ],
@@ -297,7 +312,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A330-200": "15:58"
+      },
       "useTypes": [
         "A330-200"
       ],
@@ -308,10 +325,10 @@
           "type": "A330-200",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "338",
+          "j": "37",
+          "f": "0",
+          "c": "2",
           "status": "on",
           "warn": false
         }
@@ -329,7 +346,11 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A330-300": "23:28",
+        "X2707": "11:58",
+        "A380-800": "22:58"
+      },
       "useTypes": [
         "A330-300",
         "X2707",
@@ -342,10 +363,10 @@
           "type": "A330-300",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "1",
+          "j": "106",
+          "f": "59",
+          "c": "14",
           "status": "on",
           "warn": false
         },
@@ -387,7 +408,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "X350-1000ULR": "46:58"
+      },
       "useTypes": [
         "X350-1000ULR"
       ],
@@ -443,7 +466,10 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A320neo": "34:28",
+        "787-10": "31:58"
+      },
       "useTypes": [
         "A320neo",
         "787-10"
@@ -512,7 +538,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A380-800": "47:58"
+      },
       "useTypes": [
         "A380-800"
       ],
@@ -523,10 +551,10 @@
           "type": "A380-800",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "265",
+          "j": "240",
+          "f": "37",
+          "c": "14",
           "status": "on",
           "warn": false
         }
@@ -544,7 +572,10 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A320neo": "20:58",
+        "A318-100": "21:28"
+      },
       "useTypes": [
         "A320neo",
         "A318-100"
@@ -592,10 +623,10 @@
           "type": "A320neo",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "67",
+          "j": "36",
+          "f": "15",
+          "c": "6",
           "status": "on",
           "warn": false
         }
@@ -613,7 +644,10 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A318-100": "20:28",
+        "A380-800": "18:58"
+      },
       "useTypes": [
         "A318-100",
         "A380-800"
@@ -670,7 +704,10 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A330-300": "42:58",
+        "X350-1000ULR": "39:30"
+      },
       "useTypes": [
         "A330-300",
         "X350-1000ULR"
@@ -727,7 +764,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A320neo": "5:58"
+      },
       "useTypes": [
         "A320neo"
       ],
@@ -759,7 +798,10 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "747SP": "10:30",
+        "A320neo": "10:58"
+      },
       "useTypes": [
         "747SP",
         "A320neo"
@@ -804,7 +846,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "747SP": "32:28"
+      },
       "useTypes": [
         "747SP",
         "A320neo"
@@ -849,7 +893,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "A320neo": "27:58"
+      },
       "useTypes": [
         "A320neo"
       ],
@@ -860,10 +906,10 @@
           "type": "A320neo",
           "wk": "1",
           "start": "0",
-          "y": "",
-          "j": "",
-          "f": "",
-          "c": "",
+          "y": "67",
+          "j": "36",
+          "f": "15",
+          "c": "6",
           "status": "on",
           "warn": false
         },
@@ -929,7 +975,9 @@
       "qC": "",
       "lockRoute": false,
       "lockAsk": false,
-      "retByType": {},
+      "retByType": {
+        "X2707": "8:28"
+      },
       "useTypes": [
         "X2707"
       ],
@@ -949,5 +997,7 @@
         }
       ]
     }
-  ]
+  ],
+  "seats_note": "y/j/f/c from AM fleet scrape by aircraft name (10/46 kisten); only page-1 of fleet list had seats in scrape",
+  "ret_note": "retByType = 2× median one-way block from schedules departure→arrival (HH:MM), per type on route"
 }
