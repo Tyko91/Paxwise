@@ -1,0 +1,953 @@
+{
+  "updated": "2026-10-06T17:45:00+02:00",
+  "source": "derived from data/schedules.json (use>0 aircraft flights_today)",
+  "account": "Ing21",
+  "server_date": "2026-10-06",
+  "count": 19,
+  "km_demand_note": "km and demand (qY/qJ/qF/qC) not present in schedules scrape; left empty for user",
+  "routes": [
+    {
+      "id": "r-GRU-DUB",
+      "route": "GRU–DUB",
+      "from": "GRU",
+      "to": "DUB",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A330-300"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "GRU-DUB",
+          "type": "A330-300",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "GRU-DUB2",
+          "type": "A330-300",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-GRU-LAD",
+      "route": "GRU–LAD",
+      "from": "GRU",
+      "to": "LAD",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "747-8I",
+        "DC8-73"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "GRU-LAD1-REC",
+          "type": "747-8I",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "GRU-LAD3-REC",
+          "type": "DC8-73",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-GRU-MPM",
+      "route": "GRU–MPM",
+      "from": "GRU",
+      "to": "MPM",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "X350-1000ULR"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "MPM2",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "MPM",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "MPM4",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "MPM3",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-GRU-REC",
+      "route": "GRU–REC",
+      "from": "GRU",
+      "to": "REC",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "747-8I",
+        "DC8-73",
+        "A220-300"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "GRU-LAD1-REC",
+          "type": "747-8I",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "GRU-LAD3-REC",
+          "type": "DC8-73",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "GRU-REC1",
+          "type": "A220-300",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-AYT",
+      "route": "VIE–AYT",
+      "from": "VIE",
+      "to": "AYT",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A320neo"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-ANT1",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-BOM",
+      "route": "VIE–BOM",
+      "from": "VIE",
+      "to": "BOM",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "X2707"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "SHOP-X2707",
+          "type": "X2707",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-CMN",
+      "route": "VIE–CMN",
+      "from": "VIE",
+      "to": "CMN",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A330-200"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-CMN",
+          "type": "A330-200",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-DXB",
+      "route": "VIE–DXB",
+      "from": "VIE",
+      "to": "DXB",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A330-300",
+        "X2707",
+        "A380-800"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "CHLENGE-A330-300 dxb",
+          "type": "A330-300",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "SHOP-X2707",
+          "type": "X2707",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-DXB1",
+          "type": "A380-800",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-GRU",
+      "route": "VIE–GRU",
+      "from": "VIE",
+      "to": "GRU",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "X350-1000ULR"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-GRU2",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-GRU1",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-GRU3",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-LAD",
+      "route": "VIE–LAD",
+      "from": "VIE",
+      "to": "LAD",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A320neo",
+        "787-10"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-LAD3",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-LAD2",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-LAD1",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-LAD4-9",
+          "type": "787-10",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-LAX",
+      "route": "VIE–LAX",
+      "from": "VIE",
+      "to": "LAX",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A380-800"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-LAX1",
+          "type": "A380-800",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-LPA",
+      "route": "VIE–LPA",
+      "from": "VIE",
+      "to": "LPA",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A320neo",
+        "A318-100"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "LPA2",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "LPA",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "SHOP-A318-100",
+          "type": "A318-100",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "SHOP-A320NEO",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-MED",
+      "route": "VIE–MED",
+      "from": "VIE",
+      "to": "MED",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A318-100",
+        "A380-800"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "MED",
+          "type": "A318-100",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-DXB1",
+          "type": "A380-800",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "SHOP-A318-100",
+          "type": "A318-100",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-MPM",
+      "route": "VIE–MPM",
+      "from": "VIE",
+      "to": "MPM",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A330-300",
+        "X350-1000ULR"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-MPM3",
+          "type": "A330-300",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-MPM2",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-MPM1",
+          "type": "X350-1000ULR",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-MUC",
+      "route": "VIE–MUC",
+      "from": "VIE",
+      "to": "MUC",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A320neo"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-MUC-0",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-PMI",
+      "route": "VIE–PMI",
+      "from": "VIE",
+      "to": "PMI",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "747SP",
+        "A320neo"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-PSM1-PMI",
+          "type": "747SP",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "VIE-PMI",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-PSM",
+      "route": "VIE–PSM",
+      "from": "VIE",
+      "to": "PSM",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "747SP",
+        "A320neo"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "VIE-PSM1-PMI",
+          "type": "747SP",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "CAB",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-SID",
+      "route": "VIE–SID",
+      "from": "VIE",
+      "to": "SID",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "A320neo"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "SHOP-A320NEO",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "SID 3",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "SID",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "CH4 -MIS2",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        },
+        {
+          "name": "SID 2",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    },
+    {
+      "id": "r-VIE-TLV",
+      "route": "VIE–TLV",
+      "from": "VIE",
+      "to": "TLV",
+      "km": "",
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [
+        "X2707"
+      ],
+      "planPath": "keep",
+      "fleet": [
+        {
+          "name": "SHOP-X2707",
+          "type": "X2707",
+          "wk": "1",
+          "start": "0",
+          "y": "",
+          "j": "",
+          "f": "",
+          "c": "",
+          "status": "on",
+          "warn": false
+        }
+      ]
+    }
+  ]
+}
