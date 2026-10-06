@@ -1,0 +1,1541 @@
+{
+  "updated": "2026-10-06T17:45:00+02:00",
+  "source": "https://www.airlines-manager.com/aircraft",
+  "account": "Ing21",
+  "server_date": "2026-10-06",
+  "read_only": true,
+  "count": 66,
+  "count_with_flights_today": 41,
+  "count_empty_schedule": 25,
+  "routes_for_paxwise": [
+    "GRU–DUB",
+    "GRU–LAD",
+    "GRU–MPM",
+    "GRU–REC",
+    "VIE–AYT",
+    "VIE–BOM",
+    "VIE–CMN",
+    "VIE–DXB",
+    "VIE–GRU",
+    "VIE–LAD",
+    "VIE–LAX",
+    "VIE–LPA",
+    "VIE–MED",
+    "VIE–MPM",
+    "VIE–MUC",
+    "VIE–PMI",
+    "VIE–PSM",
+    "VIE–SID",
+    "VIE–TLV"
+  ],
+  "aircraft": [
+    {
+      "id": "192075635",
+      "name": "GRU-DUB",
+      "type": "A330-300",
+      "hub": "GRU",
+      "use_pct": 100,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075635/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "DUB",
+          "to_name": "DUB Dublin",
+          "departure": "00h00",
+          "arrival": "23h44",
+          "passengers": "880"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191769468",
+      "name": "LPA2",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 100,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191769468/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "19h30",
+          "arrival": "06h00",
+          "passengers": "326"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "09h00",
+          "arrival": "19h29",
+          "passengers": "326"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "192075205",
+      "name": "CHLENGE-A330-300 dxb",
+      "type": "A330-300",
+      "hub": "VIE",
+      "use_pct": 99,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075205/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "DXB",
+          "to_name": "DXB Dubai",
+          "departure": "11h45",
+          "arrival": "23h29",
+          "passengers": "32"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "DXB",
+          "to_name": "DXB Dubai",
+          "departure": "00h00",
+          "arrival": "11h44",
+          "passengers": "332"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191735097",
+      "name": "VIE-MPM3",
+      "type": "A330-300",
+      "hub": "VIE",
+      "use_pct": 99,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191735097/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MPM",
+          "to_name": "MPM Maputo",
+          "departure": "07h15",
+          "arrival": "04h44",
+          "passengers": "743"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "192075638",
+      "name": "VIE-LAX1",
+      "type": "A380-800",
+      "hub": "VIE",
+      "use_pct": 98,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075638/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LAX",
+          "to_name": "LAX Los Angeles (CA)",
+          "departure": "00h00",
+          "arrival": "23h59",
+          "passengers": "1084"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "192075634",
+      "name": "CHLENGE-A350-900ULR",
+      "type": "A350-900ULR",
+      "hub": "GRU",
+      "use_pct": 98,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075634/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "192075202",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "GRU",
+      "use_pct": 98,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075202/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191604834",
+      "name": "VIE-GRU2",
+      "type": "X350-1000ULR",
+      "hub": "VIE",
+      "use_pct": 98,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191604834/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "GRU",
+          "to_name": "GRU São Paulo (SP)",
+          "departure": "11h30",
+          "arrival": "10h59",
+          "passengers": "960"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191720819",
+      "name": "VIE-GRU1",
+      "type": "X350-1000ULR",
+      "hub": "VIE",
+      "use_pct": 97,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191720819/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "GRU",
+          "to_name": "GRU São Paulo (SP)",
+          "departure": "19h30",
+          "arrival": "19h00",
+          "passengers": "608"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191720817",
+      "name": "VIE-MPM2",
+      "type": "X350-1000ULR",
+      "hub": "VIE",
+      "use_pct": 97,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191720817/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MPM",
+          "to_name": "MPM Maputo",
+          "departure": "16h15",
+          "arrival": "12h00",
+          "passengers": "960"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191720816",
+      "name": "VIE-GRU3",
+      "type": "X350-1000ULR",
+      "hub": "VIE",
+      "use_pct": 97,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191720816/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "GRU",
+          "to_name": "GRU São Paulo (SP)",
+          "departure": "11h30",
+          "arrival": "10h59",
+          "passengers": "646"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191652527",
+      "name": null,
+      "type": null,
+      "hub": null,
+      "use_pct": 97,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191652527/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "192075207",
+      "name": "VIE-CMN",
+      "type": "A330-200",
+      "hub": "VIE",
+      "use_pct": 96,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075207/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "CMN",
+          "to_name": "CMN Casablanca",
+          "departure": "16h00",
+          "arrival": "00h00",
+          "passengers": "750"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "CMN",
+          "to_name": "CMN Casablanca",
+          "departure": "08h00",
+          "arrival": "15h59",
+          "passengers": "750"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "CMN",
+          "to_name": "CMN Casablanca",
+          "departure": "00h00",
+          "arrival": "07h59",
+          "passengers": "750"
+        }
+      ],
+      "flight_count_today": 3
+    },
+    {
+      "id": "192075206",
+      "name": "CHLENGE-A220-100",
+      "type": "A220-100",
+      "hub": "VIE",
+      "use_pct": 96,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075206/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "192075204",
+      "name": "GRU-DUB2",
+      "type": "A330-300",
+      "hub": "GRU",
+      "use_pct": 96,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075204/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "DUB",
+          "to_name": "DUB Dublin",
+          "departure": "00h00",
+          "arrival": "23h44",
+          "passengers": "880"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "192004822",
+      "name": "GRU-LAD1-REC",
+      "type": "747-8I",
+      "hub": "GRU",
+      "use_pct": 96,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192004822/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "REC",
+          "to_name": "REC Recife (PE)",
+          "departure": "16h30",
+          "arrival": "23h15",
+          "passengers": "1460"
+        },
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "LAD",
+          "to_name": "LAD Luanda",
+          "departure": "00h00",
+          "arrival": "16h29",
+          "passengers": "1460"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191961933",
+      "name": "VIE-ANT1",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 96,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191961933/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "AYT",
+          "to_name": "AYT Antalya",
+          "departure": "19h45",
+          "arrival": "02h00",
+          "passengers": "390"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "AYT",
+          "to_name": "AYT Antalya",
+          "departure": "13h30",
+          "arrival": "19h44",
+          "passengers": "390"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "AYT",
+          "to_name": "AYT Antalya",
+          "departure": "07h15",
+          "arrival": "13h29",
+          "passengers": "390"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "AYT",
+          "to_name": "AYT Antalya",
+          "departure": "01h00",
+          "arrival": "07h14",
+          "passengers": "390"
+        }
+      ],
+      "flight_count_today": 4
+    },
+    {
+      "id": "191657270",
+      "name": "MED",
+      "type": "A318-100",
+      "hub": "VIE",
+      "use_pct": 95,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191657270/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MED",
+          "to_name": "MED Medina",
+          "departure": "10h15",
+          "arrival": "20h29",
+          "passengers": "163"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MED",
+          "to_name": "MED Medina",
+          "departure": "00h00",
+          "arrival": "10h14",
+          "passengers": "168"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191951662",
+      "name": null,
+      "type": null,
+      "hub": null,
+      "use_pct": 94,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191951662/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191951660",
+      "name": null,
+      "type": null,
+      "hub": null,
+      "use_pct": 94,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191951660/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191829441",
+      "name": "MPM2",
+      "type": "X350-1000ULR",
+      "hub": "GRU",
+      "use_pct": 94,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191829441/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "MPM",
+          "to_name": "MPM Maputo",
+          "departure": "05h15",
+          "arrival": "23h59",
+          "passengers": "960"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191829440",
+      "name": "MPM",
+      "type": "X350-1000ULR",
+      "hub": "GRU",
+      "use_pct": 94,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191829440/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "MPM",
+          "to_name": "MPM Maputo",
+          "departure": "05h15",
+          "arrival": "23h59",
+          "passengers": "960"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "192197713",
+      "name": "GRU-LAD3-REC",
+      "type": "DC8-73",
+      "hub": "GRU",
+      "use_pct": 93,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192197713/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "REC",
+          "to_name": "REC Recife (PE)",
+          "departure": "16h00",
+          "arrival": "22h30",
+          "passengers": "360"
+        },
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "LAD",
+          "to_name": "LAD Luanda",
+          "departure": "00h00",
+          "arrival": "15h59",
+          "passengers": "360"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191750830",
+      "name": "LPA",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 93,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191750830/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "15h00",
+          "arrival": "01h30",
+          "passengers": "282"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "04h30",
+          "arrival": "14h59",
+          "passengers": "282"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191667737",
+      "name": "SHOP-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 93,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191667737/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "18h00",
+          "arrival": "08h00",
+          "passengers": "236"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "04h00",
+          "arrival": "17h59",
+          "passengers": "222"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191606841",
+      "name": "VIE-CAB",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 93,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191606841/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191900836",
+      "name": "SHOP-MD-83",
+      "type": "MD-83",
+      "hub": "GRU",
+      "use_pct": 92,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191900836/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191878289",
+      "name": "VIE-LAD3",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 92,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191878289/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LAD",
+          "to_name": "LAD Luanda",
+          "departure": "10h30",
+          "arrival": "03h44",
+          "passengers": "390"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191828953",
+      "name": "VIE-LAD2",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 92,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191828953/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LAD",
+          "to_name": "LAD Luanda",
+          "departure": "21h30",
+          "arrival": "14h45",
+          "passengers": "390"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LAD",
+          "to_name": "LAD Luanda",
+          "departure": "04h15",
+          "arrival": "21h29",
+          "passengers": "390"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191542584",
+      "name": "DEL 2",
+      "type": "787-8",
+      "hub": "VIE",
+      "use_pct": 92,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191542584/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191951663",
+      "name": "CHLENGE-M-100",
+      "type": "M-100",
+      "hub": "GRU",
+      "use_pct": 91,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191951663/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191829443",
+      "name": "MPM4",
+      "type": "X350-1000ULR",
+      "hub": "GRU",
+      "use_pct": 91,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191829443/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "MPM",
+          "to_name": "MPM Maputo",
+          "departure": "09h00",
+          "arrival": "03h44",
+          "passengers": "576"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191652761",
+      "name": "SHOP-X2707",
+      "type": "X2707",
+      "hub": "VIE",
+      "use_pct": 91,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191652761/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "BOM",
+          "to_name": "BOM Mumbai",
+          "departure": "16h15",
+          "arrival": "23h45",
+          "passengers": "354"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "TLV",
+          "to_name": "TLV Tel Aviv",
+          "departure": "12h00",
+          "arrival": "16h14",
+          "passengers": "354"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "DXB",
+          "to_name": "DXB Dubai",
+          "departure": "06h00",
+          "arrival": "11h59",
+          "passengers": "354"
+        }
+      ],
+      "flight_count_today": 3
+    },
+    {
+      "id": "191605487",
+      "name": "VIE-DXB1",
+      "type": "A380-800",
+      "hub": "VIE",
+      "use_pct": 90,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191605487/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MED",
+          "to_name": "MED Medina",
+          "departure": "14h30",
+          "arrival": "23h59",
+          "passengers": "1638"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "DXB",
+          "to_name": "DXB Dubai",
+          "departure": "03h00",
+          "arrival": "14h29",
+          "passengers": "1674"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "192028495",
+      "name": "VIE-PSM1-PMI",
+      "type": "747SP",
+      "hub": "VIE",
+      "use_pct": 89,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192028495/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "PMI",
+          "to_name": "PMI Palma Mallorca",
+          "departure": "16h15",
+          "arrival": "21h30",
+          "passengers": "378"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "PSM",
+          "to_name": "PSM Portsmouth (NH)",
+          "departure": "00h00",
+          "arrival": "16h14",
+          "passengers": "378"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191664080",
+      "name": "VIE-MUC-0",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 89,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191664080/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MUC",
+          "to_name": "MUC Munich",
+          "departure": "18h00",
+          "arrival": "21h00",
+          "passengers": "298"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MUC",
+          "to_name": "MUC Munich",
+          "departure": "15h00",
+          "arrival": "18h00",
+          "passengers": "298"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MUC",
+          "to_name": "MUC Munich",
+          "departure": "12h00",
+          "arrival": "14h59",
+          "passengers": "298"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MUC",
+          "to_name": "MUC Munich",
+          "departure": "09h00",
+          "arrival": "11h59",
+          "passengers": "298"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MUC",
+          "to_name": "MUC Munich",
+          "departure": "06h00",
+          "arrival": "08h59",
+          "passengers": "298"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MUC",
+          "to_name": "MUC Munich",
+          "departure": "03h00",
+          "arrival": "05h59",
+          "passengers": "298"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MUC",
+          "to_name": "MUC Munich",
+          "departure": "00h00",
+          "arrival": "02h59",
+          "passengers": "298"
+        }
+      ],
+      "flight_count_today": 7
+    },
+    {
+      "id": "192075643",
+      "name": "CHLENGE-X350-1000ULR",
+      "type": "X350-1000ULR",
+      "hub": "GRU",
+      "use_pct": 87,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075643/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191652592",
+      "name": "SHOP-A318-100",
+      "type": "A318-100",
+      "hub": "VIE",
+      "use_pct": 87,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191652592/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MED",
+          "to_name": "MED Medina",
+          "departure": "10h15",
+          "arrival": "20h29",
+          "passengers": "174"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MED",
+          "to_name": "MED Medina",
+          "departure": "00h00",
+          "arrival": "10h14",
+          "passengers": "174"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191446269",
+      "name": "TAA",
+      "type": "737-MAX9",
+      "hub": "VIE",
+      "use_pct": 87,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191446269/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "192197708",
+      "name": "SHOP-A319-100LR",
+      "type": "A319-100LR",
+      "hub": "GRU",
+      "use_pct": 87,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192197708/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "192197704",
+      "name": "GRU-REC1",
+      "type": "A220-300",
+      "hub": "GRU",
+      "use_pct": 87,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192197704/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "REC",
+          "to_name": "REC Recife (PE)",
+          "departure": "14h00",
+          "arrival": "20h59",
+          "passengers": "230"
+        },
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "REC",
+          "to_name": "REC Recife (PE)",
+          "departure": "07h00",
+          "arrival": "13h59",
+          "passengers": "230"
+        },
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "REC",
+          "to_name": "REC Recife (PE)",
+          "departure": "00h00",
+          "arrival": "06h59",
+          "passengers": "230"
+        }
+      ],
+      "flight_count_today": 3
+    },
+    {
+      "id": "191707216",
+      "name": "CAB",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 85,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191707216/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "PSM",
+          "to_name": "PSM Portsmouth (NH)",
+          "departure": "00h00",
+          "arrival": "17h29",
+          "passengers": "390"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191951661",
+      "name": null,
+      "type": null,
+      "hub": null,
+      "use_pct": 83,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191951661/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191829442",
+      "name": "MPM3",
+      "type": "X350-1000ULR",
+      "hub": "GRU",
+      "use_pct": 83,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191829442/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "GRU",
+          "from_name": "GRU São Paulo (SP)",
+          "to": "MPM",
+          "to_name": "MPM Maputo",
+          "departure": "09h00",
+          "arrival": "03h44",
+          "passengers": "960"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191819419",
+      "name": "SHOP-A318-100",
+      "type": "A318-100",
+      "hub": "VIE",
+      "use_pct": 83,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191819419/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "01h00",
+          "arrival": "11h44",
+          "passengers": "168"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191720818",
+      "name": "VIE-MPM1",
+      "type": "X350-1000ULR",
+      "hub": "VIE",
+      "use_pct": 82,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191720818/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "MPM",
+          "to_name": "MPM Maputo",
+          "departure": "00h00",
+          "arrival": "19h44",
+          "passengers": "960"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "192022494",
+      "name": "VIE-PMI",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 78,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192022494/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "PMI",
+          "to_name": "PMI Palma Mallorca",
+          "departure": "16h30",
+          "arrival": "22h00",
+          "passengers": "374"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "PMI",
+          "to_name": "PMI Palma Mallorca",
+          "departure": "11h00",
+          "arrival": "16h29",
+          "passengers": "374"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "PMI",
+          "to_name": "PMI Palma Mallorca",
+          "departure": "05h30",
+          "arrival": "10h59",
+          "passengers": "374"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "PMI",
+          "to_name": "PMI Palma Mallorca",
+          "departure": "00h00",
+          "arrival": "05h29",
+          "passengers": "374"
+        }
+      ],
+      "flight_count_today": 4
+    },
+    {
+      "id": "192075201",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "GRU",
+      "use_pct": 75,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075201/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191951731",
+      "name": "SHOP-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 75,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191951731/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "12h45",
+          "arrival": "23h14",
+          "passengers": "236"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "01h00",
+          "arrival": "11h29",
+          "passengers": "236"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191719669",
+      "name": "CAB",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 72,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191719669/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191651014",
+      "name": "SID 3",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 72,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191651014/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "21h00",
+          "arrival": "11h00",
+          "passengers": "250"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "07h00",
+          "arrival": "20h59",
+          "passengers": "172"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191485675",
+      "name": "VIE-LAD1",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 72,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191485675/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LAD",
+          "to_name": "LAD Luanda",
+          "departure": "03h45",
+          "arrival": "20h59",
+          "passengers": "390"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191687950",
+      "name": "LAD",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 69,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191687950/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191961396",
+      "name": "VIE-LAD4-9",
+      "type": "787-10",
+      "hub": "VIE",
+      "use_pct": 66,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191961396/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LAD",
+          "to_name": "LAD Luanda",
+          "departure": "00h00",
+          "arrival": "15h59",
+          "passengers": "626"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191617784",
+      "name": "SID",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 61,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191617784/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "20h15",
+          "arrival": "10h15",
+          "passengers": "390"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "06h15",
+          "arrival": "20h14",
+          "passengers": "390"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "192075203",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "GRU",
+      "use_pct": 48,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075203/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191815541",
+      "name": "SHOP-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 33,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191815541/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "13h30",
+          "arrival": "23h59",
+          "passengers": "160"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "LPA",
+          "to_name": "LPA Las Palmas",
+          "departure": "03h00",
+          "arrival": "13h29",
+          "passengers": "236"
+        }
+      ],
+      "flight_count_today": 2
+    },
+    {
+      "id": "191446326",
+      "name": "CH4 -MIS2",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 33,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191446326/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "02h30",
+          "arrival": "16h29",
+          "passengers": "236"
+        }
+      ],
+      "flight_count_today": 1
+    },
+    {
+      "id": "191462417",
+      "name": "CH1 BOM",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 16,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191462417/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191652597",
+      "name": "SHOP-CONCORDE",
+      "type": "Concorde",
+      "hub": "VIE",
+      "use_pct": 11,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191652597/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "192075200",
+      "name": "CHLENGE-A320NEO",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 10,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192075200/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "192032411",
+      "name": "MPI",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 9,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/192032411/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191580009",
+      "name": "CH5",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 6,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191580009/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191890247",
+      "name": "CMN3",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 0,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191890247/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191878254",
+      "name": "CHLENGE-737-MAX9",
+      "type": "737-MAX9",
+      "hub": "VIE",
+      "use_pct": 0,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191878254/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [],
+      "flight_count_today": 0
+    },
+    {
+      "id": "191651023",
+      "name": "SID 2",
+      "type": "A320neo",
+      "hub": "VIE",
+      "use_pct": 0,
+      "details_url": "https://www.airlines-manager.com/aircraft/show/191651023/flights",
+      "schedule_date": "2026-10-06",
+      "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
+      "flights_today": [
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "21h00",
+          "arrival": "11h00",
+          "passengers": "390"
+        },
+        {
+          "from": "VIE",
+          "from_name": "VIE Vienna",
+          "to": "SID",
+          "to_name": "SID Sal",
+          "departure": "07h00",
+          "arrival": "20h59",
+          "passengers": "390"
+        }
+      ],
+      "flight_count_today": 2
+    }
+  ]
+}
