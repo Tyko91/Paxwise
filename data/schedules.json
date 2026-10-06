@@ -271,7 +271,7 @@
     },
     {
       "id": "191652527",
-      "name": null,
+      "name": "unknown (details page: aircraft does not belong to you)",
       "type": null,
       "hub": null,
       "use_pct": 97,
@@ -279,7 +279,8 @@
       "schedule_date": "2026-10-06",
       "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
       "flights_today": [],
-      "flight_count_today": 0
+      "flight_count_today": 0,
+      "note": "details page refused: This aircraft doesn't belong to you"
     },
     {
       "id": "192075207",
@@ -468,7 +469,7 @@
     },
     {
       "id": "191951662",
-      "name": null,
+      "name": "unknown (details page: aircraft does not belong to you)",
       "type": null,
       "hub": null,
       "use_pct": 94,
@@ -476,11 +477,12 @@
       "schedule_date": "2026-10-06",
       "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
       "flights_today": [],
-      "flight_count_today": 0
+      "flight_count_today": 0,
+      "note": "details page refused: This aircraft doesn't belong to you"
     },
     {
       "id": "191951660",
-      "name": null,
+      "name": "unknown (details page: aircraft does not belong to you)",
       "type": null,
       "hub": null,
       "use_pct": 94,
@@ -488,7 +490,8 @@
       "schedule_date": "2026-10-06",
       "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
       "flights_today": [],
-      "flight_count_today": 0
+      "flight_count_today": 0,
+      "note": "details page refused: This aircraft doesn't belong to you"
     },
     {
       "id": "191829441",
@@ -1059,7 +1062,7 @@
     },
     {
       "id": "191951661",
-      "name": null,
+      "name": "unknown (details page: aircraft does not belong to you)",
       "type": null,
       "hub": null,
       "use_pct": 83,
@@ -1067,7 +1070,8 @@
       "schedule_date": "2026-10-06",
       "schedule_window": "D-6..D+6 (2026-09-30..2026-10-12); flights_today is the D0 list. Weekly pattern repeats unless extra_dates.",
       "flights_today": [],
-      "flight_count_today": 0
+      "flight_count_today": 0,
+      "note": "details page refused: This aircraft doesn't belong to you"
     },
     {
       "id": "191829442",
@@ -1537,5 +1541,6 @@
       ],
       "flight_count_today": 2
     }
-  ]
+  ],
+  "notes": "Four high-use aircraft returned \"This aircraft doesn't belong to you\" on the details page, so name/type/hub and flights could not be read. All other use>0 aircraft were opened."
 }
