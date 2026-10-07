@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-06T17:57:25+02:00",
+  "updated": "2026-10-07T16:15:00+02:00",
   "source": "https://www.airlines-manager.com/aircraft",
   "count": 95,
   "hubs": [
@@ -265,7 +265,10 @@
       "seatsY": 88,
       "seatsJ": 18,
       "seatsF": 9,
-      "cargo": 1
+      "cargo": 1,
+      "range_km": 6297,
+      "speed_kmh": 850,
+      "use_pct": 87
     },
     {
       "id": "191829440",

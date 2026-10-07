@@ -1,6 +1,6 @@
 {
-  "updated": "2026-10-06T17:57:17+02:00",
-  "source": "derived from data/schedules.json (use>0 aircraft flights_today)",
+  "updated": "2026-10-07T16:15:00+02:00",
+  "source": "airlines-manager.com read-only test (GRU-REC1)",
   "account": "Ing21",
   "server_date": "2026-10-06",
   "count": 19,
@@ -175,17 +175,17 @@
       "route": "GRU–REC",
       "from": "GRU",
       "to": "REC",
-      "km": 1000,
-      "qY": "",
-      "qJ": "",
-      "qF": "",
-      "qC": "",
+      "km": 2100,
+      "qY": "2191",
+      "qJ": "244",
+      "qF": "66",
+      "qC": "20",
       "lockRoute": false,
       "lockAsk": false,
       "retByType": {
         "747-8I": "13:30",
         "DC8-73": "13:00",
-        "A220-300": "13:58"
+        "A220-300": "07:00"
       },
       "useTypes": [
         "747-8I",
@@ -221,16 +221,19 @@
         {
           "name": "GRU-REC1",
           "type": "A220-300",
-          "wk": "1",
+          "wk": "21",
           "start": "0",
           "y": "88",
           "j": "18",
           "f": "9",
           "c": "1",
           "status": "on",
-          "warn": false
+          "warn": false,
+          "amId": "192197704"
         }
-      ]
+      ],
+      "lineId": "70889911",
+      "amNote": "Testimport 2026-10-07: vraag is dagtotaal hele route (3 kisten). Rooster GRU-REC1 geverifieerd elke dag 00/07/14."
     },
     {
       "id": "r-VIE-AYT",

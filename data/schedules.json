@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-06T17:45:00+02:00",
+  "updated": "2026-10-07T16:15:00+02:00",
   "source": "https://www.airlines-manager.com/aircraft",
   "account": "Ing21",
   "server_date": "2026-10-06",
@@ -1010,33 +1010,30 @@
       "flights_today": [
         {
           "from": "GRU",
-          "from_name": "GRU São Paulo (SP)",
           "to": "REC",
-          "to_name": "REC Recife (PE)",
-          "departure": "14h00",
-          "arrival": "20h59",
-          "passengers": "230"
-        },
-        {
-          "from": "GRU",
-          "from_name": "GRU São Paulo (SP)",
-          "to": "REC",
-          "to_name": "REC Recife (PE)",
-          "departure": "07h00",
-          "arrival": "13h59",
-          "passengers": "230"
-        },
-        {
-          "from": "GRU",
-          "from_name": "GRU São Paulo (SP)",
-          "to": "REC",
-          "to_name": "REC Recife (PE)",
           "departure": "00h00",
-          "arrival": "06h59",
+          "arrival": "07h00",
+          "passengers": "230"
+        },
+        {
+          "from": "GRU",
+          "to": "REC",
+          "departure": "07h00",
+          "arrival": "14h00",
+          "passengers": "230"
+        },
+        {
+          "from": "GRU",
+          "to": "REC",
+          "departure": "14h00",
+          "arrival": "21h00",
           "passengers": "230"
         }
       ],
-      "flight_count_today": 3
+      "flight_count_today": 3,
+      "schedule_complete_week": true,
+      "week_pattern": "daily x3 @ 00/07/14 (7h blocks)",
+      "flights_per_day": 3
     },
     {
       "id": "191707216",
