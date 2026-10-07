@@ -308,10 +308,18 @@ details{margin-top:6px}
 <div class="plan-path" id="planKeep" hidden>
 <p class="tiny" id="mixRestTip" style="margin:0 0 10px;color:#6b7280">Vul je game-retourvluchten hieronder in. Die blijven staan; daarna vul je alleen het tekort bij.</p>
 <button type="button" class="ghost" id="btnAddKist" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
-<button type="button" class="ok" id="btnAddFromFleet" onclick="addKistFromFleet()">+ Uit mijn vloot toewijzen</button>
 </div>
 <div class="plan-path" id="planNew" hidden>
 <p class="tiny" id="mixNewTip" style="margin:0 0 10px;color:#6b7280">Nieuwe vlootplanning met de geselecteerde toestellen. Eerdere vlootkaarten zijn vervangen.</p>
+</div>
+<div id="fromFleetBar" style="margin:0 0 10px" hidden>
+<button type="button" class="ok" id="btnAddFromFleet">+ Uit mijn vloot toewijzen</button>
+<div id="fromFleetPick" hidden style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:end">
+<div style="flex:1;min-width:180px"><label>Kist</label><select id="fromFleetSelect" class="yellow"></select></div>
+<button type="button" class="ok" id="fromFleetOk">Toevoegen</button>
+<button type="button" class="ghost" id="fromFleetCancel">Annuleer</button>
+</div>
+<p class="tiny" id="fromFleetMsg" style="display:none;color:#b45309"></p>
 </div>
 <div id="vloot"></div>
 <button type="button" id="btnSuggestRest" onclick="suggestFromUi(true)" hidden>Vul tekort bij</button>
@@ -552,12 +560,14 @@ function syncPlanUi(){
   const back=document.getElementById("btnPlanBack");
   const vloot=document.getElementById("vloot");
   const btnRest=document.getElementById("btnSuggestRest");
+  const fromBar=document.getElementById("fromFleetBar");
   if(ask) ask.hidden=!!planPath;
   if(keep) keep.hidden=planPath!=="keep";
   if(neu) neu.hidden=planPath!=="new";
   if(back) back.hidden=!planPath;
   if(vloot) vloot.style.display=planPath?"":"none";
   if(btnRest) btnRest.hidden=!planPath;
+  if(fromBar) fromBar.hidden=!planPath;
 }
 function setPlanPath(path,opts){
   planPath=path||null;
@@ -1220,31 +1230,72 @@ function addKist(){
 }
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
 
-function addKistFromFleet(){
-  if(!OWNED_FLEET.length){alert("Geen vloot geladen. Vernieuw de pagina.");return}
-  const hub=(document.getElementById("fromA").value||"").trim().toUpperCase();
-  const used=new Set(currentRows().map(r=>(r.name||"").trim()).filter(Boolean));
-  let cand=OWNED_FLEET.filter(a=>!used.has((a.name||"").trim()));
-  if(hub) cand=cand.filter(a=>(a.hub||"").toUpperCase()===hub).concat(cand.filter(a=>(a.hub||"").toUpperCase()!==hub));
-  if(!cand.length){alert("Geen vrije kisten in Mijn vloot.");return}
-  const label=cand.map((a,i)=> (i+1)+". "+(a.name||"?")+" · "+(a.type||"")+" · "+(a.hub||"")).join("\n");
-  const pick=prompt("Nummer van de kist om aan deze route toe te wijzen:\n\n"+label.slice(0,3500));
-  if(pick==null||pick==="") return;
-  const idx=parseInt(pick,10)-1;
-  if(!(idx>=0&&idx<cand.length)){alert("Ongeldig nummer.");return}
-  const a=cand[idx];
-  // ensure type exists in catalog lightly
-  const types=loadTypes();
-  if(a.type && !types.find(t=>t.name===a.type)){
-    /* leave type select empty-able; user may add type later */
+function ensureTypeFromFleet(a){
+  const tn=(a&&a.type)||"";
+  if(!tn) return;
+  if(!TYPE_ORDER.includes(tn)){
+    TYPE_ORDER.push(tn);
+    const y=+a.seatsY||0,j=+a.seatsJ||0,f=+a.seatsF||0,c=+a.cargo||0;
+    TYPE_DEFAULTS[tn]={pax:Math.max(y+j+f,1),payload:Math.max(c,1),speed:850,range:a.range_km||8000};
+    saveTypes();
+    try{renderTypes()}catch(e){}
   }
+}
+function fleetCandidates(){
+  const used=new Set(currentRows().map(r=>(r.name||"").trim()).filter(Boolean));
+  const hub=(document.getElementById("fromA").value||"").trim().toUpperCase();
+  let cand=OWNED_FLEET.filter(a=>!used.has((a.name||"").trim()));
+  if(hub){
+    const a=cand.filter(x=>(x.hub||"").toUpperCase()===hub);
+    const b=cand.filter(x=>(x.hub||"").toUpperCase()!==hub);
+    cand=a.concat(b);
+  }
+  return cand;
+}
+function showFromFleetMsg(t){
+  const m=document.getElementById("fromFleetMsg");
+  if(!m) return;
+  if(!t){m.style.display="none";m.textContent="";return}
+  m.style.display="block";m.textContent=t;
+}
+function openFromFleetPicker(){
+  showFromFleetMsg("");
+  if(!OWNED_FLEET.length){showFromFleetMsg("Geen vloot geladen — hard refresh.");return}
+  const cand=fleetCandidates();
+  if(!cand.length){showFromFleetMsg("Geen vrije kisten meer in Mijn vloot.");return}
+  const sel=document.getElementById("fromFleetSelect");
+  const wrap=document.getElementById("fromFleetPick");
+  if(!sel||!wrap) return;
+  sel.innerHTML=cand.map((a,i)=>{
+    const seats=[a.seatsY,a.seatsJ,a.seatsF].filter(x=>x!==""&&x!=null).join("/")||"—";
+    const lab=(a.name||"?")+" · "+(a.type||"?")+" · "+(a.hub||"?")+" · "+seats;
+    return "<option value=\""+i+"\">"+escAttr(lab)+"</option>";
+  }).join("");
+  wrap.hidden=false; wrap.style.display="flex";
+}
+function confirmFromFleet(){
+  const sel=document.getElementById("fromFleetSelect");
+  const wrap=document.getElementById("fromFleetPick");
+  const cand=fleetCandidates();
+  const idx=sel?parseInt(sel.value,10):-1;
+  if(!(idx>=0&&idx<cand.length)){showFromFleetMsg("Kies een kist.");return}
+  const a=cand[idx];
+  ensureTypeFromFleet(a);
   writeRows(currentRows().concat([{
     name:a.name||"", type:a.type||"", wk:"1", start:"0",
     y:a.seatsY??"", j:a.seatsJ??"", f:a.seatsF??"", c:a.cargo??"",
     status:"on"
   }]));
   saveRoute();
+  if(wrap){wrap.hidden=true; wrap.style.display="none"}
+  showFromFleetMsg("Toegevoegd: "+(a.name||a.type||"kist"));
 }
+function cancelFromFleet(){
+  const wrap=document.getElementById("fromFleetPick");
+  if(wrap){wrap.hidden=true; wrap.style.display="none"}
+  showFromFleetMsg("");
+}
+function addKistFromFleet(){ openFromFleetPicker(); }
 
 function clearFleet(){
   if(!confirm("Hele vloot wissen?"))return;
@@ -1891,7 +1942,7 @@ async function loadOwnedFleet(){
       const data=await r.json();
       const arr=Array.isArray(data)?data:(data.aircraft||[]);
       if(arr.length){
-        OWNED_FLEET=arr.map(a=>({id:String(a.id||""),name:a.name||"",type:a.type||"",hub:a.hub||"",seatsY:a.seatsY??"",seatsJ:a.seatsJ??"",seatsF:a.seatsF??"",cargo:a.cargo??""}));
+        OWNED_FLEET=arr.map(a=>({id:String(a.id||""),name:a.name||"",type:a.type||"",hub:a.hub||"",seatsY:a.seatsY??"",seatsJ:a.seatsJ??"",seatsF:a.seatsF??"",cargo:a.cargo??"",range_km:a.range_km||""}));
         saveOwnedFleet();
         fromNet=true;
       }
@@ -1908,6 +1959,12 @@ async function loadOwnedFleet(){
 }
 
 
+const btnAddFromFleet=document.getElementById("btnAddFromFleet");
+if(btnAddFromFleet) btnAddFromFleet.addEventListener("click",()=>addKistFromFleet());
+const fromFleetOk=document.getElementById("fromFleetOk");
+if(fromFleetOk) fromFleetOk.addEventListener("click",()=>confirmFromFleet());
+const fromFleetCancel=document.getElementById("fromFleetCancel");
+if(fromFleetCancel) fromFleetCancel.addEventListener("click",()=>cancelFromFleet());
 const ownedFleetSumEdit=document.getElementById("ownedFleetSumEdit");
 if(ownedFleetSumEdit) ownedFleetSumEdit.addEventListener("click",()=>{
   const sec=document.getElementById("secOwnedFleet");
