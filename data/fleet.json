@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-07T16:15:00+02:00",
+  "updated": "2026-10-07T16:40:00+02:00",
   "source": "https://www.airlines-manager.com/aircraft",
   "count": 95,
   "hubs": [
@@ -348,7 +348,13 @@
       "id": "191527246",
       "name": "BOM 3",
       "type": "787-8",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 381,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 90,
+      "range_km": 15196
     },
     {
       "id": "192131152",
@@ -358,49 +364,93 @@
       "seatsY": 63,
       "seatsJ": 35,
       "seatsF": 15,
-      "cargo": 8
+      "cargo": 8,
+      "use_pct": 0,
+      "range_km": 5772
     },
     {
       "id": "191719669",
       "name": "CAB",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 125,
+      "seatsJ": 38,
+      "seatsF": 0,
+      "cargo": 2,
+      "use_pct": 0,
+      "range_km": 6482
     },
     {
       "id": "191707216",
       "name": "CAB",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 72,
+      "range_km": 6482
     },
     {
       "id": "191462417",
       "name": "CH1 BOM",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 16,
+      "range_km": 6482
     },
     {
       "id": "191529177",
       "name": "CH3 - MIS 1",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 52,
+      "seatsJ": 35,
+      "seatsF": 0,
+      "cargo": 10,
+      "use_pct": 0,
+      "range_km": 6482
     },
     {
       "id": "191446326",
       "name": "CH4 -MIS2",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 0,
+      "use_pct": 33,
+      "range_km": 6482
     },
     {
       "id": "191580009",
       "name": "CH5",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 0,
+      "range_km": 6482
     },
     {
       "id": "191878254",
       "name": "CHLENGE-737-MAX9",
       "type": "737-MAX9",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 74,
+      "seatsJ": 38,
+      "seatsF": 16,
+      "cargo": 7,
+      "use_pct": 0,
+      "range_km": 5846
     },
     {
       "id": "192075206",
@@ -410,17 +460,21 @@
       "seatsY": 48,
       "seatsJ": 25,
       "seatsF": 10,
-      "cargo": 5
+      "cargo": 5,
+      "use_pct": 0,
+      "range_km": 6390
     },
     {
       "id": "192075200",
       "name": "CHLENGE-A320NEO",
       "type": "A320neo",
       "hub": "VIE",
-      "seatsY": 67,
-      "seatsJ": 36,
-      "seatsF": 15,
-      "cargo": 6
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 10,
+      "range_km": 6482
     },
     {
       "id": "192075205",
@@ -430,67 +484,129 @@
       "seatsY": 1,
       "seatsJ": 106,
       "seatsF": 59,
-      "cargo": 14
+      "cargo": 14,
+      "use_pct": 48,
+      "range_km": 11750
     },
     {
       "id": "191890247",
       "name": "CMN3",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 0,
+      "seatsJ": 62,
+      "seatsF": 19,
+      "cargo": 3,
+      "use_pct": 0,
+      "range_km": 6482
     },
     {
       "id": "191541745",
       "name": "DEL 1",
       "type": "747-300",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 509,
+      "seatsJ": 55,
+      "seatsF": 0,
+      "cargo": 8,
+      "use_pct": 93,
+      "range_km": 12400
     },
     {
       "id": "191542584",
       "name": "DEL 2",
       "type": "787-8",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 381,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 61,
+      "range_km": 15196
     },
     {
       "id": "191687950",
       "name": "LAD",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 67,
+      "seatsJ": 36,
+      "seatsF": 15,
+      "cargo": 6,
+      "use_pct": 0,
+      "range_km": 6482
     },
     {
       "id": "191527244",
       "name": "LAX 2",
       "type": "787-8",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 286,
+      "seatsJ": 52,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 6,
+      "range_km": 15196
     },
     {
       "id": "191750830",
       "name": "LPA",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 106,
+      "seatsJ": 25,
+      "seatsF": 10,
+      "cargo": 4,
+      "use_pct": 93,
+      "range_km": 6482
     },
     {
       "id": "191769468",
       "name": "LPA2",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 123,
+      "seatsJ": 40,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 100,
+      "range_km": 6482
     },
     {
       "id": "191657270",
       "name": "MED",
       "type": "A318-100",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 35,
+      "seatsJ": 44,
+      "seatsF": 5,
+      "cargo": 3,
+      "use_pct": 85,
+      "range_km": 6019
     },
     {
       "id": "192032411",
       "name": "MPI",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 9,
+      "range_km": 6482
     },
     {
       "id": "191442268",
       "name": "PSM",
       "type": "A319-100",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 113,
+      "seatsJ": 19,
+      "seatsF": 3,
+      "cargo": 0,
+      "use_pct": 0,
+      "range_km": 7130
     },
     {
       "id": "192197657",
@@ -500,19 +616,33 @@
       "seatsY": 48,
       "seatsJ": 24,
       "seatsF": 10,
-      "cargo": 5
+      "cargo": 5,
+      "use_pct": 0,
+      "range_km": 3815
     },
     {
       "id": "191819419",
       "name": "SHOP-A318-100",
       "type": "A318-100",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 49,
+      "seatsJ": 25,
+      "seatsF": 10,
+      "cargo": 4,
+      "use_pct": 83,
+      "range_km": 6019
     },
     {
       "id": "191652592",
       "name": "SHOP-A318-100",
       "type": "A318-100",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 38,
+      "seatsJ": 45,
+      "seatsF": 4,
+      "cargo": 3,
+      "use_pct": 85,
+      "range_km": 6019
     },
     {
       "id": "191951731",
@@ -522,7 +652,9 @@
       "seatsY": 67,
       "seatsJ": 36,
       "seatsF": 15,
-      "cargo": 6
+      "cargo": 6,
+      "use_pct": 75,
+      "range_km": 6482
     },
     {
       "id": "191815541",
@@ -532,7 +664,9 @@
       "seatsY": 67,
       "seatsJ": 36,
       "seatsF": 15,
-      "cargo": 6
+      "cargo": 6,
+      "use_pct": 33,
+      "range_km": 6482
     },
     {
       "id": "191667737",
@@ -542,19 +676,33 @@
       "seatsY": 67,
       "seatsJ": 36,
       "seatsF": 15,
-      "cargo": 6
+      "cargo": 6,
+      "use_pct": 100,
+      "range_km": 6482
     },
     {
       "id": "191652597",
       "name": "SHOP-CONCORDE",
       "type": "Concorde",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 44,
+      "seatsJ": 23,
+      "seatsF": 10,
+      "cargo": 4,
+      "use_pct": 0,
+      "range_km": 6222
     },
     {
       "id": "191951736",
       "name": "SHOP-CRJ-1000",
       "type": "CRJ-1000",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 36,
+      "seatsJ": 19,
+      "seatsF": 8,
+      "cargo": 4,
+      "use_pct": 0,
+      "range_km": 3129
     },
     {
       "id": "192365037",
@@ -564,55 +712,105 @@
       "seatsY": 12,
       "seatsJ": 5,
       "seatsF": 2,
-      "cargo": 1
+      "cargo": 1,
+      "use_pct": 0,
+      "range_km": 2555
     },
     {
       "id": "191652761",
       "name": "SHOP-X2707",
       "type": "X2707",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 99,
+      "seatsJ": 78,
+      "seatsF": 0,
+      "cargo": 8,
+      "use_pct": 69,
+      "range_km": 6400
     },
     {
       "id": "191617784",
       "name": "SID",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 91,
+      "range_km": 6482
     },
     {
       "id": "191651023",
       "name": "SID 2",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 89,
+      "range_km": 6482
     },
     {
       "id": "191651014",
       "name": "SID 3",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 68,
+      "seatsJ": 47,
+      "seatsF": 10,
+      "cargo": 5,
+      "use_pct": 95,
+      "range_km": 6482
     },
     {
       "id": "191446269",
       "name": "TAA",
       "type": "737-MAX9",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 210,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 87,
+      "range_km": 5846
     },
     {
       "id": "191961933",
       "name": "VIE-ANT1",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 96,
+      "range_km": 6482
     },
     {
       "id": "191606841",
       "name": "VIE-CAB",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 11,
+      "range_km": 6482
     },
     {
       "id": "191462436",
       "name": "VIE-CAB2",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 72,
+      "range_km": 6482
     },
     {
       "id": "192075207",
@@ -622,55 +820,105 @@
       "seatsY": 338,
       "seatsJ": 37,
       "seatsF": 0,
-      "cargo": 2
+      "cargo": 2,
+      "use_pct": 100,
+      "range_km": 13435
     },
     {
       "id": "191605487",
       "name": "VIE-DXB1",
       "type": "A380-800",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 819,
+      "seatsJ": 18,
+      "seatsF": 0,
+      "cargo": 5,
+      "use_pct": 87,
+      "range_km": 15556
     },
     {
       "id": "191720819",
       "name": "VIE-GRU1",
       "type": "X350-1000ULR",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 192,
+      "seatsJ": 76,
+      "seatsF": 36,
+      "cargo": 9,
+      "use_pct": 97,
+      "range_km": 18000
     },
     {
       "id": "191604834",
       "name": "VIE-GRU2",
       "type": "X350-1000ULR",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 480,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 97,
+      "range_km": 18000
     },
     {
       "id": "191720816",
       "name": "VIE-GRU3",
       "type": "X350-1000ULR",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 224,
+      "seatsJ": 75,
+      "seatsF": 24,
+      "cargo": 3,
+      "use_pct": 97,
+      "range_km": 18000
     },
     {
       "id": "191485675",
       "name": "VIE-LAD1",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 92,
+      "range_km": 6482
     },
     {
       "id": "191828953",
       "name": "VIE-LAD2",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 92,
+      "range_km": 6482
     },
     {
       "id": "191878289",
       "name": "VIE-LAD3",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 195,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 92,
+      "range_km": 6482
     },
     {
       "id": "191961396",
       "name": "VIE-LAD4-9",
       "type": "787-10",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 220,
+      "seatsJ": 78,
+      "seatsF": 15,
+      "cargo": 10,
+      "use_pct": 66,
+      "range_km": 10467
     },
     {
       "id": "192075638",
@@ -680,51 +928,95 @@
       "seatsY": 265,
       "seatsJ": 240,
       "seatsF": 37,
-      "cargo": 14
+      "cargo": 14,
+      "use_pct": 100,
+      "range_km": 15556
     },
     {
       "id": "191527245",
       "name": "VIE-LAX2",
       "type": "787-8",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 381,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 98,
+      "range_km": 15196
     },
     {
       "id": "191720818",
       "name": "VIE-MPM1",
       "type": "X350-1000ULR",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 480,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 11,
+      "use_pct": 82,
+      "range_km": 18000
     },
     {
       "id": "191720817",
       "name": "VIE-MPM2",
       "type": "X350-1000ULR",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 480,
+      "seatsJ": 0,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 82,
+      "range_km": 18000
     },
     {
       "id": "191735097",
       "name": "VIE-MPM3",
       "type": "A330-300",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 302,
+      "seatsJ": 65,
+      "seatsF": 5,
+      "cargo": 6,
+      "use_pct": 99,
+      "range_km": 11750
     },
     {
       "id": "191664080",
       "name": "VIE-MUC-0",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 113,
+      "seatsJ": 29,
+      "seatsF": 7,
+      "cargo": 2,
+      "use_pct": 87,
+      "range_km": 6482
     },
     {
       "id": "192022494",
       "name": "VIE-PMI",
       "type": "A320neo",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 178,
+      "seatsJ": 9,
+      "seatsF": 0,
+      "cargo": 0,
+      "use_pct": 78,
+      "range_km": 6482
     },
     {
       "id": "192028495",
       "name": "VIE-PSM1-PMI",
       "type": "747SP",
-      "hub": "VIE"
+      "hub": "VIE",
+      "seatsY": 31,
+      "seatsJ": 123,
+      "seatsF": 35,
+      "cargo": 11,
+      "use_pct": 89,
+      "range_km": 12320
     }
   ],
-  "seats_source": "AM /aircraft list scrape 2026-10-06 page snapshot (exact aircraft name only; later fleet pages not in scrape)",
+  "seats_source": "AM aircraft list VIE seats 2026-10-07",
   "seats_count": 36
 }

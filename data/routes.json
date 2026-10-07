@@ -1,10 +1,10 @@
 {
-  "updated": "2026-10-07T16:15:00+02:00",
-  "source": "airlines-manager.com read-only test (GRU-REC1)",
+  "updated": "2026-10-07T16:40:00+02:00",
+  "source": "AM partial VIE: seats+km; demand+planes AYT+BOM only",
   "account": "Ing21",
   "server_date": "2026-10-06",
   "count": 19,
-  "km_demand_note": "km set to 1000 placeholder (user request); demand (qY/qJ/qF/qC) still empty for user",
+  "km_demand_note": "VIE km van netwerk; vraag+toewijzing alleen AYT+BOM. Rest zelf bijvullen/toewijzen. GRU-REC1 eerder volledig.",
   "routes": [
     {
       "id": "r-GRU-DUB",
@@ -240,18 +240,20 @@
       "route": "VIE–AYT",
       "from": "VIE",
       "to": "AYT",
-      "km": 1000,
-      "qY": "",
-      "qJ": "",
-      "qF": "",
-      "qC": "",
+      "km": 1701,
+      "qY": "1981",
+      "qJ": "266",
+      "qF": "76",
+      "qC": "22",
       "lockRoute": false,
       "lockAsk": false,
       "retByType": {
         "A320neo": "12:28"
       },
       "useTypes": [
-        "A320neo"
+        "787-8",
+        "A320neo",
+        "A330-300"
       ],
       "planPath": "keep",
       "fleet": [
@@ -260,31 +262,60 @@
           "type": "A320neo",
           "wk": "1",
           "start": "0",
-          "y": "",
+          "y": "195",
           "j": "",
           "f": "",
-          "c": "",
+          "c": "0",
           "status": "on",
-          "warn": false
+          "warn": false,
+          "amUse": "96"
+        },
+        {
+          "name": "VIE-MPM3",
+          "type": "A330-300",
+          "wk": "1",
+          "start": "0",
+          "y": "302",
+          "j": "65",
+          "f": "5",
+          "c": "6",
+          "status": "on",
+          "warn": false,
+          "amUse": "99"
+        },
+        {
+          "name": "LAX 2",
+          "type": "787-8",
+          "wk": "1",
+          "start": "0",
+          "y": "286",
+          "j": "52",
+          "f": "",
+          "c": "0",
+          "status": "on",
+          "warn": false,
+          "amUse": "6"
         }
-      ]
+      ],
+      "lineId": "70744340"
     },
     {
       "id": "r-VIE-BOM",
       "route": "VIE–BOM",
       "from": "VIE",
       "to": "BOM",
-      "km": 1000,
-      "qY": "",
-      "qJ": "",
-      "qF": "",
-      "qC": "",
+      "km": 5960,
+      "qY": "2345",
+      "qJ": "239",
+      "qF": "55",
+      "qC": "31",
       "lockRoute": false,
       "lockAsk": false,
       "retByType": {
         "X2707": "15:00"
       },
       "useTypes": [
+        "A320neo",
         "X2707"
       ],
       "planPath": "keep",
@@ -294,21 +325,36 @@
           "type": "X2707",
           "wk": "1",
           "start": "0",
-          "y": "",
+          "y": "99",
+          "j": "78",
+          "f": "",
+          "c": "8",
+          "status": "on",
+          "warn": false,
+          "amUse": "69"
+        },
+        {
+          "name": "VIE-CAB",
+          "type": "A320neo",
+          "wk": "1",
+          "start": "0",
+          "y": "195",
           "j": "",
           "f": "",
-          "c": "",
+          "c": "0",
           "status": "on",
-          "warn": false
+          "warn": false,
+          "amUse": "11"
         }
-      ]
+      ],
+      "lineId": "70713654"
     },
     {
       "id": "r-VIE-CMN",
       "route": "VIE–CMN",
       "from": "VIE",
       "to": "CMN",
-      "km": 1000,
+      "km": 2594,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -335,14 +381,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70803703"
     },
     {
       "id": "r-VIE-DXB",
       "route": "VIE–DXB",
       "from": "VIE",
       "to": "DXB",
-      "km": 1000,
+      "km": 4224,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -397,14 +444,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70733211"
     },
     {
       "id": "r-VIE-GRU",
       "route": "VIE–GRU",
       "from": "VIE",
       "to": "GRU",
-      "km": 1000,
+      "km": 10126,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -455,14 +503,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70733394"
     },
     {
       "id": "r-VIE-LAD",
       "route": "VIE–LAD",
       "from": "VIE",
       "to": "LAD",
-      "km": 1000,
+      "km": 6344,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -527,14 +576,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70731398"
     },
     {
       "id": "r-VIE-LAX",
       "route": "VIE–LAX",
       "from": "VIE",
       "to": "LAX",
-      "km": 1000,
+      "km": 9856,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -561,14 +611,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70715682"
     },
     {
       "id": "r-VIE-LPA",
       "route": "VIE–LPA",
       "from": "VIE",
       "to": "LPA",
-      "km": 1000,
+      "km": 3545,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -633,14 +684,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70770115"
     },
     {
       "id": "r-VIE-MED",
       "route": "VIE–MED",
       "from": "VIE",
       "to": "MED",
-      "km": 1000,
+      "km": 3313,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -693,14 +745,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70745778"
     },
     {
       "id": "r-VIE-MPM",
       "route": "VIE–MPM",
       "from": "VIE",
       "to": "MPM",
-      "km": 1000,
+      "km": 8387,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -753,14 +806,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70766753"
     },
     {
       "id": "r-VIE-MUC",
       "route": "VIE–MUC",
       "from": "VIE",
       "to": "MUC",
-      "km": 1000,
+      "km": 355,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -787,14 +841,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70746751"
     },
     {
       "id": "r-VIE-PMI",
       "route": "VIE–PMI",
       "from": "VIE",
       "to": "PMI",
-      "km": 1000,
+      "km": 1458,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -835,14 +890,15 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70839508"
     },
     {
       "id": "r-VIE-PSM",
       "route": "VIE–PSM",
       "from": "VIE",
       "to": "PSM",
-      "km": 1000,
+      "km": 6445,
       "qY": "",
       "qJ": "",
       "qF": "",
@@ -882,7 +938,8 @@
           "status": "on",
           "warn": false
         }
-      ]
+      ],
+      "lineId": "70699902"
     },
     {
       "id": "r-VIE-SID",
@@ -999,6 +1056,24 @@
           "warn": false
         }
       ]
+    },
+    {
+      "id": "r-VIE-DEL",
+      "route": "VIE–DEL",
+      "from": "VIE",
+      "to": "DEL",
+      "km": 5547,
+      "qY": "",
+      "qJ": "",
+      "qF": "",
+      "qC": "",
+      "lockRoute": false,
+      "lockAsk": false,
+      "retByType": {},
+      "useTypes": [],
+      "planPath": "keep",
+      "fleet": [],
+      "lineId": "70716726"
     }
   ],
   "seats_note": "y/j/f/c from AM fleet scrape by aircraft name (10/46 kisten); only page-1 of fleet list had seats in scrape",

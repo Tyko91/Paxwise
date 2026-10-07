@@ -308,6 +308,7 @@ details{margin-top:6px}
 <div class="plan-path" id="planKeep" hidden>
 <p class="tiny" id="mixRestTip" style="margin:0 0 10px;color:#6b7280">Vul je game-retourvluchten hieronder in. Die blijven staan; daarna vul je alleen het tekort bij.</p>
 <button type="button" class="ghost" id="btnAddKist" onclick="addKist()">+ Ingeplande retourvlucht(en) uit game invullen</button>
+<button type="button" class="ok" id="btnAddFromFleet" onclick="addKistFromFleet()">+ Uit mijn vloot toewijzen</button>
 </div>
 <div class="plan-path" id="planNew" hidden>
 <p class="tiny" id="mixNewTip" style="margin:0 0 10px;color:#6b7280">Nieuwe vlootplanning met de geselecteerde toestellen. Eerdere vlootkaarten zijn vervangen.</p>
@@ -354,7 +355,7 @@ details{margin-top:6px}
 <script>
 const HUBS={VIE:[48.1103,16.5697],GRU:[-23.4319,-46.4678],GIG:[-22.8099,-43.2506],BSB:[-15.8711,-47.9186],AMS:[52.3086,4.7639],FRA:[50.0333,8.5706],MUC:[48.3538,11.7861],DUS:[51.2895,6.7668],HAM:[53.6304,9.9882],BER:[52.3667,13.5033],LHR:[51.47,-0.4543],LGW:[51.1537,-0.1821],MAN:[53.3537,-2.275],CDG:[49.0097,2.5478],ORY:[48.7233,2.3794],MAD:[40.4983,-3.5676],BCN:[41.2971,2.0785],FCO:[41.8003,12.2389],MXP:[45.6306,8.7281],ZRH:[47.4581,8.5481],GVA:[46.2381,6.1089],BRU:[50.9014,4.4844],DUB:[53.4213,-6.2701],CPH:[55.618,12.656],ARN:[59.6519,17.9186],OSL:[60.1939,11.1004],HEL:[60.3172,24.9633],WAW:[52.1658,20.9671],PRG:[50.1008,14.26],BUD:[47.4298,19.2611],ATH:[37.9364,23.9445],IST:[41.2753,28.7519],LIS:[38.7742,-9.1342],DXB:[25.2532,55.3657],DOH:[25.2731,51.6081],AUH:[24.433,54.6511],CAI:[30.1219,31.4056],JNB:[-26.1392,28.246],CPT:[-33.9648,18.6017],JFK:[40.6398,-73.7789],EWR:[40.6925,-74.1687],ORD:[41.9786,-87.9048],ATL:[33.6367,-84.4281],MIA:[25.7959,-80.287],DFW:[32.8968,-97.038],LAX:[33.9425,-118.408],SFO:[37.6189,-122.375],YYZ:[43.6772,-79.6306],MEX:[19.4363,-99.0721],EZE:[-34.8222,-58.5358],SCL:[-33.393,-70.7858],BOG:[4.7016,-74.1469],LIM:[-12.0219,-77.1143],NRT:[35.7647,140.386],HND:[35.5523,139.78],ICN:[37.4691,126.451],PEK:[40.0801,116.585],PVG:[31.1434,121.805],HKG:[22.308,113.919],SIN:[1.3502,103.994],BKK:[13.6811,100.747],DEL:[28.5562,77.1],BOM:[19.0887,72.8679],SYD:[-33.9461,151.177],MEL:[-37.6733,144.843],AKL:[-37.0082,174.792]};
 
-const KEY="am_routes_v2", TKEY="am_types_v2", LAST="am_last_route_v2", FKEY="am_fleet_v1", CLEAN_KEY="am_clean_v20261006", FLEET_URL="./data/fleet.json", ROUTES_URL="./data/routes.json", ROUTES_SEED_KEY="am_routes_seed_v20261006seats";
+const KEY="am_routes_v2", TKEY="am_types_v2", LAST="am_last_route_v2", FKEY="am_fleet_v1", CLEAN_KEY="am_clean_v20261006", FLEET_URL="./data/fleet.json", ROUTES_URL="./data/routes.json", ROUTES_SEED_KEY="am_routes_seed_v20261007viepartial";
 let TYPE_ORDER=["X350-1000LR","A330-300","A320neo"];
 let TYPE_DEFAULTS={
 "X350-1000LR":{pax:480,payload:55,speed:950,range:18000},
@@ -1218,6 +1219,33 @@ function addKist(){
   writeRows(currentRows().concat([{type:"",wk:"1",start:"0",y:"",j:"",f:"",c:"",status:"on"}]));
 }
 function dropKist(i){if(!confirm("Deze retourvlucht uit de vloot verwijderen?"))return;const rows=currentRows();rows.splice(i-1,1);writeRows(rows)}
+
+function addKistFromFleet(){
+  if(!OWNED_FLEET.length){alert("Geen vloot geladen. Vernieuw de pagina.");return}
+  const hub=(document.getElementById("fromA").value||"").trim().toUpperCase();
+  const used=new Set(currentRows().map(r=>(r.name||"").trim()).filter(Boolean));
+  let cand=OWNED_FLEET.filter(a=>!used.has((a.name||"").trim()));
+  if(hub) cand=cand.filter(a=>(a.hub||"").toUpperCase()===hub).concat(cand.filter(a=>(a.hub||"").toUpperCase()!==hub));
+  if(!cand.length){alert("Geen vrije kisten in Mijn vloot.");return}
+  const label=cand.map((a,i)=> (i+1)+". "+(a.name||"?")+" · "+(a.type||"")+" · "+(a.hub||"")).join("\n");
+  const pick=prompt("Nummer van de kist om aan deze route toe te wijzen:\n\n"+label.slice(0,3500));
+  if(pick==null||pick==="") return;
+  const idx=parseInt(pick,10)-1;
+  if(!(idx>=0&&idx<cand.length)){alert("Ongeldig nummer.");return}
+  const a=cand[idx];
+  // ensure type exists in catalog lightly
+  const types=loadTypes();
+  if(a.type && !types.find(t=>t.name===a.type)){
+    /* leave type select empty-able; user may add type later */
+  }
+  writeRows(currentRows().concat([{
+    name:a.name||"", type:a.type||"", wk:"1", start:"0",
+    y:a.seatsY??"", j:a.seatsJ??"", f:a.seatsF??"", c:a.cargo??"",
+    status:"on"
+  }]));
+  saveRoute();
+}
+
 function clearFleet(){
   if(!confirm("Hele vloot wissen?"))return;
   planPath=null;
@@ -1849,7 +1877,7 @@ function renderOwnedFleet(){
   OWNED_FLEET.forEach(a=>{(by[a.hub||"?"]=by[a.hub||"?"]||[]).push(a)});
   list.innerHTML=Object.keys(by).sort().map(h=>{
     const rows=by[h].slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),"nl")).map(a=>
-      "<div class='of-row'><span class='n'>"+escAttr(a.name||"—")+"</span><span class='t'>"+escAttr(a.type||"")+"</span><span class='h'>"+escAttr(a.hub||"")+"</span></div>"
+      "<div class='of-row'><span class='n'>"+escAttr(a.name||"—")+"</span><span class='t'>"+escAttr(a.type||"")+"</span><span class='h'>"+escAttr(a.hub||"")+"</span><span class='s tiny'>"+escAttr([a.seatsY,a.seatsJ,a.seatsF].filter(x=>x!==""&&x!=null).join("/")||"")+"</span></div>"
     ).join("");
     return "<div class='of-hub'>"+escAttr(h)+" ("+by[h].length+")</div>"+rows;
   }).join("");
@@ -1863,7 +1891,7 @@ async function loadOwnedFleet(){
       const data=await r.json();
       const arr=Array.isArray(data)?data:(data.aircraft||[]);
       if(arr.length){
-        OWNED_FLEET=arr.map(a=>({id:String(a.id||""),name:a.name||"",type:a.type||"",hub:a.hub||""}));
+        OWNED_FLEET=arr.map(a=>({id:String(a.id||""),name:a.name||"",type:a.type||"",hub:a.hub||"",seatsY:a.seatsY??"",seatsJ:a.seatsJ??"",seatsF:a.seatsF??"",cargo:a.cargo??""}));
         saveOwnedFleet();
         fromNet=true;
       }
@@ -1929,7 +1957,7 @@ async function loadRoutesFromGitHub(){
       try{localStorage.setItem(ROUTES_SEED_KEY,"1")}catch(e){}
       return norm;
     }
-    // Existing routes: apply km, retByType, and kist seats (y/j/f/c by name) from GitHub; leave demand/locks alone
+    // Existing routes: km, empty demand fill, retByType, seats; add missing GH routes; adopt GH fleet when local empty or GH has demand+fleet
     const byId={};norm.forEach(x=>{byId[x.id]=x});
     let changed=false;
     list=list.map(loc=>{
@@ -1939,22 +1967,35 @@ async function loadRoutesFromGitHub(){
       if(g.km!=null&&g.km!==""&&String(loc.km??"")!==String(g.km)){
         next=Object.assign({},next,{km:g.km}); touched=true;
       }
+      ["qY","qJ","qF","qC"].forEach(k=>{
+        const lv=loc[k], gv=g[k];
+        if((lv==null||lv==="")&&gv!=null&&gv!==""){ next=Object.assign({},next,{[k]:gv}); touched=true; }
+      });
       const gRet=g.retByType||{};
       if(Object.keys(gRet).length){
         const merged=Object.assign({},loc.retByType||{},gRet);
         const same=JSON.stringify(merged)===JSON.stringify(loc.retByType||{});
         if(!same){ next=Object.assign({},next,{retByType:merged}); touched=true; }
       }
-      if(Array.isArray(g.fleet)&&g.fleet.length&&Array.isArray(loc.fleet)){
+      const locFleet=Array.isArray(loc.fleet)?loc.fleet:[];
+      const gFleet=Array.isArray(g.fleet)?g.fleet:[];
+      const ghHasDemand=g.qY!==""&&g.qY!=null;
+      if(gFleet.length && (!locFleet.length || ghHasDemand)){
+        // adopt full GH assignment when local empty OR GH brought real demand (AYT/BOM)
+        if(JSON.stringify(locFleet.map(k=>k&&k.name))!==JSON.stringify(gFleet.map(k=>k&&k.name)) || ghHasDemand){
+          next=Object.assign({},next,{fleet:gFleet.map(k=>({name:k.name||"",type:k.type||"",wk:String(k.wk??"1"),start:String(k.start??"0"),y:k.y??"",j:k.j??"",f:k.f??"",c:k.c??"",status:k.status||"on",warn:!!k.warn})), useTypes:g.useTypes||loc.useTypes||[]});
+          touched=true;
+        }
+      } else if(gFleet.length&&locFleet.length){
         const seatByName={};
-        g.fleet.forEach(k=>{
+        gFleet.forEach(k=>{
           if(!k||!k.name) return;
           if(k.y==null||k.y==="") return;
           seatByName[k.name]={y:k.y,j:k.j??"",f:k.f??"",c:k.c??""};
         });
         if(Object.keys(seatByName).length){
           let fleetChanged=false;
-          const fleet=loc.fleet.map(k=>{
+          const fleet=locFleet.map(k=>{
             const s=seatByName[k.name];
             if(!s) return k;
             if(String(k.y??"")===String(s.y)&&String(k.j??"")===String(s.j)&&String(k.f??"")===String(s.f)&&String(k.c??"")===String(s.c)) return k;
@@ -1967,6 +2008,8 @@ async function loadRoutesFromGitHub(){
       if(touched){ changed=true; return next; }
       return loc;
     });
+    const have=new Set(list.map(r=>r.id));
+    norm.forEach(g=>{ if(!have.has(g.id)){ list=list.concat([g]); changed=true; } });
     if(changed) storeList(list);
     try{localStorage.setItem(ROUTES_SEED_KEY,"1")}catch(e){}
     return list;
