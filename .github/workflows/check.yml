@@ -1,0 +1,25 @@
+name: check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: JSON in data/ geldig
+        run: for f in data/*.json; do node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || exit 1; echo "ok $f"; done
+      - name: JS-syntax index.html en test/index.html
+        run: |
+          for f in index.html test/index.html; do
+            [ -f "$f" ] || continue
+            node -e '
+              const fs=require("fs"),f=process.argv[1];
+              const h=fs.readFileSync(f,"utf8");
+              const re=/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi;
+              let m,i=0;while((m=re.exec(h))){fs.writeFileSync("/tmp/s"+(i++)+".js",m[1])}
+              console.log(f+": "+i+" scriptblok(ken)");
+            ' "$f"
+            for s in /tmp/s*.js; do [ -e "$s" ] || continue; node --check "$s" || exit 1; rm "$s"; done
+          done
