@@ -1943,7 +1943,7 @@ async function loadOwnedFleet(){
     if(r.ok){
       const data=await r.json();
       const arr=Array.isArray(data)?data:(data.aircraft||[]);
-      if(arr.length){
+      {
         OWNED_FLEET=arr.map(a=>({id:String(a.id||""),name:a.name||"",type:a.type||"",hub:a.hub||"",seatsY:a.seatsY??"",seatsJ:a.seatsJ??"",seatsF:a.seatsF??"",cargo:a.cargo??"",range_km:a.range_km||""}));
         saveOwnedFleet();
         fromNet=true;
@@ -1984,6 +1984,10 @@ async function loadRoutesFromGitHub(){
   let list=loadList();
   let seeded=false;
   try{seeded=!!localStorage.getItem(ROUTES_SEED_KEY)}catch(e){}
+  try{if(!localStorage.getItem("am_nofleet_v20261020")){
+    list=list.map(x=>Object.assign({},x,{fleet:[]})); storeList(list);
+    localStorage.removeItem(FKEY); localStorage.setItem("am_nofleet_v20261020","1");
+  }}catch(e){}
   if(list.length && seeded) return list;
   try{
     const r=await fetch(ROUTES_URL,{cache:"no-cache"});
